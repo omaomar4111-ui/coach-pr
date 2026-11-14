@@ -90,40 +90,104 @@ export default function FormCheckAndAIStudioPage() {
 
   const [selectedSubmission, setSelectedSubmission] = useState<FormCheckItem>(formCheckSubmissions[0]);
 
-  // Coach Approval Handlers
-  const handleApproveExercise = (id: string) => {
-    setFormCheckSubmissions(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          status: "approved",
-          coachFeedback: "أداء ممتاز وتكنيك معتمد من الكابتن! حافظ على نفس النمط في التمرين القادم."
-        };
+  // Load videos from backend API and auto-purge expired ones
+  useEffect(() => {
+    async function fetchVideos() {
+      try {
+        const res = await fetch("/api/formcheck");
+        const data = await res.json();
+        if (data.success && data.videos?.length > 0) {
+          const mapped: FormCheckItem[] = data.videos.map((v: any) => ({
+            id: v.id,
+            clientName: v.clientName,
+            exerciseName: v.exerciseName,
+            date: new Date(v.createdAt).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
+            videoDurationSec: v.videoDurationSec,
+            status: v.status,
+            expiresInHours: Math.max(0, Math.round((new Date(v.expiresAt).getTime() - Date.now()) / (3600 * 1000) * 10) / 10),
+            coachFeedback: v.coachFeedback,
+            notesAtSeconds: v.notesAtSeconds || []
+          }));
+          setFormCheckSubmissions(mapped);
+          setSelectedSubmission(mapped[0]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch formcheck videos:", err);
       }
-      return item;
-    }));
-    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-    alert("تم اعتماد صحة أداء التمرين بنجاح وإشعار اللاعب فوراً!");
+    }
+    fetchVideos();
+  }, []);
+
+  // Coach Approval Handlers via Backend API
+  const handleApproveExercise = async (id: string) => {
+    const feedback = "أداء ممتاز وتكنيك معتمد من الكابتن! استمر بنفس النمط في التمرين القادم.";
+    try {
+      await fetch("/api/formcheck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "review",
+          id,
+          status: "approved",
+          coachFeedback: feedback
+        })
+      });
+
+      setFormCheckSubmissions(prev => prev.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            status: "approved",
+            coachFeedback: feedback
+          };
+        }
+        return item;
+      }));
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      alert("تم اعتماد صحة أداء التمرين بنجاح في قاعدة البيانات وإشعار اللاعب فوراً!");
+    } catch (e) {
+      alert("حدث خطأ في الاتصال بالسيرفر.");
+    }
   };
 
-  const handleRequestFix = (id: string) => {
+  const handleRequestFix = async (id: string) => {
     const reason = prompt("اكتب ملاحظة التعديل أو تصحيح الخطأ للّاعب:") || "برجاء مراجعة فتحة القدمين وتخفيف الوزن 10% للتطبيق الصحيح.";
-    setFormCheckSubmissions(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
+    try {
+      await fetch("/api/formcheck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "review",
+          id,
           status: "needs_fix",
           coachFeedback: reason
-        };
-      }
-      return item;
-    }));
-    alert("تم إرسال طلب تصحيح التكنيك للّاعب مع الملاحظات!");
+        })
+      });
+
+      setFormCheckSubmissions(prev => prev.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            status: "needs_fix",
+            coachFeedback: reason
+          };
+        }
+        return item;
+      }));
+      alert("تم إرسال طلب تصحيح التكنيك للّاعب وتسجيله بالسيرفر!");
+    } catch (e) {
+      alert("حدث خطأ في الاتصال بالسيرفر.");
+    }
   };
 
-  const handleDeleteExpired = (id: string) => {
-    setFormCheckSubmissions(prev => prev.filter(item => item.id !== id));
-    alert("تم مسح الفيديو من مساحة التخزين المؤقتة لتوفير المساحة وسرعة السيرفر!");
+  const handleDeleteExpired = async (id: string) => {
+    try {
+      await fetch(`/api/formcheck?id=${id}`, { method: "DELETE" });
+      setFormCheckSubmissions(prev => prev.filter(item => item.id !== id));
+      alert("تم مسح الفيديو نهائياً من مساحة التخزين المؤقتة لتوفير المساحة وسرعة السيرفر!");
+    } catch (e) {
+      alert("حدث خطأ أثناء المسح.");
+    }
   };
 
   // AI Assistant Chat State

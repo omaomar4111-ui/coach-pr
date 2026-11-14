@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Dumbbell, 
@@ -119,6 +119,66 @@ export default function WorkoutBuilderPage() {
   const [excelText, setExcelText] = useState("");
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearch, setBankSearch] = useState("");
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
+
+  // Load real plan and client profile from API
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [clientRes, planRes] = await Promise.all([
+          fetch("/api/clients?id=client-1"),
+          fetch("/api/plans?clientId=client-1")
+        ]);
+        const clientData = await clientRes.json();
+        const planData = await planRes.json();
+
+        if (clientData.success && clientData.client) {
+          setClientProfile({
+            name: clientData.client.name,
+            goal: clientData.client.goal,
+            knownInjuries: clientData.client.injuries || [],
+            medicalNotes: clientData.client.medicalNotes || "",
+            attachments: clientData.client.attachments || []
+          });
+          setUploadedReports(clientData.client.attachments || []);
+        }
+
+        if (planData.success && planData.plan?.days?.length > 0) {
+          setDays(planData.plan.days);
+        }
+      } catch (err) {
+        console.error("Failed to load persistence data:", err);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Save plan permanently to backend API
+  const handleSavePlanToDatabase = async () => {
+    setIsSavingPlan(true);
+    try {
+      const res = await fetch("/api/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: "client-1",
+          title: `برنامج ${clientProfile.name}`,
+          days
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+        setShowNotificationModal(true);
+      } else {
+        alert("حدث خطأ أثناء حفظ الخطة في السيرفر.");
+      }
+    } catch (e) {
+      alert("تعذر الاتصال بالسيرفر لحفظ الخطة.");
+    } finally {
+      setIsSavingPlan(false);
+    }
+  };
 
   // Handle PDF or Excel file upload & AI scanning
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,14 +379,12 @@ export default function WorkoutBuilderPage() {
           </button>
 
           <button
-            onClick={() => {
-              confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
-              setShowNotificationModal(true);
-            }}
-            className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-lg shadow-purple-900/50"
+            onClick={handleSavePlanToDatabase}
+            disabled={isSavingPlan}
+            className="bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-lg shadow-purple-900/50 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>حفظ وإشعار اللاعب</span>
+            <span>{isSavingPlan ? "جاري الحفظ في السيرفر..." : "حفظ الخطة في السيرفر وإشعار اللاعب"}</span>
           </button>
         </div>
       </header>
