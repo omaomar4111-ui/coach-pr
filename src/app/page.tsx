@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import "./gymrate1.css";
-import "./gymrate2.css";
+import "./coachpr1.css";
+import "./coachpr2.css";
 
 // Import raw HTML string transformed from original site
 import rawHtml from "./rawContent";
