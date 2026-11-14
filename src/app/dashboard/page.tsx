@@ -1,220 +1,236 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 
-interface ClientMeal {
-  id: string;
-  name: string;
-  time: string;
-  status: "done" | "pending" | "delayed";
-  calories: number;
-  protein: number;
-  waterTargetMl: number;
-  waterCurrentMl: number;
-}
-
-interface ClientCycle {
+interface Athlete {
   id: string;
   name: string;
   phone: string;
-  email: string;
+  avatar: string;
   plan: string;
-  currentDay: string;
-  waterDrankLiters: number;
+  monthlyFee: number;
+  paymentStatus: "paid" | "unpaid" | "pending";
+  lastCheckIn: string; // date or human
+  daysAbsent: number;
+  attendanceStreak: number;
+  status: "active" | "inactive";
+  totalCheckInsMonth: number;
+  workoutPlan: string;
+  dietFile?: string;
+  dietStatus: "uploaded" | "missing";
+  waterIntakeLiters: number;
   waterGoalLiters: number;
-  adherenceRate: number;
-  status: "active" | "delayed" | "completed";
-  meals: ClientMeal[];
-  lastUpdate: string;
+  meals: {
+    id: string;
+    name: string;
+    time: string;
+    status: "completed" | "delayed" | "pending";
+  }[];
 }
 
-interface NotificationItem {
-  id: string;
-  audience: "athlete" | "coach" | "admin";
-  title: string;
-  message: string;
-  time: string;
-  type: "water" | "meal" | "cycle" | "security";
-  isRead: boolean;
-}
-
-const initialClientsData: ClientCycle[] = [
+const mockAthletes: Athlete[] = [
   {
-    id: "cl-1",
+    id: "ath-1",
     name: "كريم أحمد مصطفى",
     phone: "01144826641",
-    email: "kareem@example.com",
-    plan: "FST-7 تضخيم وقوة عضلية",
-    currentDay: "اليوم 18 من 90",
-    waterDrankLiters: 2.5,
-    waterGoalLiters: 4.0,
-    adherenceRate: 94,
+    avatar: "KA",
+    plan: "FST-7 تضخيم VIP",
+    monthlyFee: 1500,
+    paymentStatus: "paid",
+    lastCheckIn: "اليوم 05:30 م (Push Day)",
+    daysAbsent: 0,
+    attendanceStreak: 19,
     status: "active",
-    lastUpdate: "منذ 15 دقيقة",
+    totalCheckInsMonth: 22,
+    workoutPlan: "FST-7 هاني رامبود المتقدم",
+    dietFile: "كريم_دايت_3200_كالوري.pdf",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 3.2,
+    waterGoalLiters: 4.0,
     meals: [
-      { id: "m1", name: "وجبة 1: شوفان + سكوب واي + مكسرات", time: "09:00 ص", status: "done", calories: 550, protein: 42, waterTargetMl: 500, waterCurrentMl: 500 },
-      { id: "m2", name: "وجبة 2: صدور دجاج مشوي + رز بسمتي + خضار سوتيه", time: "01:30 م", status: "done", calories: 650, protein: 55, waterTargetMl: 750, waterCurrentMl: 750 },
-      { id: "m3", name: "وجبة 3 (قبل التمرين): بطاطا مسلوقة + عصير برتقال طبيعي", time: "05:00 م", status: "delayed", calories: 380, protein: 12, waterTargetMl: 750, waterCurrentMl: 250 },
-      { id: "m4", name: "وجبة 4 (بعد التمرين): لحم بقري صافي + بطاطس بيوريه", time: "08:30 م", status: "pending", calories: 600, protein: 50, waterTargetMl: 1000, waterCurrentMl: 0 },
+      { id: "m1", name: "شوفان + واي بروتين + مكسرات", time: "09:00 ص", status: "completed" },
+      { id: "m2", name: "صدور دجاج + أرز بسمتي", time: "01:30 م", status: "completed" },
+      { id: "m3", name: "وجبة ما قبل التمرين (بطاطا)", time: "05:00 م", status: "completed" },
+      { id: "m4", name: "لحم بقري + بطاطس بيوريه", time: "08:30 م", status: "pending" },
     ],
   },
   {
-    id: "cl-2",
+    id: "ath-2",
     name: "محمود حسن السيد",
     phone: "01099238411",
-    email: "mahmoud@example.com",
-    plan: "تنشيف عالي وخسارة دهون",
-    currentDay: "اليوم 4 من 60",
-    waterDrankLiters: 1.2,
+    avatar: "MH",
+    plan: "تنشيف وخسارة دهون",
+    monthlyFee: 1000,
+    paymentStatus: "unpaid",
+    lastCheckIn: "منذ 7 أيام (2026-11-07)",
+    daysAbsent: 7,
+    attendanceStreak: 0,
+    status: "inactive",
+    totalCheckInsMonth: 6,
+    workoutPlan: "Upper / Lower Split",
+    dietFile: undefined,
+    dietStatus: "missing",
+    waterIntakeLiters: 1.0,
     waterGoalLiters: 3.5,
-    adherenceRate: 68,
-    status: "delayed",
-    lastUpdate: "منذ 3 ساعات",
     meals: [
-      { id: "m21", name: "وجبة 1: 4 بياض بيض + توست بني + خيار", time: "08:30 ص", status: "done", calories: 320, protein: 32, waterTargetMl: 500, waterCurrentMl: 500 },
-      { id: "m22", name: "وجبة 2: تونة مصفاة + سلطة خضراء ليمون", time: "01:00 م", status: "delayed", calories: 280, protein: 35, waterTargetMl: 750, waterCurrentMl: 200 },
-      { id: "m23", name: "وجبة 3: صدور رومي مدخن + أرز بني", time: "05:30 م", status: "pending", calories: 450, protein: 40, waterTargetMl: 750, waterCurrentMl: 0 },
+      { id: "m21", name: "بياض بيض + توست", time: "09:00 ص", status: "delayed" },
+      { id: "m22", name: "تونة + سلطة خضراء", time: "02:00 م", status: "delayed" },
     ],
   },
   {
-    id: "cl-3",
+    id: "ath-3",
     name: "عمر فاروق عبد الله",
     phone: "01288334412",
-    email: "omar.f@example.com",
-    plan: "تحضير بطولة كلاسيك فيزيك",
-    currentDay: "اليوم 42 من 120",
-    waterDrankLiters: 4.8,
-    waterGoalLiters: 5.0,
-    adherenceRate: 99,
+    avatar: "OF",
+    plan: "بطولات كلاسيك فيزيك",
+    monthlyFee: 2000,
+    paymentStatus: "paid",
+    lastCheckIn: "اليوم 02:00 م (Leg Day)",
+    daysAbsent: 0,
+    attendanceStreak: 32,
     status: "active",
-    lastUpdate: "الآن",
+    totalCheckInsMonth: 26,
+    workoutPlan: "Classic Physique Pro",
+    dietFile: "دايت_بطولة_كلاسيك_2026.pdf",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 4.8,
+    waterGoalLiters: 5.0,
     meals: [
-      { id: "m31", name: "وجبة 1: بياض بيض + دقيق شوفان + زبدة فول سوداني", time: "07:30 ص", status: "done", calories: 620, protein: 48, waterTargetMl: 800, waterCurrentMl: 800 },
-      { id: "m32", name: "وجبة 2: سلمون مشوي + كينوا + أسباراجوس", time: "11:30 ص", status: "done", calories: 580, protein: 45, waterTargetMl: 1000, waterCurrentMl: 1000 },
-      { id: "m33", name: "وجبة 3: لحمة مفرومة 5% دهون + أرز أبيض", time: "03:30 م", status: "done", calories: 680, protein: 52, waterTargetMl: 1000, waterCurrentMl: 1000 },
+      { id: "m31", name: "وجبة الإفطار العضلي", time: "07:30 ص", status: "completed" },
+      { id: "m32", name: "وجبة السلمون والأرز", time: "11:30 ص", status: "completed" },
+      { id: "m33", name: "لحم مفروم + كينوا", time: "03:30 م", status: "completed" },
+    ],
+  },
+  {
+    id: "ath-4",
+    name: "طارق سليم الديب",
+    phone: "01555123984",
+    avatar: "TS",
+    plan: "قوة بدنية وتأهيل",
+    monthlyFee: 1200,
+    paymentStatus: "unpaid",
+    lastCheckIn: "منذ 3 أيام (2026-11-11)",
+    daysAbsent: 3,
+    attendanceStreak: 0,
+    status: "inactive",
+    totalCheckInsMonth: 12,
+    workoutPlan: "تأهيل أوتار الكتف",
+    dietFile: "نظام_مضادات_الالتهاب.xlsx",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 1.8,
+    waterGoalLiters: 3.5,
+    meals: [
+      { id: "m41", name: "وجبة الصباح", time: "08:30 ص", status: "completed" },
+      { id: "m42", name: "وجبة الغداء", time: "02:30 م", status: "delayed" },
     ],
   },
 ];
 
-const initialNotifications: NotificationItem[] = [
-  {
-    id: "n1",
-    audience: "athlete",
-    title: "تذكير بشرب الماء 💧",
-    message: "باقي لك 1.5 لتر للوصول لهدفك اليومي. اشرب كوبين ماء الآن للحفاظ على ضخ الدم العضلي.",
-    time: "منذ 10 دقائق",
-    type: "water",
-    isRead: false,
-  },
-  {
-    id: "n2",
-    audience: "coach",
-    title: "وجبة متأخرة للمتدرب كريم أحمد",
-    message: "تأخرت وجبة قبل التمرين 45 دقيقة عن موعدها المحدد (05:00 م). تم إرسال تنبيه بالواتساب للاعب.",
-    time: "منذ 35 دقيقة",
-    type: "meal",
-    isRead: false,
-  },
-  {
-    id: "n3",
-    audience: "admin",
-    title: "تقرير دورة التدريب اليومية (Cycle Monitor)",
-    message: "إجمالي 3 متدربين نشطين، تم تأكيد 7 وجبات، وجبة واحدة متأخرة، معدل شرب الماء العام 76%.",
-    time: "منذ ساعة",
-    type: "cycle",
-    isRead: true,
-  },
-  {
-    id: "n4",
-    audience: "coach",
-    title: "فيديو فورمتشيك جديد في الانتظار",
-    message: "رفع اللاعب كريم فيديو سكوات للمراجعة قبل انتهاء مدة التخزين المؤقتة (متبقي 10 ساعات).",
-    time: "منذ ساعتين",
-    type: "security",
-    isRead: true,
-  },
-];
+export default function MasterCoachCommandCenter() {
+  const [athletes, setAthletes] = useState<Athlete[]>(mockAthletes);
+  const [selectedAthlete, setSelectedAthlete] = useState<Athlete>(mockAthletes[0]);
+  const [filterMode, setFilterMode] = useState<"all" | "active" | "inactive" | "unpaid" | "absent">("all");
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>("default");
+  const [activeTab, setActiveTab] = useState<"tracking" | "diet_manager" | "financials">("tracking");
+  const [uploadingDiet, setUploadingDiet] = useState(false);
 
-export default function LuxuryMinimalDashboard() {
-  const [clients, setClients] = useState<ClientCycle[]>(initialClientsData);
-  const [selectedClient, setSelectedClient] = useState<ClientCycle>(initialClientsData[0]);
-  const [activeTab, setActiveTab] = useState<"cycles" | "meals" | "water" | "notifications" | "settings">("cycles");
-  const [notifRole, setNotifRole] = useState<"all" | "athlete" | "coach" | "admin">("all");
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
-  const [showAddMealModal, setShowAddMealModal] = useState(false);
-  const [newMealName, setNewMealName] = useState("");
-  const [newMealTime, setNewMealTime] = useState("06:00 م");
-  const [newMealCal, setNewMealCal] = useState("450");
-  const [newMealProt, setNewMealProt] = useState("40");
-  const [waterAmountInput, setWaterAmountInput] = useState(250);
+  // Initialize Web Push Notifications
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setPushSupported(true);
+      setPushPermission(Notification.permission);
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(console.error);
+      }
+    }
+  }, []);
 
-  // Send WhatsApp Reminder
-  const sendWhatsAppReminder = (client: ClientCycle, msg: string) => {
-    const cleanPhone = client.phone.replace(/[^0-9]/g, "");
-    const formattedPhone = cleanPhone.startsWith("0") ? "2" + cleanPhone : cleanPhone;
-    const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
+  // Request Native Push Notification Permission
+  const requestPushPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("متصفحك لا يدعم الإشعارات المباشرة.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    setPushPermission(permission);
+    if (permission === "granted") {
+      sendNativePush(
+        "تم تفعيل إشعارات CoachPR المباشرة 🔔",
+        "ستصلك الآن تنبيهات الوجبات المتأخرة، غياب اللاعبين، ودفعات الاشتراكات كرسالة فورية على شاشتك."
+      );
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+    }
   };
 
-  // Add Water Log
-  const handleAddWater = () => {
-    const updated = {
-      ...selectedClient,
-      waterDrankLiters: Math.min(selectedClient.waterGoalLiters, Number((selectedClient.waterDrankLiters + waterAmountInput / 1000).toFixed(2))),
-    };
-    setSelectedClient(updated);
-    setClients(clients.map(c => c.id === updated.id ? updated : c));
+  // Dispatch Real Desktop / Phone Notification
+  const sendNativePush = (title: string, body: string) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "/pr-logo.png",
+        badge: "/pr-logo.png",
+      });
+    } else {
+      alert(`${title}\n${body}`);
+    }
+  };
 
-    // Push notification to athlete & coach
-    const newNotif: NotificationItem = {
-      id: String(Date.now()),
-      audience: "athlete",
-      title: "تم تسجيل شرب الماء",
-      message: `أضاف ${selectedClient.name} كمية ${waterAmountInput} مل من الماء. الإجمالي: ${updated.waterDrankLiters} لتر.`,
-      time: "الآن",
-      type: "water",
-      isRead: false,
-    };
-    setNotifications([newNotif, ...notifications]);
+  // Check-In Athlete Action (Attendance)
+  const handleCheckIn = (athId: string) => {
+    const updated = athletes.map(a => {
+      if (a.id === athId) {
+        return {
+          ...a,
+          lastCheckIn: "الآن (Check-in ناجح)",
+          daysAbsent: 0,
+          attendanceStreak: a.attendanceStreak + 1,
+          totalCheckInsMonth: a.totalCheckInsMonth + 1,
+          status: "active" as const,
+        };
+      }
+      return a;
+    });
+    setAthletes(updated);
+    const curr = updated.find(a => a.id === athId);
+    if (curr) setSelectedAthlete(curr);
+
+    sendNativePush(
+      "تسجيل حضور جديد (Check-In) ✅",
+      `سجل اللاعب ${curr?.name} حضوره اليومي للتمرين بنجاح. ستريك الالتزام: ${curr?.attendanceStreak} يوم.`
+    );
     confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
   };
 
-  // Mark Meal as Done
-  const handleToggleMeal = (mealId: string) => {
-    const updatedMeals = selectedClient.meals.map(m => {
-      if (m.id === mealId) {
-        const nextStatus = m.status === "done" ? "pending" : "done";
-        return { ...m, status: nextStatus };
-      }
-      return m;
-    });
-
-    const updated = { ...selectedClient, meals: updatedMeals as ClientMeal[] };
-    setSelectedClient(updated);
-    setClients(clients.map(c => c.id === updated.id ? updated : c));
-
-    // Admin & Coach Notification
-    const notif: NotificationItem = {
-      id: String(Date.now()),
-      audience: "admin",
-      title: "تحديث وجبة لاعب",
-      message: `قام الكابتن بتحديث حالة وجبة للمتدرب ${selectedClient.name}.`,
-      time: "الآن",
-      type: "meal",
-      isRead: false,
-    };
-    setNotifications([notif, ...notifications]);
+  // WhatsApp Sender
+  const openWhatsApp = (phone: string, text: string) => {
+    const clean = phone.replace(/[^0-9]/g, "");
+    const full = clean.startsWith("0") ? "2" + clean : clean;
+    window.open(`https://wa.me/${full}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
-  // Filtered Notifications
-  const filteredNotifications = notifications.filter(n => notifRole === "all" || n.audience === notifRole);
+  // Financial Stats
+  const totalRevenue = athletes.reduce((sum, a) => sum + (a.paymentStatus === "paid" ? a.monthlyFee : 0), 0);
+  const pendingRevenue = athletes.reduce((sum, a) => sum + (a.paymentStatus === "unpaid" ? a.monthlyFee : 0), 0);
+  const activeCount = athletes.filter(a => a.status === "active").length;
+  const inactiveCount = athletes.filter(a => a.status === "inactive").length;
+  const unpaidCount = athletes.filter(a => a.paymentStatus === "unpaid").length;
+
+  // Filtered List
+  const filteredAthletes = athletes.filter(a => {
+    if (filterMode === "active") return a.status === "active";
+    if (filterMode === "inactive") return a.status === "inactive";
+    if (filterMode === "unpaid") return a.paymentStatus === "unpaid";
+    if (filterMode === "absent") return a.daysAbsent >= 3;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#07040D] text-white flex flex-col font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
       
-      {/* 1. Quiet Cinematic Navigation Header (Zero Noise, PR Identity Only) */}
+      {/* 1. Header with Official Brand Identity & Push Permission Trigger */}
       <header className="border-b border-white/[0.04] px-6 py-4 flex items-center justify-between sticky top-0 z-40 bg-[#07040D]/95 backdrop-blur-md">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5">
@@ -228,117 +244,180 @@ export default function LuxuryMinimalDashboard() {
             </span>
           </Link>
 
-          {/* Clean Segment Tabs */}
           <nav className="hidden md:flex items-center bg-[#10091E] border border-white/[0.06] rounded-2xl p-1 text-xs font-medium">
             <button
-              onClick={() => setActiveTab("cycles")}
+              onClick={() => setActiveTab("tracking")}
               className={`px-3.5 py-1.5 rounded-xl transition ${
-                activeTab === "cycles" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+                activeTab === "tracking" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
               }`}
             >
-              دورة اللاعبين والتمارين
+              متابعة اللاعبين والغياب
             </button>
             <button
-              onClick={() => setActiveTab("meals")}
+              onClick={() => setActiveTab("diet_manager")}
               className={`px-3.5 py-1.5 rounded-xl transition ${
-                activeTab === "meals" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+                activeTab === "diet_manager" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
               }`}
             >
-              جدول الوجبات والتنبيهات
+              رفع وإدارة أنظمة الأكل
             </button>
             <button
-              onClick={() => setActiveTab("water")}
+              onClick={() => setActiveTab("financials")}
               className={`px-3.5 py-1.5 rounded-xl transition ${
-                activeTab === "water" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+                activeTab === "financials" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
               }`}
             >
-              متابعة شرب الماء
-            </button>
-            <button
-              onClick={() => setActiveTab("notifications")}
-              className={`px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 ${
-                activeTab === "notifications" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <span>مركز الإشعارات</span>
-              {notifications.some(n => !n.isRead) && (
-                <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-pulse" />
-              )}
+              حسبة الفلوس والاشتراكات
             </button>
           </nav>
         </div>
 
-        {/* Coach & Admin Quick Status */}
-        <div className="flex items-center gap-3 text-xs">
-          <Link 
-            href="/dashboard/builder"
-            className="px-3 py-1.5 rounded-xl bg-[#10091E] hover:bg-[#160D2A] border border-white/[0.08] text-slate-300 hover:text-white transition"
-          >
-            بيلدر التمارين
-          </Link>
-          <Link 
-            href="/dashboard/formcheck"
-            className="px-3 py-1.5 rounded-xl bg-[#10091E] hover:bg-[#160D2A] border border-white/[0.08] text-slate-300 hover:text-white transition"
-          >
-            فورمتشيك (12h)
-          </Link>
+        {/* Real Native Push Toggle on Device */}
+        <div className="flex items-center gap-3">
+          {pushPermission !== "granted" ? (
+            <button
+              type="button"
+              onClick={requestPushPermission}
+              className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 border border-[#7C3AED] text-white text-xs font-bold transition flex items-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-ping" />
+              تفعيل التنبيهات المباشرة على اللابتوب والموبايل
+            </button>
+          ) : (
+            <div className="px-3 py-1 rounded-xl bg-[#120A24] border border-white/[0.08] text-[11px] text-[#A78BFA] flex items-center gap-1.5 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A78BFA]" />
+              الإشعارات المباشرة نشطة
+            </div>
+          )}
+
           <Link 
             href="/app"
-            className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold transition shadow-md shadow-purple-950/50"
+            className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-md shadow-purple-950/50"
           >
-            تجربة المتدرب (PWA)
+            تطبيق اللاعب (PWA)
           </Link>
         </div>
       </header>
 
-      {/* 2. Workspace Viewport */}
+      {/* 2. Top Executive Business Metrics (Strictly Unified Colors) */}
+      <section className="max-w-7xl w-full mx-auto px-6 pt-6 grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">دخل اشتراكات الكوتش</span>
+          <span className="text-xl font-mono font-black text-white">{totalRevenue.toLocaleString()} ج.م</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">مبالغ معلقة لم تدفع</span>
+          <span className="text-xl font-mono font-black text-[#A78BFA]">{pendingRevenue.toLocaleString()} ج.م</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">إجمالي اللاعبين</span>
+          <span className="text-xl font-mono font-black text-white">{athletes.length}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">اللاعبين النشطين (Active)</span>
+          <span className="text-xl font-mono font-black text-white">{activeCount}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">متوقفين / غير ملتزمين</span>
+          <span className="text-xl font-mono font-black text-[#A78BFA]">{inactiveCount}</span>
+        </div>
+      </section>
+
+      {/* 3. Main Workspace Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* Left Column: Client Selector & Overall Cycle (4 cols) */}
-        <div className="lg:col-span-4 space-y-4">
+        {/* Left Column: Filterable Athletes Attendance & Inactivity List (5 cols) */}
+        <div className="lg:col-span-5 space-y-4">
           
-          <div className="flex items-center justify-between pb-1">
-            <h2 className="text-sm font-bold text-white tracking-wide">قائمة المتدربين النشطين</h2>
-            <span className="text-[11px] text-slate-400 font-mono">{clients.length} لاعبين</span>
+          {/* Smart Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
+            <button
+              onClick={() => setFilterMode("all")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "all" ? "bg-[#1E1238] border-purple-500/30 text-white font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              الكل ({athletes.length})
+            </button>
+            <button
+              onClick={() => setFilterMode("active")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "active" ? "bg-[#1E1238] border-purple-500/30 text-white font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              نشطين ({activeCount})
+            </button>
+            <button
+              onClick={() => setFilterMode("absent")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "absent" ? "bg-[#1E1238] border-[#7C3AED] text-[#A78BFA] font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              غائبين +3 أيام ({athletes.filter(a => a.daysAbsent >= 3).length})
+            </button>
+            <button
+              onClick={() => setFilterMode("unpaid")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "unpaid" ? "bg-[#1E1238] border-[#7C3AED] text-[#A78BFA] font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              لم يدفعوا ({unpaidCount})
+            </button>
           </div>
 
+          {/* Athletes Roster Cards */}
           <div className="space-y-2.5">
-            {clients.map(client => {
-              const isSelected = selectedClient.id === client.id;
-              const hasDelayedMeal = client.meals.some(m => m.status === "delayed");
+            {filteredAthletes.map(ath => {
+              const isSelected = selectedAthlete.id === ath.id;
 
               return (
                 <div
-                  key={client.id}
-                  onClick={() => setSelectedClient(client)}
+                  key={ath.id}
+                  onClick={() => setSelectedAthlete(ath)}
                   className={`p-4 rounded-2xl border transition cursor-pointer text-xs ${
                     isSelected
-                      ? "bg-[#120A22] border-[#7C3AED] shadow-lg shadow-purple-950/40"
-                      : "bg-[#0B0616] border-white/[0.04] hover:border-white/[0.1] hover:bg-[#0F081C]"
+                      ? "bg-[#120A24] border-[#7C3AED] shadow-lg shadow-purple-950/50"
+                      : "bg-[#0B0616] border-white/[0.04] hover:bg-[#0F081C] hover:border-white/[0.08]"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-white text-sm">{client.name}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-lg border font-medium ${
-                      hasDelayedMeal 
-                        ? "bg-purple-950/80 border-purple-500/40 text-purple-200" 
-                        : "bg-[#180E2E] border-white/[0.08] text-slate-300"
-                    }`}>
-                      {hasDelayedMeal ? "وجبة متأخرة" : "ملتزم بالجدول"}
-                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#1A1030] border border-purple-500/20 text-[#A78BFA] font-bold flex items-center justify-center font-mono">
+                        {ath.avatar}
+                      </div>
+                      <div>
+                        <span className="font-bold text-white text-sm block">{ath.name}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{ath.phone}</span>
+                      </div>
+                    </div>
+
+                    {/* Status Pill */}
+                    <div className="text-left space-y-0.5">
+                      <span className={`text-[10px] px-2.5 py-0.5 rounded-lg border font-medium block ${
+                        ath.daysAbsent > 0
+                          ? "bg-[#1A0E2A] border-[#7C3AED]/40 text-[#A78BFA]"
+                          : "bg-[#120A20] border-white/[0.06] text-slate-300"
+                      }`}>
+                        {ath.daysAbsent > 0 ? `غائب ${ath.daysAbsent} أيام` : "ملتزم اليوم"}
+                      </span>
+                    </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-400 mb-3">{client.plan}</p>
-
-                  {/* Progress indicators: Water & Meals */}
-                  <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300 border-t border-white/[0.04] pt-2.5">
+                  {/* Attendance & Payment Row */}
+                  <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-300 border-t border-white/[0.04] pt-2.5 mt-2">
                     <div>
-                      <span className="text-slate-500 block">شرب الماء</span>
-                      <span className="font-mono font-bold text-white">{client.waterDrankLiters} / {client.waterGoalLiters} L</span>
+                      <span className="text-slate-500 block">آخر تمرين</span>
+                      <span className="font-mono text-white truncate block">{ath.lastCheckIn}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">نسبة الالتزام</span>
-                      <span className="font-mono font-bold text-[#A78BFA]">{client.adherenceRate}%</span>
+                      <span className="text-slate-500 block">ستريك الالتزام</span>
+                      <span className="font-mono font-bold text-[#A78BFA]">{ath.attendanceStreak} يوم</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">الاشتراك الشهري</span>
+                      <span className={`font-mono font-bold ${ath.paymentStatus === "paid" ? "text-white" : "text-[#A78BFA]"}`}>
+                        {ath.paymentStatus === "paid" ? "مدفوع ✓" : "مستحق الدفع"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -346,137 +425,143 @@ export default function LuxuryMinimalDashboard() {
             })}
           </div>
 
-          {/* Quick WhatsApp Alert for Coach to Client */}
-          <div className="p-4 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-3">
-            <div className="text-xs font-bold text-white">تنبيه فوري عبر واتساب للعميل</div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              إرسال إشعار فوري للاعب {selectedClient.name} لتذكيره بشرب الماء أو موعد الوجبة القادمة.
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => sendWhatsAppReminder(
-                  selectedClient, 
-                  `يا بطل، كابتنك بيفكرك تشرب مية دلوقتي، باقيلك ${(selectedClient.waterGoalLiters - selectedClient.waterDrankLiters).toFixed(1)} لتر على هدف النهاردة 💪`
-                )}
-                className="py-2.5 px-3 bg-[#120A22] hover:bg-[#1C0F35] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
-              >
-                تذكير شرب المية
-              </button>
-              <button
-                type="button"
-                onClick={() => sendWhatsAppReminder(
-                  selectedClient, 
-                  `يا بطل، متنساش تسجل وجبتك في معادها على المنصة عشان نحافظ على معدل حرق عالي والتزامك التدريبي 💪`
-                )}
-                className="py-2.5 px-3 bg-[#120A22] hover:bg-[#1C0F35] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
-              >
-                تذكير الوجبة
-              </button>
+        </div>
+
+        {/* Right Column: Deep Tracking, Diet Manager & Push Automation (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
+
+          {/* Athlete Profile Header with Instant Check-In & Action Bar */}
+          <div className="p-6 rounded-3xl bg-[#0E071A] border border-purple-500/20 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-block px-2.5 py-1 rounded-lg bg-[#1D1136] border border-purple-500/30 text-[10px] text-[#A78BFA] font-mono mb-2">
+                  {selectedAthlete.plan} · {selectedAthlete.monthlyFee} ج.م / شهر
+                </div>
+                <h1 className="text-2xl font-black text-white">{selectedAthlete.name}</h1>
+                <p className="text-xs text-slate-400 mt-1">
+                  آخر تسجيل حضور: {selectedAthlete.lastCheckIn}
+                </p>
+              </div>
+
+              {/* Action Buttons: Check-in & Native Notification test */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCheckIn(selectedAthlete.id)}
+                  className="px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-lg shadow-purple-950/60"
+                >
+                  تسجيل تمرين اليوم (Check-In)
+                </button>
+              </div>
+            </div>
+
+            {/* Smart Reminder Triggers (Message to Phone / Laptop / WhatsApp) */}
+            <div className="p-4 rounded-2xl bg-[#120A24] border border-white/[0.05] space-y-3">
+              <div className="text-xs font-bold text-white">إرسال تنبيه مباشر للمتدرب على تليفونه</div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                {/* 1. Payment Reminder */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `مساء الخير يا كابتن ${selectedAthlete.name}، حابين نذكرك بتجديد اشتراكك الشهري (${selectedAthlete.monthlyFee} ج.م) لمواصلة خطتك بدون انقطاع 💪`;
+                    sendNativePush("تذكير اشتراك مرسل 💳", `تم إرسال تذكير تجديد الاشتراك للمتدرب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  تذكير بالدفع والاشتراك
+                </button>
+
+                {/* 2. Absence Reminder (3 Days) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `يا بطل بقالك 3 أيام مش بتسجل تمرينك أو غايب عن الجيم، طمنا عليك محتاجين نرجع للستريك بتاعنا تاني!`;
+                    sendNativePush("تنبيه غياب 3 أيام ⚠️", `تم إرسال رسالة تفقد للاعب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  تنبيه غياب 3 أيام
+                </button>
+
+                {/* 3. Absence Reminder (1 Week) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `يا بطل، بقالك أسبوع غايب! جسمك ومستواك اللي بنيناه أمانة، محتاجين نجدد الحماس وننزل التمرين بكرة ضروري.`;
+                    sendNativePush("إنذار غياب أسبوع كامل 🚨", `تم إرسال إنذار أسبوع للمتدرب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  إنذار غياب أسبوع
+                </button>
+              </div>
             </div>
           </div>
 
-        </div>
-
-        {/* Right Column: Detailed Cycle, Meals, Water & Notification Systems (8 cols) */}
-        <div className="lg:col-span-8 space-y-6">
-
-          {/* Tab 1: Cycles & Overview */}
-          {activeTab === "cycles" && (
-            <div className="space-y-6">
+          {/* Tab Content 1: Tracking & Meals */}
+          {activeTab === "tracking" && (
+            <div className="space-y-4">
               
-              {/* Client Hero Banner */}
-              <div className="p-6 rounded-3xl bg-[#0E071A] border border-purple-500/20 relative overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="inline-block px-2.5 py-1 rounded-lg bg-[#1D1136] border border-purple-500/30 text-[10px] text-[#A78BFA] font-mono mb-2">
-                      {selectedClient.currentDay}
-                    </div>
-                    <h1 className="text-2xl font-black text-white">{selectedClient.name}</h1>
-                    <p className="text-xs text-slate-400 mt-1">{selectedClient.plan} · هاتف: {selectedClient.phone}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => sendWhatsAppReminder(selectedClient, "مساء الخير يا بطل، بتابع معاك الدورة التدريبية ومواعيد وجباتك اليوم.")}
-                      className="px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-lg shadow-purple-950/60"
-                    >
-                      مراسلة المتدرب مباشرة
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3 Metric Cards with Unified Purple/White Palette */}
-                <div className="grid grid-cols-3 gap-3 mt-6">
-                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
-                    <span className="text-[11px] text-slate-400 block mb-1">الالتزام العام</span>
-                    <span className="text-xl font-mono font-black text-[#A78BFA]">{selectedClient.adherenceRate}%</span>
-                  </div>
-                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
-                    <span className="text-[11px] text-slate-400 block mb-1">لترات الماء اليوم</span>
-                    <span className="text-xl font-mono font-black text-white">{selectedClient.waterDrankLiters} L</span>
-                  </div>
-                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
-                    <span className="text-[11px] text-slate-400 block mb-1">الوجبات المكتملة</span>
-                    <span className="text-xl font-mono font-black text-white">
-                      {selectedClient.meals.filter(m => m.status === "done").length} / {selectedClient.meals.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Meals Schedule inside Cycle */}
-              <div className="space-y-3">
+              {/* Daily Meal Schedule & Delayed Alert */}
+              <div className="p-5 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white">جدول ومواعيد وجبات اليوم</h3>
-                  <button
-                    onClick={() => setActiveTab("meals")}
-                    className="text-xs text-[#A78BFA] hover:underline"
-                  >
-                    تعديل خطة التغذية
-                  </button>
+                  <h3 className="text-sm font-bold text-white">متابعة وجبات اليوم وتنبيهات التأخير</h3>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    شرب الماء: {selectedAthlete.waterIntakeLiters} / {selectedAthlete.waterGoalLiters} L
+                  </span>
                 </div>
 
-                <div className="space-y-2">
-                  {selectedClient.meals.map(meal => (
+                <div className="space-y-2 text-xs">
+                  {selectedAthlete.meals.map(meal => (
                     <div 
-                      key={meal.id} 
-                      className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition ${
-                        meal.status === "done" 
-                          ? "bg-[#0D0717] border-white/[0.05] opacity-80" 
-                          : meal.status === "delayed" 
-                          ? "bg-[#180E2B] border-[#7C3AED]/50" 
-                          : "bg-[#0F081C] border-white/[0.06]"
+                      key={meal.id}
+                      className={`p-3.5 rounded-xl border flex items-center justify-between transition ${
+                        meal.status === "completed"
+                          ? "bg-[#0E081A] border-white/[0.04] opacity-80"
+                          : meal.status === "delayed"
+                          ? "bg-[#1A0E2A] border-[#7C3AED]"
+                          : "bg-[#110A1E] border-white/[0.06]"
                       }`}
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white">{meal.name}</span>
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{meal.name}</span>
                           <span className="text-[10px] text-slate-400 font-mono">({meal.time})</span>
                         </div>
-                        <div className="text-[10px] text-slate-400 font-mono">
-                          {meal.calories} سعرة حرارية · {meal.protein}g بروتين · هدف ماء: {meal.waterTargetMl} مل
-                        </div>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {meal.status === "completed" ? "تم تناولها في الوقت المحدد" : meal.status === "delayed" ? "متأخرة عن الموعد! تم تنبيه الكوتش" : "موعد قادم"}
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {meal.status === "delayed" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              sendNativePush(
+                                "تنبيه وجبة متأخرة ⏱️",
+                                `وجبة ${meal.name} للاعب ${selectedAthlete.name} متأخرة عن موعدها المحدد (${meal.time}).`
+                              );
+                              openWhatsApp(selectedAthlete.phone, `يا بطل وجبتك (${meal.name}) ميعادها فات من ${meal.time}، متنساش تسجلها دلوقتي.`);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-[11px] font-bold"
+                          >
+                            إرسال رسالة تذكير فورية
+                          </button>
+                        )}
                         <span className={`text-[10px] px-2 py-1 rounded-lg border font-medium ${
-                          meal.status === "done"
-                            ? "bg-[#160E2A] text-slate-300 border-white/[0.08]"
+                          meal.status === "completed"
+                            ? "bg-[#140B24] border-white/[0.06] text-slate-300"
                             : meal.status === "delayed"
-                            ? "bg-[#251245] text-purple-200 border-[#7C3AED]"
-                            : "bg-[#110A1E] text-slate-400 border-white/[0.05]"
+                            ? "bg-[#251245] border-[#7C3AED] text-[#A78BFA]"
+                            : "bg-[#10091E] border-white/[0.04] text-slate-400"
                         }`}>
-                          {meal.status === "done" ? "تم تناولها" : meal.status === "delayed" ? "متأخرة عن الموعد" : "قادمة"}
+                          {meal.status === "completed" ? "مكتملة ✓" : meal.status === "delayed" ? "متأخرة" : "في الانتظار"}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleMeal(meal.id)}
-                          className="px-3 py-1.5 rounded-xl bg-[#1A1030] hover:bg-[#251445] text-white border border-white/[0.08] text-[11px] transition"
-                        >
-                          {meal.status === "done" ? "إلغاء التأكيد" : "تأكيد التناول"}
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -486,250 +571,120 @@ export default function LuxuryMinimalDashboard() {
             </div>
           )}
 
-          {/* Tab 2: Meals Manager (Coach adds/sets meals) */}
-          {activeTab === "meals" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-2 border-b border-white/[0.04]">
-                <div>
-                  <h2 className="text-base font-bold text-white">خطة وجبات المتدرب ({selectedClient.name})</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    النظام يرسل تنبيهاً تلقائياً للمتدرب والكوتش والأدمن إذا تأخرت الوجبة أكثر من 30 دقيقة عن موعدها.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddMealModal(true)}
-                  className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl transition"
-                >
-                  + إضافة وجبة جديدة
-                </button>
+          {/* Tab Content 2: Diet File Upload Manager */}
+          {activeTab === "diet_manager" && (
+            <div className="p-6 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
+              <div>
+                <h3 className="text-base font-bold text-white">رفع نظام الأكل للاعب ({selectedAthlete.name})</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  ارفع ملف الدايت (PDF أو Excel أو Word). بمجرد الرفع يصل إشعار مباشر للاعب على جهازه ليفتح ويتبع النظام فوراً.
+                </p>
               </div>
 
-              {/* Meals List */}
-              <div className="space-y-3">
-                {selectedClient.meals.map((meal, index) => (
-                  <div key={meal.id} className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] flex items-center justify-between text-xs">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="w-5 h-5 rounded-full bg-[#1A1030] border border-purple-500/30 text-[10px] text-[#A78BFA] flex items-center justify-center font-mono">
-                          {index + 1}
-                        </span>
-                        <span className="font-bold text-white text-sm">{meal.name}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 space-x-3 space-x-reverse font-mono">
-                        <span>الموعد: {meal.time}</span>
-                        <span>·</span>
-                        <span>السعرات: {meal.calories} kcal</span>
-                        <span>·</span>
-                        <span>البروتين: {meal.protein}g</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleMeal(meal.id)}
-                        className="px-3.5 py-2 rounded-xl bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-white text-xs font-medium transition"
-                      >
-                        {meal.status === "done" ? "إلغاء المكتمل" : "تحديد كمكتمل"}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Meal Simple Inline Modal */}
-              {showAddMealModal && (
-                <div className="p-5 rounded-2xl bg-[#120A24] border border-[#7C3AED] space-y-4">
-                  <h3 className="text-xs font-bold text-white">إضافة وجبة وتوقيتها لنظام التنبيه</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <label className="text-slate-400 block mb-1">اسم ومحتوى الوجبة</label>
-                      <input
-                        type="text"
-                        placeholder="مثال: 200 جرام صدور مشوية + 150 جرام أرز"
-                        value={newMealName}
-                        onChange={(e) => setNewMealName(e.target.value)}
-                        className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white outline-none focus:border-[#7C3AED]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1">الموعد المحدد للتذكير</label>
-                      <input
-                        type="text"
-                        placeholder="مثال: 07:00 م"
-                        value={newMealTime}
-                        onChange={(e) => setNewMealTime(e.target.value)}
-                        className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white outline-none focus:border-[#7C3AED]"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddMealModal(false)}
-                      className="px-3 py-2 bg-[#1A1030] text-slate-300 rounded-xl"
-                    >
-                      إلغاء
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!newMealName) return;
-                        const newMeal: ClientMeal = {
-                          id: String(Date.now()),
-                          name: newMealName,
-                          time: newMealTime,
-                          calories: parseInt(newMealCal) || 400,
-                          protein: parseInt(newMealProt) || 35,
-                          waterTargetMl: 500,
-                          waterCurrentMl: 0,
-                          status: "pending",
+              {/* Upload Zone */}
+              <div className="border-2 border-dashed border-white/[0.1] hover:border-[#7C3AED] p-8 rounded-2xl text-center space-y-3 transition">
+                <input
+                  type="file"
+                  id="diet-upload-input"
+                  className="hidden"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setUploadingDiet(true);
+                      setTimeout(() => {
+                        setUploadingDiet(false);
+                        const updated = {
+                          ...selectedAthlete,
+                          dietFile: file.name,
+                          dietStatus: "uploaded" as const,
                         };
-                        const updated = { ...selectedClient, meals: [...selectedClient.meals, newMeal] };
-                        setSelectedClient(updated);
-                        setClients(clients.map(c => c.id === updated.id ? updated : c));
-                        setShowAddMealModal(false);
-                        setNewMealName("");
-                      }}
-                      className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold"
-                    >
-                      حفظ وتفعيل التنبيه
-                    </button>
+                        setSelectedAthlete(updated);
+                        setAthletes(athletes.map(a => a.id === updated.id ? updated : a));
+                        sendNativePush(
+                          "تم رفع نظام أكل جديد بنجاح 📋",
+                          `تم رفع ${file.name} للمتدرب ${selectedAthlete.name} وإرسال إشعار التحديث إليه.`
+                        );
+                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                      }, 1000);
+                    }
+                  }}
+                />
+                
+                <div className="text-xs text-slate-300">
+                  {selectedAthlete.dietFile ? (
+                    <div>
+                      <span className="text-[#A78BFA] font-bold block text-sm mb-1">
+                        الملف المرفوع حالياً: {selectedAthlete.dietFile}
+                      </span>
+                      <span className="text-slate-500 text-[11px]">اضغط أدناه لاستبدال الملف بملف أحدث</span>
+                    </div>
+                  ) : (
+                    <span>لم يتم رفع نظام أكل لهذا اللاعب حتى الآن</span>
+                  )}
+                </div>
+
+                <label
+                  htmlFor="diet-upload-input"
+                  className="inline-block px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-lg shadow-purple-950/60"
+                >
+                  {uploadingDiet ? "جاري الرفع والمعالجة..." : "اختر ملف الدايت من جهازك (PDF / Excel)"}
+                </label>
+              </div>
+
+              {selectedAthlete.dietFile && (
+                <div className="p-4 rounded-xl bg-[#120A24] border border-white/[0.06] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-white block">{selectedAthlete.dietFile}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">جاهز ومفعل على تطبيق المتدرب PWA</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => openWhatsApp(selectedAthlete.phone, `يا بطل، تم رفع وتحديث نظام الأكل الجديد الخاص بيك على المنصة. ادخل شوفه دلوقتي!`)}
+                    className="px-3.5 py-1.5 rounded-lg bg-[#1D1136] hover:bg-[#2B184F] text-[#A78BFA] border border-purple-500/30 text-[11px] font-bold"
+                  >
+                    إرسال إشعار استلام على واتساب
+                  </button>
                 </div>
               )}
-
             </div>
           )}
 
-          {/* Tab 3: Water Tracker & Hydration Cycle */}
-          {activeTab === "water" && (
-            <div className="space-y-6">
+          {/* Tab Content 3: Financials & Debt Breakdown */}
+          {activeTab === "financials" && (
+            <div className="p-6 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
+              <h3 className="text-base font-bold text-white">تفصيل الحسابات والاشتراكات الشهرية</h3>
               
-              <div className="p-6 rounded-3xl bg-[#0D0717] border border-white/[0.06] text-center space-y-4">
-                <div className="inline-block p-3 rounded-2xl bg-[#1A1030] border border-purple-500/20 text-[#A78BFA] text-2xl font-mono">
-                  {selectedClient.waterDrankLiters} / {selectedClient.waterGoalLiters} L
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">متابعة شرب الماء لـ {selectedClient.name}</h3>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-                    ترطيب الجسم أساس تخليق البروتين العضلي ومنع التقلصات. يتم إرسال تنبيهات تلقائية كل ساعتين حتى يكتمل الهدف.
-                  </p>
-                </div>
-
-                {/* Visual Water Fill Bar */}
-                <div className="w-full bg-[#140B24] h-4 rounded-full border border-white/[0.05] overflow-hidden max-w-md mx-auto">
-                  <div 
-                    className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] h-full transition-all duration-500" 
-                    style={{ width: `${Math.min(100, (selectedClient.waterDrankLiters / selectedClient.waterGoalLiters) * 100)}%` }}
-                  />
-                </div>
-
-                {/* Add Quick Intake Buttons */}
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => { setWaterAmountInput(250); handleAddWater(); }}
-                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
-                  >
-                    + 250 مل (كوب)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setWaterAmountInput(500); handleAddWater(); }}
-                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
-                  >
-                    + 500 مل (زجاجة صغيرة)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setWaterAmountInput(1000); handleAddWater(); }}
-                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
-                  >
-                    + 1000 مل (1 لتر)
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* Tab 4: 360 Notifications Center (Athlete + Coach + Admin Cycles) */}
-          {activeTab === "notifications" && (
-            <div className="space-y-4">
-              
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.04]">
-                <div>
-                  <h2 className="text-base font-bold text-white">مركز الإشعارات والتحكم الشامل (Cycle Monitor)</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    تتبع كل ما يدور بين اللاعب والمدرب والنظام لضمان أعلى انضباط.
-                  </p>
-                </div>
-
-                {/* Audience Filter Pills */}
-                <div className="inline-flex items-center bg-[#10091E] border border-white/[0.06] rounded-xl p-1 text-[11px]">
-                  <button
-                    type="button"
-                    onClick={() => setNotifRole("all")}
-                    className={`px-3 py-1 rounded-lg transition ${notifRole === "all" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
-                  >
-                    الكل
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotifRole("athlete")}
-                    className={`px-3 py-1 rounded-lg transition ${notifRole === "athlete" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
-                  >
-                    إشعارات المتدربين
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotifRole("coach")}
-                    className={`px-3 py-1 rounded-lg transition ${notifRole === "coach" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
-                  >
-                    إشعارات المدرب
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotifRole("admin")}
-                    className={`px-3 py-1 rounded-lg transition ${notifRole === "admin" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
-                  >
-                    تقارير الأدمن
-                  </button>
-                </div>
-              </div>
-
-              {/* Notification Cards */}
-              <div className="space-y-2.5">
-                {filteredNotifications.map(item => (
-                  <div
-                    key={item.id}
-                    className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] hover:border-[#7C3AED]/30 transition space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-lg border font-mono ${
-                          item.audience === "admin" 
-                            ? "bg-purple-950/70 border-purple-500/40 text-purple-200" 
-                            : item.audience === "coach"
-                            ? "bg-[#170E2C] border-white/[0.08] text-slate-300"
-                            : "bg-[#140B24] border-[#7C3AED]/40 text-[#A78BFA]"
-                        }`}>
-                          {item.audience === "admin" ? "أدمن" : item.audience === "coach" ? "المدرب" : "المتدرب"}
-                        </span>
-                        <span className="font-bold text-white text-sm">{item.title}</span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 font-mono">{item.time}</span>
+              <div className="space-y-2.5 text-xs">
+                {athletes.map(ath => (
+                  <div key={ath.id} className="p-4 rounded-xl bg-[#0E081A] border border-white/[0.04] flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-white block text-sm">{ath.name}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{ath.plan}</span>
                     </div>
 
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {item.message}
-                    </p>
+                    <div className="flex items-center gap-4">
+                      <span className="font-mono font-bold text-white text-sm">{ath.monthlyFee} ج.م</span>
+                      <span className={`text-[10px] px-2.5 py-1 rounded-lg border font-medium ${
+                        ath.paymentStatus === "paid"
+                          ? "bg-[#140B24] border-white/[0.08] text-slate-300"
+                          : "bg-[#251245] border-[#7C3AED] text-[#A78BFA]"
+                      }`}>
+                        {ath.paymentStatus === "paid" ? "تم التحصيل" : "مستحق الدفع"}
+                      </span>
+                      {ath.paymentStatus === "unpaid" && (
+                        <button
+                          type="button"
+                          onClick={() => openWhatsApp(ath.phone, `كابتن ${ath.name}، تذكير بدفع الاشتراك الشهري بقيمة ${ath.monthlyFee} ج.م لتجديد الخطة.`)}
+                          className="px-3 py-1 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-[11px] font-bold"
+                        >
+                          مطالبة بالدفع
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
-
             </div>
           )}
 
@@ -737,9 +692,9 @@ export default function LuxuryMinimalDashboard() {
 
       </main>
 
-      {/* Subtle Minimal Footer */}
+      {/* Footer */}
       <footer className="py-4 text-center text-[10px] text-slate-600 border-t border-white/[0.03]">
-        CoachPR Platform · لوحة تحكم وإدارة موحدة · 2026
+        CoachPR Platform · نظام متابعة الحضور والاشتراكات الحقيقي · 2026
       </footer>
 
     </div>
