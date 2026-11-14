@@ -269,6 +269,13 @@ export default function MasterCoachCommandCenter() {
             >
               حسبة الفلوس والاشتراكات
             </button>
+            <Link
+              href="/dashboard/templates"
+              className="px-3.5 py-1.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-[#1E1238] border border-transparent hover:border-purple-500/20 flex items-center gap-1.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A78BFA]" />
+              أنظمة كمال الأجسام &amp; FST-7
+            </Link>
           </nav>
         </div>
 
