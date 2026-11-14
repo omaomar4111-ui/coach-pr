@@ -25,9 +25,10 @@ export interface ExtractedOrder {
 
 export async function POST(req: NextRequest) {
   try {
-    const { chatTranscript, latestMessage, tenantSlug = 'demo-store', conversationId } = await req.json();
+    const body = await req.json();
+    const { chatTranscript, latestMessage, message, tenantSlug = 'demo-store', conversationId } = body;
 
-    const textToAnalyze = chatTranscript || latestMessage;
+    const textToAnalyze = chatTranscript || latestMessage || message;
     if (!textToAnalyze) {
       return NextResponse.json({ error: 'Text transcript is required' }, { status: 400 });
     }
