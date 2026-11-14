@@ -18,7 +18,12 @@ import {
   BookmarkPlus,
   Bot,
   User,
-  Activity
+  Activity,
+  Trash2,
+  Check,
+  XCircle,
+  Timer,
+  UploadCloud
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -28,7 +33,9 @@ interface FormCheckItem {
   exerciseName: string;
   date: string;
   videoDurationSec: number;
-  status: "pending" | "reviewed";
+  status: "pending" | "approved" | "needs_fix" | "reviewed";
+  expiresInHours: number; // Auto-delete after 12h
+  coachFeedback?: string;
   notesAtSeconds: {
     second: number;
     text: string;
@@ -61,6 +68,7 @@ export default function FormCheckAndAIStudioPage() {
       date: "اليوم · 11:45 صباحاً",
       videoDurationSec: 18,
       status: "pending",
+      expiresInHours: 9.5,
       notesAtSeconds: [
         { second: 4, text: "الركبتين بتقفل للداخل خفيف عند الصعود. حاول تفتح ركبتيك لبرة وتضغط بكامل باطن رجلك.", hasVoiceNote: true }
       ]
@@ -69,9 +77,11 @@ export default function FormCheckAndAIStudioPage() {
       id: "fc-2",
       clientName: "عمر فاروق عبد الله",
       exerciseName: "Romanian Deadlift (ديدليفت روماني)",
-      date: "أمس · 6:30 مساءً",
+      date: "اليوم · 2:10 ظهراً",
       videoDurationSec: 15,
-      status: "reviewed",
+      status: "approved",
+      expiresInHours: 6.2,
+      coachFeedback: "تكنيك مظبوط وموافق عليه 100%! استمر بنفس الوزن.",
       notesAtSeconds: [
         { second: 6, text: "تكنيك ممتاز ومستقيم، بس حافظ على رقبتك في خط مستقيم مع عمودك الفقري.", hasVoiceNote: false }
       ]
@@ -79,6 +89,42 @@ export default function FormCheckAndAIStudioPage() {
   ]);
 
   const [selectedSubmission, setSelectedSubmission] = useState<FormCheckItem>(formCheckSubmissions[0]);
+
+  // Coach Approval Handlers
+  const handleApproveExercise = (id: string) => {
+    setFormCheckSubmissions(prev => prev.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          status: "approved",
+          coachFeedback: "أداء ممتاز وتكنيك معتمد من الكابتن! حافظ على نفس النمط في التمرين القادم."
+        };
+      }
+      return item;
+    }));
+    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    alert("تم اعتماد صحة أداء التمرين بنجاح وإشعار اللاعب فوراً!");
+  };
+
+  const handleRequestFix = (id: string) => {
+    const reason = prompt("اكتب ملاحظة التعديل أو تصحيح الخطأ للّاعب:") || "برجاء مراجعة فتحة القدمين وتخفيف الوزن 10% للتطبيق الصحيح.";
+    setFormCheckSubmissions(prev => prev.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          status: "needs_fix",
+          coachFeedback: reason
+        };
+      }
+      return item;
+    }));
+    alert("تم إرسال طلب تصحيح التكنيك للّاعب مع الملاحظات!");
+  };
+
+  const handleDeleteExpired = (id: string) => {
+    setFormCheckSubmissions(prev => prev.filter(item => item.id !== id));
+    alert("تم مسح الفيديو من مساحة التخزين المؤقتة لتوفير المساحة وسرعة السيرفر!");
+  };
 
   // AI Assistant Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -204,19 +250,25 @@ export default function FormCheckAndAIStudioPage() {
             
             {/* Left: Submissions List (4 Cols) */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30">
-                <h3 className="text-sm font-bold text-white mb-1">فيديوهات المتدربين الجديدة ({formCheckSubmissions.length})</h3>
-                <p className="text-xs text-slate-400">اختر فيديو الرفعة لمراجعته وترك فويس نوت على الثانية المحددة</p>
+              <div className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white">فيديوهات المتدربين ({formCheckSubmissions.length})</h3>
+                  <span className="text-[10px] text-amber-300 bg-amber-950/40 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Timer className="w-3 h-3" />
+                    <span>تخزين مؤقت 12 ساعة</span>
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">الفيديوهات تُحفظ مؤقتاً لمراجعة الكابتن ثم يتم مسحها تلقائياً لتسريع السيرفر</p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {formCheckSubmissions.map((sub) => {
                   const isSelected = selectedSubmission.id === sub.id;
                   return (
                     <div
                       key={sub.id}
                       onClick={() => setSelectedSubmission(sub)}
-                      className={`p-3.5 rounded-2xl border cursor-pointer transition space-y-2 ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition space-y-2.5 ${
                         isSelected 
                           ? "bg-[#1C1133] border-[#7C3AED] shadow-lg shadow-purple-900/30"
                           : "bg-[#140C24] border-purple-900/20 hover:border-purple-600/40"
@@ -224,20 +276,25 @@ export default function FormCheckAndAIStudioPage() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-white text-xs">{sub.clientName}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
                           sub.status === "pending" 
                             ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" 
-                            : "bg-purple-600/20 text-purple-200 border border-purple-600/30"
+                            : sub.status === "approved"
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
                         }`}>
-                          {sub.status === "pending" ? "بانتظار مراجعتك" : "تمت المراجعة ✓"}
+                          {sub.status === "pending" ? "بانتظار موافقتك" : sub.status === "approved" ? "تم الاعتماد (صح) ✓" : "تعديل التكنيك"}
                         </span>
                       </div>
 
                       <div className="text-xs text-[#A78BFA] font-semibold">{sub.exerciseName}</div>
 
-                      <div className="text-[10px] text-slate-500 flex justify-between">
+                      <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-purple-900/20">
+                        <span className="flex items-center gap-1 text-slate-500">
+                          <Timer className="w-3 h-3 text-orange-400" />
+                          <span>يتبقى {sub.expiresInHours}h على الحذف التلقائي</span>
+                        </span>
                         <span>{sub.date}</span>
-                        <span>المدة: {sub.videoDurationSec} ثانية</span>
                       </div>
                     </div>
                   );
@@ -320,6 +377,35 @@ export default function FormCheckAndAIStudioPage() {
                 </div>
 
                 {/* Add Note & Voice Recorder Box */}
+                {/* Coach Decision: Approve vs Request Fix (With 12h Expire Indicator) */}
+                <div className="bg-[#110A1E] p-4 rounded-xl border border-purple-900/30 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-300">قرار الكابتن:</span>
+                    <button
+                      onClick={() => handleApproveExercise(selectedSubmission.id)}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>اعتماد التمرين (أداء صح بنسبة 100%)</span>
+                    </button>
+                    <button
+                      onClick={() => handleRequestFix(selectedSubmission.id)}
+                      className="bg-amber-600/30 hover:bg-amber-600/50 text-amber-200 border border-amber-500/40 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
+                    >
+                      <XCircle className="w-4 h-4 text-amber-400" />
+                      <span>طلب تعديل تكنيك</span>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => handleDeleteExpired(selectedSubmission.id)}
+                    className="text-[11px] text-slate-400 hover:text-rose-400 flex items-center gap-1 transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>مسح فوري للفيديو من التخزين المؤقت</span>
+                  </button>
+                </div>
+
                 <div className="bg-[#110A1E] p-4 rounded-xl border border-purple-900/30 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
