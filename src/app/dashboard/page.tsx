@@ -9,6 +9,7 @@ import {
   TrendingUp, 
   Award, 
   Video, 
+  Apple,
   Calendar, 
   Search, 
   Plus, 
@@ -341,13 +342,22 @@ export default function DashboardPage() {
                     <Dumbbell className="w-4 h-4 text-[#A78BFA]" />
                     <span>جدول تمارين العميل النشط</span>
                   </h3>
-                  <Link 
-                    href="/dashboard/builder"
-                    className="text-xs text-[#A78BFA] hover:text-white bg-purple-900/30 border border-purple-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
-                  >
-                    <span>فتح بيلدر التمارين</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link 
+                      href="/dashboard/nutrition"
+                      className="text-xs text-emerald-400 hover:text-white bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
+                    >
+                      <Apple className="w-3.5 h-3.5" />
+                      <span>خطة الدايت والماكروز</span>
+                    </Link>
+                    <Link 
+                      href="/dashboard/builder"
+                      className="text-xs text-[#A78BFA] hover:text-white bg-purple-900/30 border border-purple-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
+                    >
+                      <span>فتح بيلدر التمارين</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-xs">
