@@ -269,6 +269,13 @@ export default function MasterCoachCommandCenter() {
             >
               حسبة الفلوس والاشتراكات
             </button>
+            <Link
+              href="/dashboard/qa"
+              className="px-3.5 py-1.5 rounded-xl text-purple-300 hover:text-white hover:bg-[#1E1238] transition font-bold flex items-center gap-1.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>فحص جودة المستخدمين (QA Lab)</span>
+            </Link>
           </nav>
         </div>
 
