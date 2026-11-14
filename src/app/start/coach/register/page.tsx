@@ -87,10 +87,10 @@ export default function RegisterCoachPage() {
                 onChange={(e) => setSelectedPlan(e.target.value)}
                 className="w-full bg-[#110A1E] border border-purple-900/50 rounded-xl p-3 text-white focus:outline-none focus:border-[#7C3AED]"
               >
-                <option value="Starter">Starter (299 ج.م / شهر) - حتى 10 عملاء</option>
-                <option value="Pro">Pro (999 ج.م / شهر) - حتى 30 عميل + AI وفورم تشيك</option>
-                <option value="Max">Max (1,999 ج.م / شهر) - حتى 60 عميل</option>
-                <option value="Agency">Agency (3,999 ج.م / شهر) - عدد مفتوح من العملاء</option>
+                <option value="Starter">Starter (199 ج.م / شهر) - حتى 15 عميل (أقل من كوتشيفو)</option>
+                <option value="Pro">Pro (499 ج.م / شهر) - حتى 40 عميل + AI وفورم تشيك (أقوى وأوفر من كوتشيفو 699)</option>
+                <option value="Max">Max (899 ج.م / شهر) - حتى 80 عميل</option>
+                <option value="Agency">Agency (1,299 ج.م / شهر) - عدد غير محدود من العملاء (أرخص من كوتشيفو 1499)</option>
               </select>
             </div>
 
