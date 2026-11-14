@@ -301,11 +301,48 @@ export default function MasterBodybuildingPage() {
                       </ul>
                     </div>
 
-                    {/* Caution Alert */}
-                    <div className="p-2.5 rounded-xl bg-orange-950/20 border border-orange-900/30 text-[10px] text-orange-300 flex items-start gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
-                      <span>{sup.caution}</span>
-                    </div>
+                    {/* Caution Alert & Affiliate / Discount Code Block */}
+                    {sup.caution && (
+                      <div className="p-2.5 rounded-xl bg-orange-950/20 border border-orange-900/30 text-[10px] text-orange-300 flex items-start gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                        <span>{sup.caution}</span>
+                      </div>
+                    )}
+
+                    {/* Coach Recommendation, Purchase Link & Copy Discount Code */}
+                    {sup.purchaseUrl && (
+                      <div className="pt-2 border-t border-purple-900/30 space-y-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#A78BFA] font-bold">كود خصم الكوتش:</span>
+                          <span className="text-emerald-400 font-mono font-bold">{sup.discountPercentage || "خصم حصري"}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (sup.discountCode) {
+                                navigator.clipboard.writeText(sup.discountCode);
+                                alert(`تم نسخ كود الخصم: ${sup.discountCode}`);
+                              }
+                            }}
+                            className="flex-1 py-2 px-3 rounded-xl bg-[#1E1238] hover:bg-[#2A184E] border border-purple-500/30 text-white text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition"
+                          >
+                            <span>نسخ الكود ({sup.discountCode})</span>
+                          </button>
+
+                          <a
+                            href={sup.purchaseUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-2 px-3.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition flex items-center gap-1 shadow-md shadow-purple-950/50"
+                          >
+                            <span>شراء</span>
+                            <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

@@ -9,6 +9,9 @@ export interface SupplementItem {
   scientificMechanism: string;
   imageUrl: string;
   caution: string;
+  purchaseUrl?: string;
+  discountCode?: string;
+  discountPercentage?: string;
 }
 
 export const SUPPLEMENTS_DATABASE: SupplementItem[] = [
@@ -19,6 +22,9 @@ export const SUPPLEMENTS_DATABASE: SupplementItem[] = [
     category: "protein",
     timing: "مباشرة بعد التمرين أو بين الوجبات لرفع حصة البروتين",
     dosage: "سكوب واحد (25 - 30 جرام بروتين)",
+    purchaseUrl: "https://www.iherb.com",
+    discountCode: "COACHPR15",
+    discountPercentage: "خصم 15%",
     benefits: [
       "أسرع امتصاص بروتيني لدعم تخليق البروتين العضلي (MPS)",
       "شبه خالي من اللاكتوز والدهون والسكريات",
@@ -35,6 +41,9 @@ export const SUPPLEMENTS_DATABASE: SupplementItem[] = [
     category: "creatine",
     timing: "أي وقت في اليوم بثبات يومي (مع مصدر كارب أو بروتين لزيادة الامتصاص)",
     dosage: "5 جرام يومياً (لا داعي لفترة التحميل، أو 20 جرام لمدة 5 أيام للتشبع السريع)",
+    purchaseUrl: "https://www.iherb.com",
+    discountCode: "PRCREATINE",
+    discountPercentage: "خصم 10%",
     benefits: [
       "زيادة مخزون الفوسفوكرياتين لتجديد طاقة ATP السريعة",
       "زيادة القوة التفجيرية والرفع العضلي بنسبة 10-15%",
@@ -51,6 +60,9 @@ export const SUPPLEMENTS_DATABASE: SupplementItem[] = [
     category: "preworkout",
     timing: "20 - 30 دقيقة قبل بدء التمرين",
     dosage: "سكوب واحد (يحتوي 200 - 350mg كافيين + 6-8g سيترولين)",
+    purchaseUrl: "https://www.evogennutrition.com",
+    discountCode: "HANYFST7",
+    discountPercentage: "خصم 20%",
     benefits: [
       "طاقة وتركيز ذهني عالي بفضل الكافيين والـ L-Tyrosine",
       "بمب وتدفق دم عنيف عبر توسيع الأوعية الدموية بالسيترولين مالات",

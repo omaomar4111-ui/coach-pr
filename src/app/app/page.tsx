@@ -2,23 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { 
-  Dumbbell, 
-  Flame, 
-  Award, 
-  Check, 
-  Play, 
-  Clock, 
-  Apple, 
-  Droplet, 
-  Video, 
-  MessageCircle, 
-  ChevronRight, 
-  ChevronLeft,
-  Sparkles,
-  RotateCcw,
-  Volume2
-} from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface WorkoutExercise {
@@ -26,6 +9,12 @@ interface WorkoutExercise {
   name: string;
   target: string;
   previousBest: string;
+  techniqueType: "FST-7 Finisher" | "Super Set" | "Drop Set" | "Rest-Pause" | "Normal";
+  coachNotes: string;
+  tempo: string; // e.g. "3-0-1-0"
+  restSeconds: number;
+  // GIF / Illustration representing accurate anatomy execution
+  anatomyGifUrl: string;
   sets: {
     setNum: number;
     weight: string;
@@ -34,137 +23,204 @@ interface WorkoutExercise {
   }[];
 }
 
-export default function ClientAppPage() {
-  const [activeTab, setActiveTab] = useState<"workout" | "diet" | "checkin">("workout");
-  
-  // Daily 10/10 metrics
-  const [dailyScore, setDailyScore] = useState(7);
-  const [waterGlasses, setWaterGlasses] = useState(6); // target 8
-  const [mealsLogged, setMealsLogged] = useState(2); // target 3
-  const [streakDays, setStreakDays] = useState(19);
+interface MealItem {
+  id: string;
+  name: string;
+  time: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  targetWaterMl: number;
+  consumed: boolean;
+  coachNote: string;
+}
 
-  // Rest Timer State
+export default function ClientExperienceApp() {
+  const [activeTab, setActiveTab] = useState<"workout" | "diet" | "checkin">("workout");
+  const [dailyScore, setDailyScore] = useState(8);
+  const [waterGlasses, setWaterGlasses] = useState(7);
   const [restSeconds, setRestSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [showGifModal, setShowGifModal] = useState<WorkoutExercise | null>(null);
 
-  // Exercises
+  // Exercises with Anatomy Visual Execution & Deep Coach Sets & Techniques
   const [exercises, setExercises] = useState<WorkoutExercise[]>([
     {
       id: "e-1",
-      name: "Barbell Bench Press (صدر مستوي)",
-      target: "صدر عام وقوة دفع",
-      previousBest: "82.5 kg × 8 عدات",
+      name: "بنش برس مستوي بالبار (Barbell Bench Press)",
+      target: "عضلات الصدر العام وقوة الدفع",
+      previousBest: "85 kg × 8 عدات",
+      techniqueType: "Normal",
+      tempo: "3-0-1-0 (نزول سلبي بطيء 3 ثواني)",
+      restSeconds: 90,
+      coachNotes: "التحكم في النزول السلبي، ثبت لوحي الكتف للخلف والأسفل (Scapular Retraction)، ودفع قوي للأعلى بدون قفل الكوعين تماماً.",
+      anatomyGifUrl: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80",
       sets: [
         { setNum: 1, weight: "80", reps: "10", completed: true },
         { setNum: 2, weight: "85", reps: "8", completed: false },
-        { setNum: 3, weight: "85", reps: "8", completed: false }
-      ]
+        { setNum: 3, weight: "85", reps: "8", completed: false },
+      ],
     },
     {
       id: "e-2",
-      name: "Incline Dumbbell Press (تجميع عالي)",
-      target: "صدر علوي",
-      previousBest: "28 kg × 10 عدات",
+      name: "تجميع دمبلز عالي (Incline Dumbbell Press)",
+      target: "الصدر العلوي وحزام الكتف",
+      previousBest: "30 kg × 10 عدات",
+      techniqueType: "Drop Set",
+      tempo: "2-0-1-0",
+      restSeconds: 75,
+      coachNotes: "المجموعة الأخيرة Drop Set: بعد الفشل بوزن 30 كجم، انزل فوراً لـ 20 كجم والعب أقصى عدات ممكنة حتى الفشل التام.",
+      anatomyGifUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80",
       sets: [
         { setNum: 1, weight: "30", reps: "10", completed: false },
-        { setNum: 2, weight: "30", reps: "10", completed: false }
-      ]
+        { setNum: 2, weight: "30", reps: "10", completed: false },
+        { setNum: 3, weight: "30", reps: "8+Drop", completed: false },
+      ],
     },
     {
       id: "e-3",
-      name: "Triceps Rope Pushdown (تراي كابل)",
-      target: "ترايسبس",
-      previousBest: "35 kg × 12 عدة",
+      name: "تفتيح كابل أو فراشة (Cable Fly FST-7)",
+      target: "فاشيا الصدر والامتلاء الداخلي",
+      previousBest: "17.5 kg × 12 عدة",
+      techniqueType: "FST-7 Finisher",
+      tempo: "2-1-1-0 (ثبات ثانية في القمة)",
+      restSeconds: 30,
+      coachNotes: "بروتوكول هاني رامبود FST-7: 7 مجاميع متتالية؛ راحة 30 ثانية فقط بين كل دور مع شد الصدر ووقفة Most Muscular Posing لمدة 10 ثواني لحبس الدم في الفاشيا.",
+      anatomyGifUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       sets: [
-        { setNum: 1, weight: "35", reps: "12", completed: false },
-        { setNum: 2, weight: "40", reps: "10", completed: false }
-      ]
-    }
+        { setNum: 1, weight: "17.5", reps: "12", completed: false },
+        { setNum: 2, weight: "17.5", reps: "12", completed: false },
+        { setNum: 3, weight: "17.5", reps: "12", completed: false },
+        { setNum: 4, weight: "17.5", reps: "12", completed: false },
+        { setNum: 5, weight: "17.5", reps: "12", completed: false },
+        { setNum: 6, weight: "17.5", reps: "12", completed: false },
+        { setNum: 7, weight: "17.5", reps: "12", completed: false },
+      ],
+    },
   ]);
 
-  // Handle rest timer countdown
+  // Meals with Calories, Macros, and Strict Coach Timing
+  const [meals, setMeals] = useState<MealItem[]>([
+    {
+      id: "m-1",
+      name: "وجبة 1: شوفان باللبن + سكوب واي + 30 جرام مكسرات",
+      time: "09:00 ص",
+      calories: 550,
+      protein: 42,
+      carbs: 65,
+      fats: 14,
+      targetWaterMl: 500,
+      consumed: true,
+      coachNote: "وجبة بدء اليوم لتعبئة الجليكوجين، اشرب معها نصف لتر ماء.",
+    },
+    {
+      id: "m-2",
+      name: "وجبة 2: 200 جرام صدور دجاج مشوية + 200 جرام أرز بسمتي + طبق سلطة",
+      time: "01:30 م",
+      calories: 680,
+      protein: 58,
+      carbs: 75,
+      fats: 10,
+      targetWaterMl: 750,
+      consumed: true,
+      coachNote: "الالتزام بوزن الأرز بعد الطهي. مسموح بليمون وملح خفيف.",
+    },
+    {
+      id: "m-3",
+      name: "وجبة 3 (وجبة ما قبل التمرين): 250 جرام بطاطا مسلوقة + سكوب إيزوليت",
+      time: "05:00 م",
+      calories: 420,
+      protein: 30,
+      carbs: 60,
+      fats: 3,
+      targetWaterMl: 500,
+      consumed: false,
+      coachNote: "تناولها قبل التمرين بساعة ونصف لتوفير طاقة تفجيرية في الرفع.",
+    },
+  ]);
+
+  // Rest Timer Controller
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any = null;
     if (timerActive && restSeconds > 0) {
-      interval = setInterval(() => {
-        setRestSeconds((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setRestSeconds(prev => prev - 1), 1000);
     } else if (restSeconds === 0 && timerActive) {
       setTimerActive(false);
-      // Play brief sound or vibrate if supported
-      if (typeof window !== "undefined" && "vibrate" in navigator) {
-        navigator.vibrate([200, 100, 200]);
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("انتهى وقت الراحة ⏱️", { body: "ابدأ مجموعتك التالية الآن للحفاظ على شدة التمرين!" });
       }
     }
     return () => clearInterval(interval);
   }, [timerActive, restSeconds]);
 
-  const startRestTimer = (seconds: number) => {
-    setRestSeconds(seconds);
+  const startRestTimer = (sec: number) => {
+    setRestSeconds(sec);
     setTimerActive(true);
   };
 
-  const handleCompleteSet = (exerciseIdx: number, setIdx: number) => {
-    const updated = [...exercises];
-    const currentSet = updated[exerciseIdx].sets[setIdx];
-    const isNowCompleted = !currentSet.completed;
-    currentSet.completed = isNowCompleted;
-    setExercises(updated);
-
-    if (isNowCompleted) {
-      // Check if PR (e.g. weight >= 85 on bench press)
-      const weightNum = parseFloat(currentSet.weight) || 0;
-      if (weightNum >= 85) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.7 }
-        });
-        alert("🔥 كفو يا كابتن! حققت رقم شخصي جديد (PR) في هذه التمرينة! تم تسجيل الإنجاز وإخطار الكوتش.");
+  const handleToggleSet = (exId: string, setNum: number) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id === exId) {
+        return {
+          ...ex,
+          sets: ex.sets.map(s => {
+            if (s.setNum === setNum) {
+              const nextState = !s.completed;
+              if (nextState) {
+                confetti({ particleCount: 30, spread: 45, origin: { y: 0.8 } });
+                startRestTimer(ex.restSeconds || 60);
+              }
+              return { ...s, completed: nextState };
+            }
+            return s;
+          }),
+        };
       }
-
-      // Start automatic 60s rest timer
-      startRestTimer(60);
-    }
+      return ex;
+    }));
   };
 
+  const totalCalories = meals.reduce((sum, m) => sum + (m.consumed ? m.calories : 0), 0);
+  const targetCalories = meals.reduce((sum, m) => sum + m.calories, 0);
+
   return (
-    <div className="min-h-screen bg-[#07040D] text-slate-100 flex flex-col font-sans max-w-md mx-auto shadow-2xl border-x border-purple-950/40 selection:bg-[#7C3AED]" dir="rtl">
+    <div className="min-h-screen bg-[#07040D] text-white flex flex-col font-sans selection:bg-[#7C3AED] selection:text-white max-w-lg mx-auto shadow-2xl border-x border-white/[0.04]" dir="rtl">
       
-      {/* Client Header */}
-      <header className="bg-[#110A1E] border-b border-purple-900/30 p-4 sticky top-0 z-40 flex items-center justify-between">
+      {/* Mobile-First App Header */}
+      <header className="px-5 py-4 border-b border-white/[0.04] bg-[#0A0514]/90 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/pr-logo.png" alt="CoachPR" className="h-8 w-auto object-contain" />
+          <img src="/pr-logo.png" alt="PR" className="h-7 w-auto object-contain filter drop-shadow-[0_0_8px_rgba(167,139,250,0.4)]" />
           <div>
-            <div className="text-xs font-bold text-white flex items-center gap-1.5">
-              <span>كريم أحمد</span>
-              <span className="text-[10px] bg-purple-900/60 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">CoachPR</span>
-            </div>
-            <div className="text-[10px] text-slate-400">المدرب: كابتن عمر مصطفى</div>
+            <span className="font-heading font-black text-sm tracking-wide text-white block">
+              COACH<span className="text-[#A78BFA]">PR</span>
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">كابتن كريم أحمد (VIP)</span>
           </div>
         </div>
 
-        {/* Daily Streak Badge */}
-        <div className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full">
-          <Flame className="w-4 h-4 text-orange-400 fill-orange-400 animate-pulse" />
-          <span className="text-xs font-black text-orange-300 font-mono">{streakDays} يوم</span>
-        </div>
+        <Link 
+          href="/dashboard"
+          className="text-[11px] px-3 py-1 rounded-xl bg-[#140A24] border border-white/[0.08] text-slate-300 hover:text-white transition"
+        >
+          لوحة المدرب
+        </Link>
       </header>
 
-      {/* Floating Rest Timer Bar (When Active) */}
+      {/* Floating Rest Timer Alert Bar */}
       {timerActive && (
-        <div className="sticky top-[61px] z-30 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] px-4 py-2 text-white flex items-center justify-between shadow-lg text-xs font-bold animate-fadeIn">
+        <div className="sticky top-[57px] z-30 bg-[#1A0E2E] border-b border-[#7C3AED] px-4 py-2 text-white flex items-center justify-between text-xs font-bold animate-fadeIn">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 animate-spin" />
+            <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-ping" />
             <span>وقت الراحة بين المجموعات:</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-base font-black bg-black/30 px-2.5 py-0.5 rounded-lg">
+            <span className="font-mono text-base font-black text-[#A78BFA] bg-black/40 px-2.5 py-0.5 rounded-lg border border-purple-500/20">
               00:{restSeconds < 10 ? `0${restSeconds}` : restSeconds}
             </span>
             <button 
               onClick={() => setTimerActive(false)}
-              className="text-[11px] bg-black/40 hover:bg-black/60 px-2 py-0.5 rounded"
+              className="text-[10px] bg-white/[0.08] hover:bg-white/[0.15] px-2 py-0.5 rounded-lg"
             >
               تخطي
             </button>
@@ -172,264 +228,236 @@ export default function ClientAppPage() {
         </div>
       )}
 
-      {/* Top Tabs */}
-      <div className="grid grid-cols-3 bg-[#110A1E] border-b border-purple-900/30 text-xs font-bold text-center">
+      {/* Navigation Tabs */}
+      <div className="grid grid-cols-3 bg-[#0A0514] border-b border-white/[0.04] text-xs font-bold text-center">
         <button
           onClick={() => setActiveTab("workout")}
-          className={`py-3 transition flex items-center justify-center gap-1.5 border-b-2 ${
-            activeTab === "workout" ? "border-[#A78BFA] text-[#A78BFA] bg-purple-950/20" : "border-transparent text-slate-400"
+          className={`py-3 transition border-b-2 ${
+            activeTab === "workout" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
           }`}
         >
-          <Dumbbell className="w-3.5 h-3.5" />
-          <span>تمرينة اليوم</span>
+          تمرينة اليوم
         </button>
-
         <button
           onClick={() => setActiveTab("diet")}
-          className={`py-3 transition flex items-center justify-center gap-1.5 border-b-2 ${
-            activeTab === "diet" ? "border-[#A78BFA] text-[#A78BFA] bg-purple-950/20" : "border-transparent text-slate-400"
+          className={`py-3 transition border-b-2 ${
+            activeTab === "diet" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
           }`}
         >
-          <Apple className="w-3.5 h-3.5" />
-          <span>وجباتي</span>
+          وجباتي والماكروز
         </button>
-
         <button
           onClick={() => setActiveTab("checkin")}
-          className={`py-3 transition flex items-center justify-center gap-1.5 border-b-2 ${
-            activeTab === "checkin" ? "border-[#A78BFA] text-[#A78BFA] bg-purple-950/20" : "border-transparent text-slate-400"
+          className={`py-3 transition border-b-2 ${
+            activeTab === "checkin" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>الـ 10/10 وفورم</span>
+          ستريك الالتزام
         </button>
       </div>
 
-      {/* Content Area */}
-      <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+      {/* Body Viewport */}
+      <main className="flex-1 p-4 space-y-4 overflow-y-auto">
         
-        {/* TAB 1: WORKOUT */}
+        {/* VIEW 1: WORKOUT */}
         {activeTab === "workout" && (
           <div className="space-y-4">
-            {/* Workout Day Banner */}
-            <div className="bg-gradient-to-r from-[#17102A] to-[#120A21] p-4 rounded-2xl border border-purple-900/40 flex items-center justify-between">
+            
+            {/* Day Header Banner */}
+            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">الجدول المخصص · اليوم 2</span>
-                <h2 className="text-base font-black font-heading text-white mt-0.5">Push Day: عضلات الصدر والتراي</h2>
-                <p className="text-xs text-slate-400 mt-1">3 تمارين · 7 مجموعات متبقية</p>
+                <span className="text-[10px] text-[#A78BFA] font-mono block">اليوم 2: عضلات الدفع (Push Day)</span>
+                <h2 className="text-base font-bold text-white mt-0.5">صدر عالي + بنش مستوي + فنش FST-7</h2>
               </div>
-              <button 
-                onClick={() => startRestTimer(90)}
-                className="bg-[#1C1133] border border-purple-500/30 text-purple-300 p-2.5 rounded-xl hover:text-white transition"
-                title="تايمر يدوي"
-              >
-                <Clock className="w-4 h-4" />
-              </button>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-[#1A1030] border border-purple-500/30 text-[#A78BFA]">
+                3 تمارين
+              </span>
             </div>
 
-            {/* Exercises List */}
-            {exercises.map((ex, exIdx) => (
-              <div key={ex.id} className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-bold text-white text-xs sm:text-sm">{ex.name}</h3>
-                    <div className="text-[10px] text-purple-400 mt-0.5">{ex.target}</div>
-                  </div>
-                  <button 
-                    onClick={() => alert(`تشغيل فيديو التكنيك الصحيح لـ ${ex.name}`)}
-                    className="flex items-center gap-1 text-[10px] bg-purple-900/40 text-purple-300 border border-purple-500/30 px-2 py-1 rounded-lg hover:text-white"
-                  >
-                    <Play className="w-3 h-3 fill-current" />
-                    <span>فيديو التكنيك</span>
-                  </button>
-                </div>
+            {/* Exercises List with Anatomy GIFs & Deep Set Logic */}
+            <div className="space-y-3">
+              {exercises.map((ex, exIdx) => (
+                <div key={ex.id} className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-3">
+                  
+                  {/* Title & Anatomy Visual Trigger */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-bold text-white text-sm">{ex.name}</h3>
+                      <span className="text-[10px] text-slate-400 font-mono block mt-0.5">{ex.target}</span>
+                    </div>
 
-                {/* Previous record badge */}
-                <div className="bg-[#110A1E] px-2.5 py-1 rounded-lg text-[10px] text-slate-400 flex items-center justify-between border border-purple-900/20">
-                  <span>أفضل أداء سابق (PR):</span>
-                  <span className="text-[#A78BFA] font-bold font-mono">{ex.previousBest}</span>
-                </div>
-
-                {/* Sets Grid */}
-                <div className="space-y-1.5">
-                  <div className="grid grid-cols-4 text-[10px] text-slate-400 font-bold text-center px-1">
-                    <span>المجموعة</span>
-                    <span>الوزن (kg)</span>
-                    <span>العدات</span>
-                    <span>تم؟</span>
-                  </div>
-
-                  {ex.sets.map((set, setIdx) => (
-                    <div 
-                      key={set.setNum}
-                      className={`grid grid-cols-4 items-center text-center p-2 rounded-xl text-xs transition border ${
-                        set.completed 
-                          ? "bg-purple-950/20 border-purple-600/30 text-purple-200"
-                          : "bg-[#110A1E] border-purple-900/20 text-white"
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => setShowGifModal(ex)}
+                      className="px-2.5 py-1 rounded-xl bg-[#1A1030] hover:bg-[#251445] border border-purple-500/30 text-[#A78BFA] text-[11px] font-bold flex items-center gap-1 transition"
                     >
-                      <span className="font-mono font-bold">#{set.setNum}</span>
-                      <input
-                        type="text"
-                        value={set.weight}
-                        onChange={(e) => {
-                          const updated = [...exercises];
-                          updated[exIdx].sets[setIdx].weight = e.target.value;
-                          setExercises(updated);
-                        }}
-                        className="w-14 mx-auto bg-[#17102A] border border-purple-900/40 rounded py-0.5 text-center font-bold text-white focus:outline-none focus:border-[#7C3AED]"
-                      />
-                      <input
-                        type="text"
-                        value={set.reps}
-                        onChange={(e) => {
-                          const updated = [...exercises];
-                          updated[exIdx].sets[setIdx].reps = e.target.value;
-                          setExercises(updated);
-                        }}
-                        className="w-12 mx-auto bg-[#17102A] border border-purple-900/40 rounded py-0.5 text-center font-bold text-white focus:outline-none focus:border-[#7C3AED]"
-                      />
-                      <button
-                        onClick={() => handleCompleteSet(exIdx, setIdx)}
-                        className={`w-7 h-7 mx-auto rounded-lg flex items-center justify-center transition ${
+                      <span>تشريح وحركة التمرين (GIF)</span>
+                    </button>
+                  </div>
+
+                  {/* Coach Detailed Techniques Box (Tempo, Super Sets, Drop Sets) */}
+                  <div className="p-3 rounded-xl bg-[#120A22] border border-white/[0.04] space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-slate-400">التكنيك: <b className="text-white">{ex.techniqueType}</b></span>
+                      <span className="text-[#A78BFA]">التمبو: {ex.tempo}</span>
+                      <span className="text-slate-400">راحة: {ex.restSeconds}ث</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed border-t border-white/[0.04] pt-1.5">
+                      <span className="text-[#A78BFA] font-bold">تعليمات الكوتش: </span>
+                      {ex.coachNotes}
+                    </p>
+                  </div>
+
+                  {/* Sets Log Table (Weight / Reps / Checkbox) */}
+                  <div className="space-y-1.5 text-xs">
+                    <div className="grid grid-cols-4 text-[10px] text-slate-500 font-mono px-2">
+                      <span>المجموعة</span>
+                      <span>الوزن (kg)</span>
+                      <span>العدادات</span>
+                      <span className="text-left">الحالة</span>
+                    </div>
+
+                    {ex.sets.map((set) => (
+                      <div 
+                        key={set.setNum}
+                        onClick={() => handleToggleSet(ex.id, set.setNum)}
+                        className={`grid grid-cols-4 items-center p-2 rounded-xl border transition cursor-pointer text-xs font-mono ${
                           set.completed 
-                            ? "bg-purple-600 text-black shadow-md shadow-purple-600/30"
-                            : "bg-[#1C1133] border border-purple-500/30 text-purple-300 hover:border-purple-400"
+                            ? "bg-[#180E2E] border-[#7C3AED] text-white" 
+                            : "bg-[#090412] border-white/[0.04] text-slate-300 hover:border-white/[0.08]"
                         }`}
                       >
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* Complete Workout CTA */}
-            <button
-              onClick={() => {
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-                setDailyScore(10);
-                alert("عاش يا وحش! أتممت تمرينة اليوم بنجاح وحصلت على علامة 10/10 في الالتزام!");
-              }}
-              className="w-full py-3.5 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white font-black text-sm rounded-2xl shadow-xl shadow-purple-900/50 hover:opacity-95 transition flex items-center justify-center gap-2"
-            >
-              <Award className="w-5 h-5" />
-              <span>إنهاء تمرينة اليوم وتسجيل الأداء</span>
-            </button>
-          </div>
-        )}
-
-        {/* TAB 2: DIET */}
-        {activeTab === "diet" && (
-          <div className="space-y-4">
-            <div className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-slate-300">السعرات المتبقية اليوم</span>
-                <span className="text-sm font-black text-amber-400 font-mono">650 / 2350 kcal</span>
-              </div>
-              <div className="w-full bg-[#110A1E] h-2.5 rounded-full overflow-hidden border border-purple-900/20">
-                <div className="bg-gradient-to-r from-purple-500 to-amber-500 h-full rounded-full" style={{ width: "72%" }} />
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              {[
-                { name: "وجبة 1: الإفطار", items: "3 بيضات مسلوقة + 60 جم شوفان + موزة", done: true },
-                { name: "وجبة 2: الغداء (قبل التمرين)", items: "180 جم صدور فراخ + 200 جم أرز أبيض + سلطة خضراء", done: true },
-                { name: "وجبة 3: العشاء (الاستشفاء)", items: "150 جم جبن قريش + ملعقة زيت زيتون + رغيف بلدي", done: false }
-              ].map((m, idx) => (
-                <div key={idx} className="bg-[#140C24] p-3.5 rounded-2xl border border-purple-900/30 flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-white">{m.name}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">{m.items}</div>
+                        <span className="font-bold">Set {set.setNum}</span>
+                        <span>{set.weight} kg</span>
+                        <span>{set.reps} reps</span>
+                        <div className="text-left">
+                          <span className={`text-[10px] px-2 py-0.5 rounded-lg border font-bold ${
+                            set.completed ? "bg-[#7C3AED] text-white border-transparent" : "border-white/[0.08] text-slate-500"
+                          }`}>
+                            {set.completed ? "تم ✓" : "سجّل"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <button 
-                    onClick={() => alert("تم تسجيل الوجبة بنجاح!")}
-                    className={`text-xs px-3 py-1.5 rounded-xl font-bold transition ${
-                      m.done 
-                        ? "bg-purple-600/20 text-purple-300 border border-purple-600/30" 
-                        : "bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
-                    }`}
-                  >
-                    {m.done ? "أكلتها ✓" : "سجل الآن"}
-                  </button>
+
                 </div>
               ))}
             </div>
+
           </div>
         )}
 
-        {/* TAB 3: CHECKIN & 10/10 SCORE */}
-        {activeTab === "checkin" && (
+        {/* VIEW 2: DIET & CALORIES */}
+        {activeTab === "diet" && (
           <div className="space-y-4">
-            {/* Daily 10/10 Score Gauge */}
-            <div className="bg-[#140C24] p-5 rounded-2xl border border-purple-900/30 text-center space-y-2">
-              <span className="text-xs text-slate-400 font-bold">تقييم الالتزام اليومي</span>
-              <div className="text-4xl font-black font-heading text-[#A78BFA] flex items-center justify-center gap-1">
-                <span>{dailyScore}</span>
-                <span className="text-xl text-slate-500 font-sans">/ 10</span>
+            
+            {/* Calories Progress Card */}
+            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 text-center space-y-2">
+              <span className="text-[10px] text-slate-400 font-mono">السعرات الحرارية المستهلكة اليوم</span>
+              <div className="text-2xl font-black font-mono text-white">
+                {totalCalories} <span className="text-xs text-[#A78BFA]">/ {targetCalories} kcal</span>
               </div>
-              <p className="text-xs text-slate-300">أتممت تمرينك وسجلت وجبتين. استمر للحفاظ على سلسلة الـ {streakDays} يوماً!</p>
+              <div className="w-full bg-[#140B24] h-2 rounded-full overflow-hidden max-w-xs mx-auto">
+                <div 
+                  className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] h-full"
+                  style={{ width: `${Math.min(100, (totalCalories / targetCalories) * 100)}%` }}
+                />
+              </div>
             </div>
 
-            {/* Water Tracker */}
-            <div className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl">
-                  <Droplet className="w-5 h-5" />
+            {/* Meals List */}
+            <div className="space-y-3">
+              {meals.map((meal) => (
+                <div key={meal.id} className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-white text-sm">{meal.name}</h4>
+                      <span className="text-[10px] text-slate-400 font-mono block mt-0.5">موعد الوجبة: {meal.time}</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-[#A78BFA] font-bold">{meal.calories} kcal</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-400 bg-[#0A0514] p-2 rounded-xl">
+                    <span>بروتين: <b className="text-white">{meal.protein}g</b></span>
+                    <span>كاربوهيدرات: <b className="text-white">{meal.carbs}g</b></span>
+                    <span>دهون: <b className="text-white">{meal.fats}g</b></span>
+                  </div>
+
+                  <p className="text-[11px] text-slate-300 leading-relaxed border-t border-white/[0.03] pt-1.5">
+                    <span className="text-[#A78BFA] font-bold">توجيه الكابتن: </span>
+                    {meal.coachNote}
+                  </p>
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-white">شرب المياه اليومي</div>
-                  <div className="text-[11px] text-slate-400">{waterGlasses} أكواب من 8 (2.5 لتر)</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setWaterGlasses(prev => Math.min(8, prev + 1))}
-                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition"
-              >
-                + شربت كوب
-              </button>
+              ))}
             </div>
 
-            {/* Form Check Video Upload */}
-            <div className="bg-[#140C24] p-4 rounded-2xl border border-purple-900/30 space-y-3">
-              <div className="flex items-center gap-2">
-                <Video className="w-4 h-4 text-purple-400" />
-                <h3 className="text-xs font-bold text-white">إرسال فيديو فورم تشيك للكوتش</h3>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                صوّر آخر مجموعة في تمرين اليوم وارفعها هنا. الكابتن هيشوف الفيديو ويرد عليك بفويس نوت وملاحظات دقيقة على التكنيك.
-              </p>
-              <button
-                onClick={() => alert("تم فتح الكاميرا لتصوير الرفعة وإرسالها للكابتن")}
-                className="w-full py-2.5 bg-[#17102A] hover:bg-[#6D28D9]/40 border border-purple-500/30 text-purple-200 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition"
-              >
-                <Video className="w-4 h-4 text-purple-300" />
-                <span>تصوير أو رفع فيديو (Form Check)</span>
-              </button>
-            </div>
-
-            {/* WhatsApp Coach Chat */}
-            <a
-              href="https://wa.me/201144826641?text=كابتن أنا في الجيم ومحتاج استفسار عن تمرين اليوم"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>محادثة الكابتن على واتساب</span>
-            </a>
           </div>
         )}
-      </div>
 
-      {/* Footer Navigation Switcher */}
-      <footer className="bg-[#110A1E] border-t border-purple-900/30 p-2.5 text-center text-xs text-slate-500">
-        <Link href="/dashboard" className="text-purple-400 hover:text-white font-bold transition">
-          ← تبديل لواجهة المدرب (Coach Dashboard)
-        </Link>
+        {/* VIEW 3: CHECK-IN */}
+        {activeTab === "checkin" && (
+          <div className="p-6 rounded-3xl bg-[#0D0717] border border-white/[0.05] text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#1A1030] border border-purple-500/30 text-[#A78BFA] text-2xl font-black font-mono mx-auto flex items-center justify-center">
+              19
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">ستريك الالتزام: 19 يوم متواصل 🔥</h3>
+              <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                استمرارك بدون انقطاع ينعكس فوراً على رانك حسابك ويظهر في لوحة تحكم مدربك.
+              </p>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Anatomy Execution GIF Modal (Clean visual guidance without video errors) */}
+      {showGifModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0E071A] border border-[#7C3AED] rounded-3xl max-w-sm w-full p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-white text-sm">{showGifModal.name}</h3>
+              <button 
+                onClick={() => setShowGifModal(null)}
+                className="text-xs px-2 py-1 rounded-lg bg-white/[0.08] text-slate-400 hover:text-white"
+              >
+                إغلاق ✕
+              </button>
+            </div>
+
+            {/* Visual Anatomy Execution Image/GIF */}
+            <div className="rounded-2xl overflow-hidden border border-white/[0.08] bg-[#07040D] aspect-video flex items-center justify-center">
+              <img 
+                src={showGifModal.anatomyGifUrl} 
+                alt={showGifModal.name} 
+                className="w-full h-full object-cover" 
+              />
+            </div>
+
+            <div className="text-xs space-y-1.5 text-slate-300">
+              <span className="text-[#A78BFA] font-bold block">العضلات المستهدفة: {showGifModal.target}</span>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                {showGifModal.coachNotes}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowGifModal(null)}
+              className="w-full py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-xl"
+            >
+              فهمت التكنيك الصحيح ✓
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="py-3 text-center text-[10px] text-slate-600 border-t border-white/[0.03]">
+        CoachPR Athlete Interface · 2026
       </footer>
+
     </div>
   );
 }
