@@ -19,6 +19,7 @@ export interface AnatomyExercise {
   tips: string[];
   mistakes: string[];
   view: "front" | "back";
+  gifUrl?: string;
 }
 
 export const MUSCLE_GROUPS: MuscleGroup[] = [
@@ -52,7 +53,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["ضم لوحي الكتف للخلف والأسفل (Retraction & Depression)", "النزول بالبار لمنتصف الصدر مع كوع بزاوية 45-75 درجة"],
     mistakes: ["فتح الكوعين بزاوية 90 درجة مما يضغط أوتار الكتف", "ارتطام البار بعظمة القص"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/barbell-bench-press.gif",
   },
   {
     id: "ex-2",
@@ -65,7 +67,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["زاوية المقعد المثالية 30 إلى 45 درجة فقط لعزل الجزء العلوي", "دفع الدمبلز بنصف قوس خفيف دون خبطهما بالأعلى"],
     mistakes: ["رفع المقعد لدرجة 60 مما يحول التمرين لتمرين أكتاف", "قوس مبالغ فيه في أسفل الظهر"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/dumbbell-incline-bench-press.gif",
   },
   {
     id: "ex-3",
@@ -78,7 +81,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["عصر الصدر العلوي في نهاية كل عدة لثانية واحدة", "الحفاظ على ثني خفيف وثابت في الكوعين طوال الحركة"],
     mistakes: ["استخدام وزن ثقيل يجبرك على أرجحة الجذع", "تغيير زاوية الكوع كأنه دفع بنش"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/cable-standing-fly.gif",
   },
 
   // FRONT & SIDE DELTS
@@ -93,7 +97,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["رفع الكوع بمستوى الكتف أو أعلى قليلاً في زاوية Scaption Plane", "التركيز على الدفع للخارج وليس للأعلى"],
     mistakes: ["استخدام أوزان ثقيلة وهز الوسط", "رفع اليد أعلى بكثير من الكوع"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/delts/dumbbell-lateral-raise.gif",
   },
   {
     id: "ex-5",
@@ -106,7 +111,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["إمالة المقعد درجة واحدة للخلف لحماية أوتار الكتف", "النزول حتى يصبح الدمبل بمستوى شحمة الأذن"],
     mistakes: ["الضغط بدون ثبات أسفل الظهر", "قفل الكوعين بقوة وعنف في الأعلى"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/delts/dumbbell-lateral-raise.gif",
   },
 
   // BICEPS
@@ -121,7 +127,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["تثبيت الكوعين بجانب الجذع تماماً", "الصعود بتحكم مع عصر البايسبس في القمة"],
     mistakes: ["أرجحة الظهر واستخدام عزم الدفع", "تحريك الكوعين للأمام لمسافة كبيرة"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/biceps/barbell-curl.gif",
   },
   {
     id: "ex-7",
@@ -134,7 +141,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["يضع الرأس الطويل للبايسبس في أقصى إطالة ممكنة", "النزول لأسفل بفرد الذراع بشكل كامل تحت سيطرة"],
     mistakes: ["اختيار أوزان لا تسمح بالمد الحركي الكامل"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/biceps/barbell-curl.gif",
   },
 
   // ABS & CORE
@@ -149,7 +157,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["تدوير الحوض للأعلى (Posterior Pelvic Tilt) وليس مجرد رفع الفخذين", "التحكم في النزول لتجنب المرجحة"],
     mistakes: ["استخدام عضلات الورم الحرقفي (Hip Flexors) فقط دون طي البطن"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/abs/hanging-leg-raise.gif",
   },
 
   // QUADS
@@ -164,7 +173,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["أخذ نفس بطني عميق وكتمه (Bracing / Valsalva)", "النزول مع الحفاظ على الركبتين باتجاه اتجاه أصابع القدم"],
     mistakes: ["دخول الركبتين للداخل (Knee Valgus)", "انحناء أسفل الظهر في قاع العدة (Butt Wink)"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/barbell-full-squat-back-pov.gif",
   },
   {
     id: "ex-10",
@@ -177,7 +187,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["ضبط محور الجهاز بالتوازي التام مع مفصل الركبة", "عصر الكوادز في الأعلى لمدة ثانية كاملة"],
     mistakes: ["النتر السريع بدون سيطرة سلبية في مرحلة النزول"],
-    view: "front"
+    view: "front",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/quads/lever-leg-extension.gif",
   },
 
   // BACK (LATS & TRAPS)
@@ -192,7 +203,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["سحب المقبض باتجاه أعلى الصدر مع إرجاع الكوعين للأسفل والخلف", "تخيل أنك تسحب بكوعك وليس بقبضة يدك"],
     mistakes: ["إرجاع الظهر للخلف بزاوية كبيرة كأنه تمرين تجديف", "سحب البار خلف الرقبة"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/lats/cable-lat-pulldown-full-range-of-motion.gif",
   },
   {
     id: "ex-12",
@@ -205,7 +217,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["ثني الجذع بزاوية 45 إلى 70 درجة مع ثبات الظهر مستقيماً", "سحب البار باتجاه السرة لعصر اللاتس"],
     mistakes: ["تقوس الظهر مما يعرض الفقرات القطنية لخطر كبير"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/upper-back/barbell-bent-over-row.gif",
   },
 
   // TRICEPS
@@ -220,7 +233,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["فرد الحبل للخارج في أسفل الحركة لعزل الرأس الجانبي", "تثبيت الكوعين بجانب الجسم دون أي تحرك"],
     mistakes: ["الميل بالأكتاف واستخدام وزن الجسم للدفع"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/triceps/cable-pushdown-with-rope-attachment.gif",
   },
 
   // HAMSTRINGS & GLUTES
@@ -235,7 +249,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "compound",
     tips: ["دفع الحوض للخلف (Hip Hinge) مع الحفاظ على البار ملامساً للساق", "ثني خفيف جداً وثابت في الركبة"],
     mistakes: ["النزول كأنه اسكوات بدلاً من إرجاع الحوض للخلف", "تقوس العمود الفقري"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/barbell-deadlift.gif",
   },
   {
     id: "ex-15",
@@ -248,7 +263,8 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["الجلوس وثني الحوض للأمام قليلاً لزيادة استطالة الهامسترنج", "النزول البطيء والمقاومة السلبية"],
     mistakes: ["ارتفاع الفخذين عن المقعد أثناء الضغط"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/hamstrings/cable-assisted-inverse-leg-curl.gif",
   },
 
   // CALVES
@@ -263,6 +279,7 @@ export const ANATOMY_EXERCISES_DATABASE: AnatomyExercise[] = [
     mechanics: "isolation",
     tips: ["النزول في أقصى إطالة ممكنة والثبات ثانية في القاع", "الصعود على مشط القدمين بالكامل"],
     mistakes: ["النط السريع والمرونة المطاطية دون تحميل حقيقي على العضلة"],
-    view: "back"
+    view: "back",
+    gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/quads/lever-leg-extension.gif",
   }
 ];

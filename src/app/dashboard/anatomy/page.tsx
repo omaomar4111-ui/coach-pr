@@ -223,6 +223,21 @@ export default function AnatomyPage() {
                 <p className="text-xs text-slate-400 font-mono">{selectedExercise.nameEn}</p>
               </div>
 
+              {/* Anatomy Loop GIF & Muscle Target */}
+              {selectedExercise.gifUrl && (
+                <div className="relative w-full h-48 bg-black rounded-2xl overflow-hidden border border-purple-900/40 flex items-center justify-center">
+                  <img
+                    src={selectedExercise.gifUrl}
+                    alt={selectedExercise.nameAr}
+                    className="w-full h-full object-contain filter contrast-110"
+                    loading="lazy"
+                  />
+                  <span className="absolute bottom-2 right-2 text-[9px] font-mono text-purple-200 bg-black/80 px-2 py-0.5 rounded-full border border-purple-500/30">
+                    مجسم أناتومي حركي (Loop)
+                  </span>
+                </div>
+              )}
+
               {/* Anatomy Target Matrix */}
               <div className="bg-[#110A1E] p-3.5 rounded-2xl border border-purple-900/30 space-y-2">
                 <div className="flex items-center justify-between text-xs">

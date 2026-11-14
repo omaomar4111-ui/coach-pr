@@ -68,7 +68,7 @@ export default function UnifiedMasterApp() {
       weightKg: 85,
       reps: 8,
       completed: true,
-      anatomyGifUrl: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80",
+      anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/barbell-bench-press.gif",
     },
     {
       id: "ex-2",
@@ -81,7 +81,7 @@ export default function UnifiedMasterApp() {
       weightKg: 30,
       reps: 10,
       completed: false,
-      anatomyGifUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80",
+      anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/dumbbell-incline-bench-press.gif",
     },
     {
       id: "ex-3",
@@ -94,7 +94,7 @@ export default function UnifiedMasterApp() {
       weightKg: 17.5,
       reps: 12,
       completed: false,
-      anatomyGifUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
+      anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/cable-standing-fly.gif",
     },
   ]);
 
@@ -619,12 +619,13 @@ export default function UnifiedMasterApp() {
               </button>
             </div>
 
-            {/* Real Anatomical Vector Muscle Map */}
+            {/* Real Anatomical Vector Muscle Map & Movement Loop */}
             <ExerciseVisualAnatomyCard
               exerciseName={anatomyModal.name}
               primaryMuscle={anatomyModal.target}
               techniqueNote={anatomyModal.techniqueNote}
               tempo={anatomyModal.tempo}
+              gifUrl={anatomyModal.anatomyGifUrl}
             />
 
             <button
