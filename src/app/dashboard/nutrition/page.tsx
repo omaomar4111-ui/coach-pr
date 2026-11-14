@@ -188,7 +188,7 @@ export default function NutritionDietBuilderPage() {
             onClick={() => setShowGroceryModal(true)}
             className="bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
           >
-            <ShoppingCart className="w-4 h-4 text-emerald-400" />
+            <ShoppingCart className="w-4 h-4 text-purple-300" />
             <span>قائمة مشتريات الأسبوع</span>
           </button>
 
@@ -437,7 +437,7 @@ export default function NutritionDietBuilderPage() {
           <div className="bg-[#140C24] border border-purple-900/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-emerald-400" />
+                <ShoppingCart className="w-5 h-5 text-purple-300" />
                 <h3 className="text-base font-bold text-white">قائمة مشتريات الأسبوع للمتدرب (Grocery List)</h3>
               </div>
               <button onClick={() => setShowGroceryModal(false)} className="text-slate-400 hover:text-white">✕</button>

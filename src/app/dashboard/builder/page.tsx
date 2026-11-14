@@ -296,7 +296,7 @@ export default function WorkoutBuilderPage() {
               {/* Paste from Excel Button */}
               <button
                 onClick={() => setShowExcelModal(true)}
-                className="bg-[#107C41]/20 hover:bg-[#107C41]/30 text-[#4ADE80] border border-[#107C41]/40 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                className="bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#A78BFA] border border-[#7C3AED]/40 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 <span>لصق من Excel (Paste)</span>
@@ -322,7 +322,7 @@ export default function WorkoutBuilderPage() {
                 <div className="flex justify-center gap-3">
                   <button
                     onClick={() => setShowExcelModal(true)}
-                    className="text-xs text-emerald-400 hover:underline font-bold"
+                    className="text-xs text-purple-300 hover:underline font-bold"
                   >
                     + الصق من إكسيل الآن
                   </button>
@@ -469,7 +469,7 @@ export default function WorkoutBuilderPage() {
           <div className="bg-[#140C24] border border-purple-900/50 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
+                <FileSpreadsheet className="w-5 h-5 text-purple-300" />
                 <h3 className="text-base font-bold text-white">لصق تمارين من شيت Excel في ثوانٍ</h3>
               </div>
               <button onClick={() => setShowExcelModal(false)} className="text-slate-400 hover:text-white">✕</button>
@@ -498,7 +498,7 @@ export default function WorkoutBuilderPage() {
                 </button>
                 <button
                   onClick={handleParseExcel}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-900/40"
+                  className="px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-900/40"
                 >
                   تحويل وإضافة التمارين الآن
                 </button>

@@ -151,7 +151,7 @@ export default function DashboardPage() {
             <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
           </Link>
           <span className="text-xs font-semibold px-2.5 py-1 bg-[#17102A] text-purple-300 border border-purple-500/30 rounded-full flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-purple-300 animate-pulse" />
             لوحة تحكم المدربين
           </span>
         </div>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
             href="/dashboard/business"
             className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
           >
-            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+            <CreditCard className="w-3.5 h-3.5 text-purple-300" />
             <span className="hidden sm:inline">الاشتراكات والجدولة</span>
           </Link>
           <Link 
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center gap-3">
                     <h2 className="text-2xl font-black font-heading text-white">{selectedClient.name}</h2>
-                    <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                    <span className="text-xs bg-purple-600/10 text-purple-300 border border-purple-600/20 px-2 py-0.5 rounded-full font-bold">
                       مشترك نشط
                     </span>
                   </div>
@@ -311,7 +311,7 @@ export default function DashboardPage() {
                 <div className="bg-[#110A1E] p-3.5 rounded-xl border border-purple-900/20">
                   <div className="text-[11px] text-slate-400 mb-1">الوزن الحالي</div>
                   <div className="text-xl font-bold text-white">{selectedClient.currentWeight} كجم</div>
-                  <div className="text-[10px] text-emerald-400 mt-0.5">
+                  <div className="text-[10px] text-purple-300 mt-0.5">
                     {selectedClient.currentWeight < selectedClient.startWeight 
                       ? `نزول ${Math.abs(selectedClient.startWeight - selectedClient.currentWeight).toFixed(1)} كجم` 
                       : "بداية الرحلة"}
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2">
                     <Link 
                       href="/dashboard/nutrition"
-                      className="text-xs text-emerald-400 hover:text-white bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
+                      className="text-xs text-purple-300 hover:text-white bg-purple-950/40 border border-purple-600/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
                     >
                       <Apple className="w-3.5 h-3.5" />
                       <span>خطة الدايت والماكروز</span>

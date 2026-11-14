@@ -264,7 +264,7 @@ export default function ClientAppPage() {
                       key={set.setNum}
                       className={`grid grid-cols-4 items-center text-center p-2 rounded-xl text-xs transition border ${
                         set.completed 
-                          ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                          ? "bg-purple-950/20 border-purple-600/30 text-purple-200"
                           : "bg-[#110A1E] border-purple-900/20 text-white"
                       }`}
                     >
@@ -293,7 +293,7 @@ export default function ClientAppPage() {
                         onClick={() => handleCompleteSet(exIdx, setIdx)}
                         className={`w-7 h-7 mx-auto rounded-lg flex items-center justify-center transition ${
                           set.completed 
-                            ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/30"
+                            ? "bg-purple-600 text-black shadow-md shadow-purple-600/30"
                             : "bg-[#1C1133] border border-purple-500/30 text-purple-300 hover:border-purple-400"
                         }`}
                       >
@@ -348,7 +348,7 @@ export default function ClientAppPage() {
                     onClick={() => alert("تم تسجيل الوجبة بنجاح!")}
                     className={`text-xs px-3 py-1.5 rounded-xl font-bold transition ${
                       m.done 
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
+                        ? "bg-purple-600/20 text-purple-300 border border-purple-600/30" 
                         : "bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
                     }`}
                   >
@@ -405,7 +405,7 @@ export default function ClientAppPage() {
                 onClick={() => alert("تم فتح الكاميرا لتصوير الرفعة وإرسالها للكابتن")}
                 className="w-full py-2.5 bg-[#17102A] hover:bg-[#6D28D9]/40 border border-purple-500/30 text-purple-200 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition"
               >
-                <Video className="w-4 h-4 text-emerald-400" />
+                <Video className="w-4 h-4 text-purple-300" />
                 <span>تصوير أو رفع فيديو (Form Check)</span>
               </button>
             </div>

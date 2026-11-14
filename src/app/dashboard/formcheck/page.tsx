@@ -227,7 +227,7 @@ export default function FormCheckAndAIStudioPage() {
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                           sub.status === "pending" 
                             ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" 
-                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : "bg-purple-600/20 text-purple-200 border border-purple-600/30"
                         }`}>
                           {sub.status === "pending" ? "بانتظار مراجعتك" : "تمت المراجعة ✓"}
                         </span>
@@ -311,7 +311,7 @@ export default function FormCheckAndAIStudioPage() {
                         <span className="text-white">{note.text}</span>
                       </div>
                       {note.hasVoiceNote && (
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded flex items-center gap-1">
+                        <span className="text-[10px] bg-purple-600/20 text-purple-300 border border-purple-600/30 px-2 py-0.5 rounded flex items-center gap-1">
                           <Volume2 className="w-3 h-3" /> فويس نوت مدمج
                         </span>
                       )}
@@ -342,7 +342,7 @@ export default function FormCheckAndAIStudioPage() {
                         isRecordingVoice 
                           ? "bg-rose-600 text-white animate-pulse" 
                           : voiceRecorded 
-                            ? "bg-emerald-600 text-white" 
+                            ? "bg-purple-700 text-white" 
                             : "bg-[#17102A] text-slate-300 border border-purple-900/40 hover:text-white"
                       }`}
                     >
@@ -386,7 +386,7 @@ export default function FormCheckAndAIStudioPage() {
                   <p className="text-[11px] text-slate-400">مساعدك في صياغة الخطط، اقتراح البدائل، والتنبيه بالمتسربين</p>
                 </div>
               </div>
-              <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-bold">
+              <span className="text-xs bg-purple-600/10 text-purple-300 border border-purple-600/20 px-2.5 py-1 rounded-full font-bold">
                 متصل وجاهز للعمل
               </span>
             </div>

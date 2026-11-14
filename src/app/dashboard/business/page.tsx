@@ -216,7 +216,7 @@ export default function BusinessAndSchedulingPage() {
                       <h4 className="font-bold text-white text-sm">{sub.clientName}</h4>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                         sub.status === "active" 
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          ? "bg-purple-600/20 text-purple-300 border border-purple-600/30"
                           : sub.status === "expiring_soon"
                             ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                             : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
@@ -252,7 +252,7 @@ export default function BusinessAndSchedulingPage() {
                       onClick={() => handleToggleFreeze(sub.id)}
                       className={`text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 transition border ${
                         sub.status === "frozen"
-                          ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/40"
+                          ? "bg-purple-700/30 text-purple-200 border-purple-600/40"
                           : "bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600/30"
                       }`}
                     >
@@ -324,7 +324,7 @@ export default function BusinessAndSchedulingPage() {
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="bg-[#140C24] p-6 rounded-2xl border border-purple-900/30 space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-purple-900/20">
-                <Smartphone className="w-5 h-5 text-emerald-400" />
+                <Smartphone className="w-5 h-5 text-purple-300" />
                 <h3 className="text-base font-bold text-white">طرق الدفع المحلية المعتمدة في CoachPRB</h3>
               </div>
 
@@ -383,7 +383,7 @@ export default function BusinessAndSchedulingPage() {
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5">جاهزة للربط بمفتاح الـ API وتأكيد الاشتراكات أوتوماتيكياً عبر الـ Webhook</div>
                 </div>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded font-bold">
+                <span className="text-[10px] bg-purple-600/20 text-purple-300 border border-purple-600/30 px-2 py-1 rounded font-bold">
                   مفعلة
                 </span>
               </div>

@@ -198,3 +198,23 @@ html, body {
 .chips.is-expanded {
   max-height: none !important;
 }
+
+/* Filter images so any embedded lime elements in mockups turn royal purple */
+.shot__dash img, .pt__shot img, .try__shot img, .shot__phone img {
+  filter: hue-rotate(185deg) saturate(1.2) !important;
+}
+
+/* Force all green classes to PR Agency Purple */
+.text-emerald-400, .text-emerald-300, .text-emerald-500, .text-green-400 {
+  color: #A78BFA !important;
+}
+.bg-emerald-500, .bg-emerald-600, .bg-green-500, .bg-green-600 {
+  background-color: #7C3AED !important;
+}
+.bg-emerald-950\/20, .bg-emerald-950\/40, .bg-emerald-500\/10, .bg-emerald-500\/20 {
+  background-color: rgba(124, 58, 237, 0.2) !important;
+  border-color: rgba(167, 139, 250, 0.3) !important;
+}
+.border-emerald-500\/30, .border-emerald-500\/40, .border-emerald-500\/20 {
+  border-color: rgba(167, 139, 250, 0.3) !important;
+}
