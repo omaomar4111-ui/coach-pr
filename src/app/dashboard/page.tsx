@@ -162,6 +162,13 @@ export default function DashboardPage() {
             <div className="text-[11px] text-purple-400">باقة Pro · 50 عميل</div>
           </div>
           <Link 
+            href="/dashboard/anatomy"
+            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+          >
+            <Activity className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">تشريح العضلات (Anatomy)</span>
+          </Link>
+          <Link 
             href="/dashboard/formcheck"
             className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
           >
