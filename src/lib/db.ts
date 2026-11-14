@@ -1,8 +1,144 @@
+import { supabase } from "./supabase";
+import { logAudit } from "./audit";
+
 /**
- * CoachPRB Robust Persistence Layer
- * Provides automatic fallback to in-memory/localStorage cache if Supabase credentials are not set,
- * ensuring zero errors and 100% full functional operation with persistence.
+ * Custom Database Errors
  */
+export class DatabaseConnectionError extends Error {
+  public code: string;
+  public retryable: boolean;
+
+  constructor(message: string, code: string = "DB_CONN_ERR", retryable: boolean = true) {
+    super(message);
+    this.name = "DatabaseConnectionError";
+    this.code = code;
+    this.retryable = retryable;
+  }
+}
+
+export class DatabaseUnavailableError extends Error {
+  public code: string;
+  public retryAfterSec: number;
+
+  constructor(message: string = "Database circuit open due to consecutive failures", retryAfterSec: number = 30) {
+    super(message);
+    this.name = "DatabaseUnavailableError";
+    this.code = "DB_CIRCUIT_OPEN";
+    this.retryAfterSec = retryAfterSec;
+  }
+}
+
+/**
+ * Module-scoped In-Memory Circuit Breaker State (Instance level)
+ * Trip condition: 5 consecutive failures
+ * Recovery: Half-open after 30 seconds
+ */
+let consecutiveFailures = 0;
+const FAILURE_THRESHOLD = 5;
+const CIRCUIT_RESET_MS = 30000;
+let circuitOpenedAt: number | null = null;
+
+export function getCircuitBreakerStatus() {
+  const isOpen = consecutiveFailures >= FAILURE_THRESHOLD;
+  return {
+    isOpen,
+    consecutiveFailures,
+    circuitOpenedAt,
+  };
+}
+
+export function resetCircuitBreaker() {
+  consecutiveFailures = 0;
+  circuitOpenedAt = null;
+}
+
+function recordSuccess() {
+  consecutiveFailures = 0;
+  circuitOpenedAt = null;
+}
+
+function recordFailure(err: any) {
+  consecutiveFailures++;
+  if (consecutiveFailures >= FAILURE_THRESHOLD && !circuitOpenedAt) {
+    circuitOpenedAt = Date.now();
+    logAudit({
+      action: "system.circuit_breaker_opened",
+      resourceType: "system",
+      metadata: {
+        consecutiveFailures,
+        error: String(err?.message || err),
+      },
+    });
+  }
+}
+
+/**
+ * Exponential Backoff with Jitter for Read Operations
+ * Delays: ~100ms, ~500ms, ~2000ms (+ 0-50ms random jitter)
+ */
+const RETRY_DELAYS = [100, 500, 2000];
+
+export async function executeWithRetry<T>(
+  operation: (signal?: AbortSignal) => Promise<T>,
+  isReadOperation: boolean = false,
+  idempotencyKey?: string
+): Promise<T> {
+  const now = Date.now();
+  if (consecutiveFailures >= FAILURE_THRESHOLD) {
+    if (circuitOpenedAt && now - circuitOpenedAt > CIRCUIT_RESET_MS) {
+      // Half-open trial state: allow one attempt
+      circuitOpenedAt = null;
+    } else {
+      throw new DatabaseUnavailableError();
+    }
+  }
+
+  // Non-read operations without idempotency key are strictly NOT retried
+  const allowRetry = isReadOperation || !!idempotencyKey;
+  const maxAttempts = allowRetry ? 3 : 1;
+
+  let lastError: any = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const result = await operation(controller.signal);
+      clearTimeout(timeout);
+      recordSuccess();
+      return result;
+    } catch (err: any) {
+      clearTimeout(timeout);
+      lastError = err;
+
+      // Check if 4xx client / constraint violation error (Do not retry 4xx errors)
+      const isClientError = err?.status >= 400 && err?.status < 500;
+      const isConstraintViolation = err?.code === "23505" || err?.code === "23503";
+
+      if (isClientError || isConstraintViolation) {
+        throw err;
+      }
+
+      if (attempt < maxAttempts) {
+        const baseDelay = RETRY_DELAYS[attempt - 1] || 1000;
+        const jitter = Math.floor(Math.random() * 50);
+        await new Promise((res) => setTimeout(res, baseDelay + jitter));
+      }
+    }
+  }
+
+  // All attempts exhausted
+  recordFailure(lastError);
+
+  if (process.env.NODE_ENV === "production") {
+    throw new DatabaseConnectionError(
+      lastError?.message || "Failed to execute database operation after retries"
+    );
+  }
+
+  throw lastError;
+}
 
 export interface CoachRecord {
   id: string;
@@ -32,6 +168,7 @@ export interface ClientRecord {
     type: "xray" | "lab";
     date: string;
     size: string;
+    storagePath?: string;
     dataUrl?: string;
   }[];
 }
@@ -76,6 +213,7 @@ export interface FormCheckVideoRecord {
   expiresAt: string; // ISO timestamp 12h later
   coachFeedback?: string;
   videoDataUrl?: string;
+  storagePath?: string;
   notesAtSeconds: {
     second: number;
     text: string;
@@ -83,10 +221,10 @@ export interface FormCheckVideoRecord {
   }[];
 }
 
-// Initial In-Memory / Local Storage Store
+// Development / Non-Production In-Memory Fallback
 class CoachStore {
   private static instance: CoachStore;
-  
+
   public clients: ClientRecord[] = [
     {
       id: "client-1",
@@ -219,7 +357,6 @@ class CoachStore {
     return CoachStore.instance;
   }
 
-  // Auto clean up expired videos (>12 hours)
   public purgeExpiredVideos(): number {
     const now = new Date().getTime();
     const initialCount = this.formCheckVideos.length;
@@ -228,4 +365,32 @@ class CoachStore {
   }
 }
 
-export const globalStore = CoachStore.getInstance();
+/**
+ * Proxy for globalStore to guard against memory persistence in production.
+ * In production: accessing globalStore throws DatabaseUnavailableError to prevent silent data loss.
+ */
+export const globalStore = new Proxy({} as CoachStore, {
+  get(_target, prop) {
+    if (process.env.NODE_ENV === "production") {
+      throw new DatabaseUnavailableError(
+        "In-Memory CoachStore fallback is strictly prohibited in production. Configure Supabase credentials."
+      );
+    }
+    const store = CoachStore.getInstance();
+    const val = (store as any)[prop];
+    if (typeof val === "function") {
+      return val.bind(store);
+    }
+    return val;
+  },
+  set(_target, prop, value) {
+    if (process.env.NODE_ENV === "production") {
+      throw new DatabaseUnavailableError(
+        "In-Memory CoachStore fallback is strictly prohibited in production. Configure Supabase credentials."
+      );
+    }
+    const store = CoachStore.getInstance();
+    (store as any)[prop] = value;
+    return true;
+  }
+});

@@ -4,7 +4,7 @@ export interface AuditLogInput {
   actorId?: string;
   actorRole?: "coach" | "client" | "system";
   action: string;
-  resourceType?: "client" | "attachment" | "session" | "plan";
+  resourceType?: "client" | "attachment" | "session" | "plan" | "system";
   resourceId?: string;
   metadata?: Record<string, any>;
   ip?: string;
