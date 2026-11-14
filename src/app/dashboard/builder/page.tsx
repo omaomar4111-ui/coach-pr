@@ -120,6 +120,63 @@ export default function WorkoutBuilderPage() {
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearch, setBankSearch] = useState("");
   const [isSavingPlan, setIsSavingPlan] = useState(false);
+  const [isGeneratingWithArgon, setIsGeneratingWithArgon] = useState(false);
+  const [showArgonModal, setShowArgonModal] = useState(false);
+  const [argonSplit, setArgonSplit] = useState("Upper / Lower (4 days)");
+  const [argonDaysCount, setArgonDaysCount] = useState(4);
+
+  const handleGeneratePlanWithArgon = async () => {
+    setIsGeneratingWithArgon(true);
+    try {
+      const res = await fetch("/api/ai/generate-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: clientProfile.name,
+          goal: clientProfile.goal,
+          daysPerWeek: argonDaysCount,
+          trainingSplit: argonSplit,
+          experienceLevel: "Intermediate",
+          injuries: clientProfile.knownInjuries,
+          currentWeightKg: 83,
+          heightCm: 178,
+          targetCalories: "2350 kcal"
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.plan?.workoutDays) {
+        const formattedDays: WorkoutDay[] = data.plan.workoutDays.map((d: any, idx: number) => ({
+          id: `argon-day-${Date.now()}-${idx}`,
+          dayName: d.dayName,
+          focus: d.focus,
+          exercises: (d.exercises || []).map((ex: any, exIdx: number) => ({
+            id: `argon-ex-${Date.now()}-${idx}-${exIdx}`,
+            name: ex.name,
+            targetMuscle: ex.targetMuscle,
+            sets: Number(ex.sets) || 3,
+            reps: String(ex.reps || "10-12"),
+            weightKg: String(ex.weightKg || "30"),
+            rpe: String(ex.rpe || "8.0"),
+            restSec: Number(ex.restSec) || 90,
+            tempo: ex.tempo || "3-0-1",
+            injuryRisk: ex.safetyReason ? `محمي: ${ex.safetyReason}` : undefined
+          }))
+        }));
+        setDays(formattedDays);
+        setActiveDayIndex(0);
+        setShowArgonModal(false);
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+        alert("تم إنشاء الخطة التدريبية والتغذوية بنجاح بواسطة ذكاء Gemini 4 Argon مع مراعاة كافة التحذيرات الطبية!");
+      } else {
+        alert("تعذر توليد الخطة، تأكد من اتصال السيرفر.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("حدث خطأ أثناء الاتصال بمحرك Gemini 4 Argon");
+    } finally {
+      setIsGeneratingWithArgon(false);
+    }
+  };
 
   // Load real plan and client profile from API
   useEffect(() => {
