@@ -1,592 +1,702 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { 
-  Bot, 
-  Sparkles, 
-  Check, 
-  ArrowLeft, 
-  Share2, 
-  Layers, 
-  ShieldCheck, 
-  FileText, 
-  Key, 
-  MessageCircle, 
-  Send, 
-  CheckCircle,
-  HelpCircle,
-  ExternalLink,
-  ChevronRight,
-  Database,
-  Building2
-} from 'lucide-react';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import confetti from "canvas-confetti";
 
-export default function ClientOnboardingDashboard() {
-  const [activeStep, setActiveStep] = useState<number>(1);
-  const [isSaving, setIsSaving] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
+interface Athlete {
+  id: string;
+  name: string;
+  phone: string;
+  avatar: string;
+  plan: string;
+  monthlyFee: number;
+  paymentStatus: "paid" | "unpaid" | "pending";
+  lastCheckIn: string; // date or human
+  daysAbsent: number;
+  attendanceStreak: number;
+  status: "active" | "inactive";
+  totalCheckInsMonth: number;
+  workoutPlan: string;
+  dietFile?: string;
+  dietStatus: "uploaded" | "missing";
+  waterIntakeLiters: number;
+  waterGoalLiters: number;
+  meals: {
+    id: string;
+    name: string;
+    time: string;
+    status: "completed" | "delayed" | "pending";
+  }[];
+}
 
-  // 1. Business Brief State
-  const [businessProfile, setBusinessProfile] = useState({
-    brandName: 'أورا فاشون (Aura Fashion)',
-    industry: 'الملابس والأزياء الفاخرة',
-    targetAudience: 'الشباب والفتيات من سن 18 لـ 35 سنة في مصر',
-    toneOfVoice: 'ودودة، تجارية حاسمة، لهجة قاهرية راقية بدون ابتذال',
-    freeShippingThreshold: '1000',
-    returnPolicy: 'معاينة مجانية عند الاستلام، واستبدال خلال 14 يوم بدون أي مصاريف إضافية',
-    paymentMethods: ['INSTAPAY', 'VODAFONE_CASH', 'COD'],
-    productsCatalogSummary: 'هوديز أوفرسايز (650ج)، جواكت جلد طبيعي (1850ج)، بناطيل شينو (620ج)، قمصان أوكسفورد قطن (450ج)'
-  });
+const mockAthletes: Athlete[] = [
+  {
+    id: "ath-1",
+    name: "كريم أحمد مصطفى",
+    phone: "01144826641",
+    avatar: "KA",
+    plan: "FST-7 تضخيم VIP",
+    monthlyFee: 1500,
+    paymentStatus: "paid",
+    lastCheckIn: "اليوم 05:30 م (Push Day)",
+    daysAbsent: 0,
+    attendanceStreak: 19,
+    status: "active",
+    totalCheckInsMonth: 22,
+    workoutPlan: "FST-7 هاني رامبود المتقدم",
+    dietFile: "كريم_دايت_3200_كالوري.pdf",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 3.2,
+    waterGoalLiters: 4.0,
+    meals: [
+      { id: "m1", name: "شوفان + واي بروتين + مكسرات", time: "09:00 ص", status: "completed" },
+      { id: "m2", name: "صدور دجاج + أرز بسمتي", time: "01:30 م", status: "completed" },
+      { id: "m3", name: "وجبة ما قبل التمرين (بطاطا)", time: "05:00 م", status: "completed" },
+      { id: "m4", name: "لحم بقري + بطاطس بيوريه", time: "08:30 م", status: "pending" },
+    ],
+  },
+  {
+    id: "ath-2",
+    name: "محمود حسن السيد",
+    phone: "01099238411",
+    avatar: "MH",
+    plan: "تنشيف وخسارة دهون",
+    monthlyFee: 1000,
+    paymentStatus: "unpaid",
+    lastCheckIn: "منذ 7 أيام (2026-11-07)",
+    daysAbsent: 7,
+    attendanceStreak: 0,
+    status: "inactive",
+    totalCheckInsMonth: 6,
+    workoutPlan: "Upper / Lower Split",
+    dietFile: undefined,
+    dietStatus: "missing",
+    waterIntakeLiters: 1.0,
+    waterGoalLiters: 3.5,
+    meals: [
+      { id: "m21", name: "بياض بيض + توست", time: "09:00 ص", status: "delayed" },
+      { id: "m22", name: "تونة + سلطة خضراء", time: "02:00 م", status: "delayed" },
+    ],
+  },
+  {
+    id: "ath-3",
+    name: "عمر فاروق عبد الله",
+    phone: "01288334412",
+    avatar: "OF",
+    plan: "بطولات كلاسيك فيزيك",
+    monthlyFee: 2000,
+    paymentStatus: "paid",
+    lastCheckIn: "اليوم 02:00 م (Leg Day)",
+    daysAbsent: 0,
+    attendanceStreak: 32,
+    status: "active",
+    totalCheckInsMonth: 26,
+    workoutPlan: "Classic Physique Pro",
+    dietFile: "دايت_بطولة_كلاسيك_2026.pdf",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 4.8,
+    waterGoalLiters: 5.0,
+    meals: [
+      { id: "m31", name: "وجبة الإفطار العضلي", time: "07:30 ص", status: "completed" },
+      { id: "m32", name: "وجبة السلمون والأرز", time: "11:30 ص", status: "completed" },
+      { id: "m33", name: "لحم مفروم + كينوا", time: "03:30 م", status: "completed" },
+    ],
+  },
+  {
+    id: "ath-4",
+    name: "طارق سليم الديب",
+    phone: "01555123984",
+    avatar: "TS",
+    plan: "قوة بدنية وتأهيل",
+    monthlyFee: 1200,
+    paymentStatus: "unpaid",
+    lastCheckIn: "منذ 3 أيام (2026-11-11)",
+    daysAbsent: 3,
+    attendanceStreak: 0,
+    status: "inactive",
+    totalCheckInsMonth: 12,
+    workoutPlan: "تأهيل أوتار الكتف",
+    dietFile: "نظام_مضادات_الالتهاب.xlsx",
+    dietStatus: "uploaded",
+    waterIntakeLiters: 1.8,
+    waterGoalLiters: 3.5,
+    meals: [
+      { id: "m41", name: "وجبة الصباح", time: "08:30 ص", status: "completed" },
+      { id: "m42", name: "وجبة الغداء", time: "02:30 م", status: "delayed" },
+    ],
+  },
+];
 
-  // 2. Integrations & API Credentials State
-  const [integrations, setIntegrations] = useState({
-    whatsapp: {
-      connected: false,
-      phoneNumberId: '',
-      wabaId: '',
-      accessToken: '',
-    },
-    instagram: {
-      connected: false,
-      instagramAccountId: '',
-      pageAccessToken: '',
-    },
-    facebook: {
-      connected: false,
-      pageId: '',
-      pageAccessToken: '',
-    },
-    telegram: {
-      connected: false,
-      botToken: '',
-    },
-    bostaShipping: {
-      connected: false,
-      apiKey: '',
-      businessId: '',
-    }
-  });
+export default function MasterCoachCommandCenter() {
+  const [athletes, setAthletes] = useState<Athlete[]>(mockAthletes);
+  const [selectedAthlete, setSelectedAthlete] = useState<Athlete>(mockAthletes[0]);
+  const [filterMode, setFilterMode] = useState<"all" | "active" | "inactive" | "unpaid" | "absent">("all");
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>("default");
+  const [activeTab, setActiveTab] = useState<"tracking" | "diet_manager" | "financials">("tracking");
+  const [uploadingDiet, setUploadingDiet] = useState(false);
 
-  const handleSaveBrief = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-      setActiveStep(2);
-    }, 600);
-  };
-
-  const toggleConnect = (platform: keyof typeof integrations) => {
-    setIntegrations(prev => ({
-      ...prev,
-      [platform]: {
-        ...prev[platform],
-        connected: !prev[platform].connected
+  // Initialize Web Push Notifications
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setPushSupported(true);
+      setPushPermission(Notification.permission);
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(console.error);
       }
-    }));
+    }
+  }, []);
+
+  // Request Native Push Notification Permission
+  const requestPushPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("متصفحك لا يدعم الإشعارات المباشرة.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    setPushPermission(permission);
+    if (permission === "granted") {
+      sendNativePush(
+        "تم تفعيل إشعارات CoachPR المباشرة 🔔",
+        "ستصلك الآن تنبيهات الوجبات المتأخرة، غياب اللاعبين، ودفعات الاشتراكات كرسالة فورية على شاشتك."
+      );
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+    }
   };
+
+  // Dispatch Real Desktop / Phone Notification
+  const sendNativePush = (title: string, body: string) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "/pr-logo.png",
+        badge: "/pr-logo.png",
+      });
+    } else {
+      alert(`${title}\n${body}`);
+    }
+  };
+
+  // Check-In Athlete Action (Attendance)
+  const handleCheckIn = (athId: string) => {
+    const updated = athletes.map(a => {
+      if (a.id === athId) {
+        return {
+          ...a,
+          lastCheckIn: "الآن (Check-in ناجح)",
+          daysAbsent: 0,
+          attendanceStreak: a.attendanceStreak + 1,
+          totalCheckInsMonth: a.totalCheckInsMonth + 1,
+          status: "active" as const,
+        };
+      }
+      return a;
+    });
+    setAthletes(updated);
+    const curr = updated.find(a => a.id === athId);
+    if (curr) setSelectedAthlete(curr);
+
+    sendNativePush(
+      "تسجيل حضور جديد (Check-In) ✅",
+      `سجل اللاعب ${curr?.name} حضوره اليومي للتمرين بنجاح. ستريك الالتزام: ${curr?.attendanceStreak} يوم.`
+    );
+    confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
+  };
+
+  // WhatsApp Sender
+  const openWhatsApp = (phone: string, text: string) => {
+    const clean = phone.replace(/[^0-9]/g, "");
+    const full = clean.startsWith("0") ? "2" + clean : clean;
+    window.open(`https://wa.me/${full}?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
+  // Financial Stats
+  const totalRevenue = athletes.reduce((sum, a) => sum + (a.paymentStatus === "paid" ? a.monthlyFee : 0), 0);
+  const pendingRevenue = athletes.reduce((sum, a) => sum + (a.paymentStatus === "unpaid" ? a.monthlyFee : 0), 0);
+  const activeCount = athletes.filter(a => a.status === "active").length;
+  const inactiveCount = athletes.filter(a => a.status === "inactive").length;
+  const unpaidCount = athletes.filter(a => a.paymentStatus === "unpaid").length;
+
+  // Filtered List
+  const filteredAthletes = athletes.filter(a => {
+    if (filterMode === "active") return a.status === "active";
+    if (filterMode === "inactive") return a.status === "inactive";
+    if (filterMode === "unpaid") return a.paymentStatus === "unpaid";
+    if (filterMode === "absent") return a.daysAbsent >= 3;
+    return true;
+  });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white" dir="rtl">
+    <div className="min-h-screen bg-[#07040D] text-white flex flex-col font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
       
-      {/* Top Navigation */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 h-16 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 border border-emerald-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-emerald-500/10">
-            <img src="/pr-logo.png" alt="PR Agent" className="w-full h-full object-contain" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-extrabold text-white">PR Agent &bull; بوابة إعدادات العميل</span>
-              <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/20">
-                Client Workspace
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400">إدارة بريف البراند وربط الـ APIs مع منصات السوشيال والشحن</p>
-          </div>
+      {/* 1. Header with Official Brand Identity & Push Permission Trigger */}
+      <header className="border-b border-white/[0.04] px-6 py-4 flex items-center justify-between sticky top-0 z-40 bg-[#07040D]/95 backdrop-blur-md">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <img 
+              src="/pr-logo.png" 
+              alt="PR" 
+              className="h-8 w-auto object-contain filter drop-shadow-[0_0_8px_rgba(167,139,250,0.3)]" 
+            />
+            <span className="font-heading font-black text-lg tracking-wider text-white">
+              COACH<span className="text-[#A78BFA]">PR</span>
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center bg-[#10091E] border border-white/[0.06] rounded-2xl p-1 text-xs font-medium">
+            <button
+              onClick={() => setActiveTab("tracking")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "tracking" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              متابعة اللاعبين والغياب
+            </button>
+            <button
+              onClick={() => setActiveTab("diet_manager")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "diet_manager" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              رفع وإدارة أنظمة الأكل
+            </button>
+            <button
+              onClick={() => setActiveTab("financials")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "financials" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              حسبة الفلوس والاشتراكات
+            </button>
+          </nav>
         </div>
 
+        {/* Real Native Push Toggle on Device */}
         <div className="flex items-center gap-3">
+          {pushPermission !== "granted" ? (
+            <button
+              type="button"
+              onClick={requestPushPermission}
+              className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 border border-[#7C3AED] text-white text-xs font-bold transition flex items-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-ping" />
+              تفعيل التنبيهات المباشرة على اللابتوب والموبايل
+            </button>
+          ) : (
+            <div className="px-3 py-1 rounded-xl bg-[#120A24] border border-white/[0.08] text-[11px] text-[#A78BFA] flex items-center gap-1.5 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A78BFA]" />
+              الإشعارات المباشرة نشطة
+            </div>
+          )}
+
           <Link 
-            href="/inbox" 
-            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-1.5"
+            href="/app"
+            className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-md shadow-purple-950/50"
           >
-            <span>دخول صندوق الوارد (Inbox)</span>
-            <ArrowLeft className="w-3.5 h-3.5" />
+            تطبيق اللاعب (PWA)
           </Link>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="max-w-6xl mx-auto py-8 px-6 space-y-8">
-        
-        {/* Step Progress Tracker */}
-        <div className="grid grid-cols-3 gap-4">
-          <button 
-            onClick={() => setActiveStep(1)}
-            className={`p-4 rounded-2xl border text-right transition-all flex items-center gap-3 ${
-              activeStep === 1 
-                ? 'bg-slate-900 border-emerald-500 shadow-lg shadow-emerald-500/10' 
-                : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-              activeStep === 1 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
-            }`}>
-              1
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">بريف البراند والذكاء الاصطناعي</h4>
-              <p className="text-[10px] text-slate-400">نبرة الصوت، المنتجات، وسياسة الشحن</p>
-            </div>
-          </button>
+      {/* 2. Top Executive Business Metrics (Strictly Unified Colors) */}
+      <section className="max-w-7xl w-full mx-auto px-6 pt-6 grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">دخل اشتراكات الكوتش</span>
+          <span className="text-xl font-mono font-black text-white">{totalRevenue.toLocaleString()} ج.م</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">مبالغ معلقة لم تدفع</span>
+          <span className="text-xl font-mono font-black text-[#A78BFA]">{pendingRevenue.toLocaleString()} ج.م</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">إجمالي اللاعبين</span>
+          <span className="text-xl font-mono font-black text-white">{athletes.length}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">اللاعبين النشطين (Active)</span>
+          <span className="text-xl font-mono font-black text-white">{activeCount}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#0C0618] border border-white/[0.05]">
+          <span className="text-[11px] text-slate-400 block mb-1">متوقفين / غير ملتزمين</span>
+          <span className="text-xl font-mono font-black text-[#A78BFA]">{inactiveCount}</span>
+        </div>
+      </section>
 
-          <button 
-            onClick={() => setActiveStep(2)}
-            className={`p-4 rounded-2xl border text-right transition-all flex items-center gap-3 ${
-              activeStep === 2 
-                ? 'bg-slate-900 border-emerald-500 shadow-lg shadow-emerald-500/10' 
-                : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-              activeStep === 2 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
-            }`}>
-              2
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">ربط القنوات والـ APIs</h4>
-              <p className="text-[10px] text-slate-400">WhatsApp, Instagram, Messenger, Telegram</p>
-            </div>
-          </button>
+      {/* 3. Main Workspace Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          <button 
-            onClick={() => setActiveStep(3)}
-            className={`p-4 rounded-2xl border text-right transition-all flex items-center gap-3 ${
-              activeStep === 3 
-                ? 'bg-slate-900 border-emerald-500 shadow-lg shadow-emerald-500/10' 
-                : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-              activeStep === 3 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
-            }`}>
-              3
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">تخصيص أسطول الـ 65 إيجنت</h4>
-              <p className="text-[10px] text-slate-400">توزيع أدوار المبيعات والدفع والشحن</p>
-            </div>
-          </button>
+        {/* Left Column: Filterable Athletes Attendance & Inactivity List (5 cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          
+          {/* Smart Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
+            <button
+              onClick={() => setFilterMode("all")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "all" ? "bg-[#1E1238] border-purple-500/30 text-white font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              الكل ({athletes.length})
+            </button>
+            <button
+              onClick={() => setFilterMode("active")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "active" ? "bg-[#1E1238] border-purple-500/30 text-white font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              نشطين ({activeCount})
+            </button>
+            <button
+              onClick={() => setFilterMode("absent")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "absent" ? "bg-[#1E1238] border-[#7C3AED] text-[#A78BFA] font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              غائبين +3 أيام ({athletes.filter(a => a.daysAbsent >= 3).length})
+            </button>
+            <button
+              onClick={() => setFilterMode("unpaid")}
+              className={`px-3 py-1.5 rounded-xl border transition ${
+                filterMode === "unpaid" ? "bg-[#1E1238] border-[#7C3AED] text-[#A78BFA] font-bold" : "bg-[#0B0616] border-white/[0.04] text-slate-400"
+              }`}
+            >
+              لم يدفعوا ({unpaidCount})
+            </button>
+          </div>
+
+          {/* Athletes Roster Cards */}
+          <div className="space-y-2.5">
+            {filteredAthletes.map(ath => {
+              const isSelected = selectedAthlete.id === ath.id;
+
+              return (
+                <div
+                  key={ath.id}
+                  onClick={() => setSelectedAthlete(ath)}
+                  className={`p-4 rounded-2xl border transition cursor-pointer text-xs ${
+                    isSelected
+                      ? "bg-[#120A24] border-[#7C3AED] shadow-lg shadow-purple-950/50"
+                      : "bg-[#0B0616] border-white/[0.04] hover:bg-[#0F081C] hover:border-white/[0.08]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#1A1030] border border-purple-500/20 text-[#A78BFA] font-bold flex items-center justify-center font-mono">
+                        {ath.avatar}
+                      </div>
+                      <div>
+                        <span className="font-bold text-white text-sm block">{ath.name}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{ath.phone}</span>
+                      </div>
+                    </div>
+
+                    {/* Status Pill */}
+                    <div className="text-left space-y-0.5">
+                      <span className={`text-[10px] px-2.5 py-0.5 rounded-lg border font-medium block ${
+                        ath.daysAbsent > 0
+                          ? "bg-[#1A0E2A] border-[#7C3AED]/40 text-[#A78BFA]"
+                          : "bg-[#120A20] border-white/[0.06] text-slate-300"
+                      }`}>
+                        {ath.daysAbsent > 0 ? `غائب ${ath.daysAbsent} أيام` : "ملتزم اليوم"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Attendance & Payment Row */}
+                  <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-300 border-t border-white/[0.04] pt-2.5 mt-2">
+                    <div>
+                      <span className="text-slate-500 block">آخر تمرين</span>
+                      <span className="font-mono text-white truncate block">{ath.lastCheckIn}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">ستريك الالتزام</span>
+                      <span className="font-mono font-bold text-[#A78BFA]">{ath.attendanceStreak} يوم</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">الاشتراك الشهري</span>
+                      <span className={`font-mono font-bold ${ath.paymentStatus === "paid" ? "text-white" : "text-[#A78BFA]"}`}>
+                        {ath.paymentStatus === "paid" ? "مدفوع ✓" : "مستحق الدفع"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
         </div>
 
-        {/* STEP 1: Full Business & Brand Brief */}
-        {activeStep === 1 && (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        {/* Right Column: Deep Tracking, Diet Manager & Push Automation (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
+
+          {/* Athlete Profile Header with Instant Check-In & Action Bar */}
+          <div className="p-6 rounded-3xl bg-[#0E071A] border border-purple-500/20 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-emerald-400" />
-                  بريف البراند الشامل (Brand & Commerce Intelligence Brief)
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">البيانات التي يعتمد عليها الـ Moderator الذكي لفهم متجرك والرد مثل أمهر بائع مصري في فريقك.</p>
-              </div>
-              <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1 rounded-full font-bold">
-                خطوة 1 من 3
-              </span>
-            </div>
-
-            <form onSubmit={handleSaveBrief} className="grid md:grid-cols-2 gap-6 text-xs">
-              <div className="space-y-2">
-                <label className="font-bold text-slate-200">اسم البراند أو الشركة</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.brandName}
-                  onChange={e => setBusinessProfile({ ...businessProfile, brandName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
+                <div className="inline-block px-2.5 py-1 rounded-lg bg-[#1D1136] border border-purple-500/30 text-[10px] text-[#A78BFA] font-mono mb-2">
+                  {selectedAthlete.plan} · {selectedAthlete.monthlyFee} ج.م / شهر
+                </div>
+                <h1 className="text-2xl font-black text-white">{selectedAthlete.name}</h1>
+                <p className="text-xs text-slate-400 mt-1">
+                  آخر تسجيل حضور: {selectedAthlete.lastCheckIn}
+                </p>
               </div>
 
-              <div className="space-y-2">
-                <label className="font-bold text-slate-200">المجال والصناعة (Industry)</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.industry}
-                  onChange={e => setBusinessProfile({ ...businessProfile, industry: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="font-bold text-slate-200">نبرة الصوت واللهجة المطلوبة (Tone of Voice)</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.toneOfVoice}
-                  onChange={e => setBusinessProfile({ ...businessProfile, toneOfVoice: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
-                <span className="text-[10px] text-slate-500">مثال: لهجة مصرية تجارية ودودة وراقية، إقناع العميل بلطف، وتطبيق عروض الشحن.</span>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="font-bold text-slate-200">ملخص المنتجات والأسعار والمخزن (Product Catalog)</label>
-                <textarea 
-                  rows={3}
-                  value={businessProfile.productsCatalogSummary}
-                  onChange={e => setBusinessProfile({ ...businessProfile, productsCatalogSummary: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="font-bold text-slate-200">حد الشحن المجاني التلقائي (بالجنيه)</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.freeShippingThreshold}
-                  onChange={e => setBusinessProfile({ ...businessProfile, freeShippingThreshold: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="font-bold text-slate-200">سياسة المعاينة والاسترجاع (Return Policy)</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.returnPolicy}
-                  onChange={e => setBusinessProfile({ ...businessProfile, returnPolicy: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div className="md:col-span-2 pt-4 flex items-center justify-between border-t border-slate-800">
-                {savedSuccess ? (
-                  <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4" />
-                    تم حفظ وتدريب الذكاء الاصطناعي على بريف البراند بنجاح!
-                  </span>
-                ) : <div></div>}
-
+              {/* Action Buttons: Check-in & Native Notification test */}
+              <div className="flex items-center gap-2">
                 <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer"
+                  type="button"
+                  onClick={() => handleCheckIn(selectedAthlete.id)}
+                  className="px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-lg shadow-purple-950/60"
                 >
-                  <span>حفظ البريف والانتقال لربط الـ APIs</span>
-                  <ChevronRight className="w-4 h-4" />
+                  تسجيل تمرين اليوم (Check-In)
                 </button>
               </div>
-            </form>
-          </div>
-        )}
-
-        {/* STEP 2: Channel Connectors & API Gateways */}
-        {activeStep === 2 && (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Key className="w-5 h-5 text-emerald-400" />
-                  مركز ربط الـ APIs وقنوات التواصل (Official APIs Gateway)
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">الربط الرسمي المباشر مع Meta و Telegram وشركات الشحن ليعمل الـ Moderator على حساباتك الحقيقية.</p>
-              </div>
-              <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1 rounded-full font-bold">
-                خطوة 2 من 3
-              </span>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Smart Reminder Triggers (Message to Phone / Laptop / WhatsApp) */}
+            <div className="p-4 rounded-2xl bg-[#120A24] border border-white/[0.05] space-y-3">
+              <div className="text-xs font-bold text-white">إرسال تنبيه مباشر للمتدرب على تليفونه</div>
               
-              {/* WhatsApp Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold">
-                      WA
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">WhatsApp Business Cloud API</h4>
-                      <span className="text-[10px] text-emerald-400">Meta Official API (أول 1000 محادثة مجاناً)</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleConnect('whatsapp')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      integrations.whatsapp.connected 
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
-                  >
-                    {integrations.whatsapp.connected ? 'متصل بنجاح ✓' : 'اتصال'}
-                  </button>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                {/* 1. Payment Reminder */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `مساء الخير يا كابتن ${selectedAthlete.name}، حابين نذكرك بتجديد اشتراكك الشهري (${selectedAthlete.monthlyFee} ج.م) لمواصلة خطتك بدون انقطاع 💪`;
+                    sendNativePush("تذكير اشتراك مرسل 💳", `تم إرسال تذكير تجديد الاشتراك للمتدرب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  تذكير بالدفع والاشتراك
+                </button>
 
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Phone Number ID</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. 109827364521092"
-                      value={integrations.whatsapp.phoneNumberId}
-                      onChange={e => setIntegrations({ ...integrations, whatsapp: { ...integrations.whatsapp, phoneNumberId: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Permanent Access Token</label>
-                    <input 
-                      type="password" 
-                      placeholder="EAAG...."
-                      value={integrations.whatsapp.accessToken}
-                      onChange={e => setIntegrations({ ...integrations, whatsapp: { ...integrations.whatsapp, accessToken: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                </div>
+                {/* 2. Absence Reminder (3 Days) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `يا بطل بقالك 3 أيام مش بتسجل تمرينك أو غايب عن الجيم، طمنا عليك محتاجين نرجع للستريك بتاعنا تاني!`;
+                    sendNativePush("تنبيه غياب 3 أيام ⚠️", `تم إرسال رسالة تفقد للاعب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  تنبيه غياب 3 أيام
+                </button>
+
+                {/* 3. Absence Reminder (1 Week) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `يا بطل، بقالك أسبوع غايب! جسمك ومستواك اللي بنيناه أمانة، محتاجين نجدد الحماس وننزل التمرين بكرة ضروري.`;
+                    sendNativePush("إنذار غياب أسبوع كامل 🚨", `تم إرسال إنذار أسبوع للمتدرب ${selectedAthlete.name}`);
+                    openWhatsApp(selectedAthlete.phone, msg);
+                  }}
+                  className="py-2.5 px-3 bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+                >
+                  إنذار غياب أسبوع
+                </button>
               </div>
-
-              {/* Instagram Direct Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-pink-950 border border-pink-800 flex items-center justify-center text-pink-400 font-bold">
-                      IG
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Instagram Messaging API</h4>
-                      <span className="text-[10px] text-pink-400">Meta Graph API (الخاص + الستوري)</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleConnect('instagram')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      integrations.instagram.connected 
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
-                  >
-                    {integrations.instagram.connected ? 'متصل بنجاح ✓' : 'اتصال'}
-                  </button>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Instagram Business Account ID</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. 1784140029384729"
-                      value={integrations.instagram.instagramAccountId}
-                      onChange={e => setIntegrations({ ...integrations, instagram: { ...integrations.instagram, instagramAccountId: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Page Access Token</label>
-                    <input 
-                      type="password" 
-                      placeholder="EAAG...."
-                      value={integrations.instagram.pageAccessToken}
-                      onChange={e => setIntegrations({ ...integrations, instagram: { ...integrations.instagram, pageAccessToken: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Telegram Bot Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 font-bold">
-                      TG
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Telegram Bot API</h4>
-                      <span className="text-[10px] text-sky-400">مجاني 100% بدون حدود من @BotFather</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleConnect('telegram')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      integrations.telegram.connected 
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
-                  >
-                    {integrations.telegram.connected ? 'متصل بنجاح ✓' : 'اتصال'}
-                  </button>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Bot HTTP API Token</label>
-                    <input 
-                      type="password" 
-                      placeholder="718293847:AAH..."
-                      value={integrations.telegram.botToken}
-                      onChange={e => setIntegrations({ ...integrations, telegram: { ...integrations.telegram, botToken: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Bosta Shipping API Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-950 border border-orange-800 flex items-center justify-center text-orange-400 font-bold">
-                      BS
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Bosta Express Logistics API</h4>
-                      <span className="text-[10px] text-orange-400">إصدار بوالص الشحن التلقائية بمصر</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleConnect('bostaShipping')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      integrations.bostaShipping.connected 
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
-                  >
-                    {integrations.bostaShipping.connected ? 'متصل بنجاح ✓' : 'اتصال'}
-                  </button>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Bosta API Key</label>
-                    <input 
-                      type="password" 
-                      placeholder="Live_Api_Key_..."
-                      value={integrations.bostaShipping.apiKey}
-                      onChange={e => setIntegrations({ ...integrations, bostaShipping: { ...integrations.bostaShipping, apiKey: e.target.value } })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <div className="pt-4 flex items-center justify-between border-t border-slate-800">
-              <button
-                type="button"
-                onClick={() => setActiveStep(1)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
-              >
-                ← العودة لبريف البراند
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveStep(3)}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer"
-              >
-                <span>الانتقال لتوزيع أسطول الإيجنتس</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
-        )}
 
-        {/* STEP 3: 65 Agents Assignment */}
-        {activeStep === 3 && (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          {/* Tab Content 1: Tracking & Meals */}
+          {activeTab === "tracking" && (
+            <div className="space-y-4">
+              
+              {/* Daily Meal Schedule & Delayed Alert */}
+              <div className="p-5 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white">متابعة وجبات اليوم وتنبيهات التأخير</h3>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    شرب الماء: {selectedAthlete.waterIntakeLiters} / {selectedAthlete.waterGoalLiters} L
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  {selectedAthlete.meals.map(meal => (
+                    <div 
+                      key={meal.id}
+                      className={`p-3.5 rounded-xl border flex items-center justify-between transition ${
+                        meal.status === "completed"
+                          ? "bg-[#0E081A] border-white/[0.04] opacity-80"
+                          : meal.status === "delayed"
+                          ? "bg-[#1A0E2A] border-[#7C3AED]"
+                          : "bg-[#110A1E] border-white/[0.06]"
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{meal.name}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">({meal.time})</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {meal.status === "completed" ? "تم تناولها في الوقت المحدد" : meal.status === "delayed" ? "متأخرة عن الموعد! تم تنبيه الكوتش" : "موعد قادم"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {meal.status === "delayed" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              sendNativePush(
+                                "تنبيه وجبة متأخرة ⏱️",
+                                `وجبة ${meal.name} للاعب ${selectedAthlete.name} متأخرة عن موعدها المحدد (${meal.time}).`
+                              );
+                              openWhatsApp(selectedAthlete.phone, `يا بطل وجبتك (${meal.name}) ميعادها فات من ${meal.time}، متنساش تسجلها دلوقتي.`);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-[11px] font-bold"
+                          >
+                            إرسال رسالة تذكير فورية
+                          </button>
+                        )}
+                        <span className={`text-[10px] px-2 py-1 rounded-lg border font-medium ${
+                          meal.status === "completed"
+                            ? "bg-[#140B24] border-white/[0.06] text-slate-300"
+                            : meal.status === "delayed"
+                            ? "bg-[#251245] border-[#7C3AED] text-[#A78BFA]"
+                            : "bg-[#10091E] border-white/[0.04] text-slate-400"
+                        }`}>
+                          {meal.status === "completed" ? "مكتملة ✓" : meal.status === "delayed" ? "متأخرة" : "في الانتظار"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* Tab Content 2: Diet File Upload Manager */}
+          {activeTab === "diet_manager" && (
+            <div className="p-6 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
               <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Bot className="w-5 h-5 text-emerald-400" />
-                  أسطول الـ 65 إيجنت المخصص لحسابك
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">تم تدريب وتوزيع الإيجنتس للرد على قنواتك بحسب تخصص كل قسم.</p>
-              </div>
-              <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1 rounded-full font-bold">
-                جاهز للتشغيل الحي ✓
-              </span>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4 text-xs">
-              <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                <span className="text-emerald-400 font-bold block">مبيعات سريعة (20 إيجنت)</span>
-                <p className="text-slate-400 text-[11px]">الرد خلال 3 ثوانٍ على أسعار الهوديز والجواكت والشحن المجاني وإغلاق الأوردر.</p>
-                <span className="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded block text-center border border-slate-800">نشط على WhatsApp & IG</span>
+                <h3 className="text-base font-bold text-white">رفع نظام الأكل للاعب ({selectedAthlete.name})</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  ارفع ملف الدايت (PDF أو Excel أو Word). بمجرد الرفع يصل إشعار مباشر للاعب على جهازه ليفتح ويتبع النظام فوراً.
+                </p>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                <span className="text-teal-400 font-bold block">كاشير ومدفوعات (15 إيجنت)</span>
-                <p className="text-slate-400 text-[11px]">مراجعة سكرينات إنستاباي، فودافون كاش، وتأكيد الدفع في النظام.</p>
-                <span className="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded block text-center border border-slate-800">تأكيد فوري للمعاملات</span>
-              </div>
-
-              <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                <span className="text-cyan-400 font-bold block">شحن وبوالص (15 إيجنت)</span>
-                <p className="text-slate-400 text-[11px]">توليد رقم بوليصة Bosta التلقائية ومتابعة التوصيل للعميل.</p>
-                <span className="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded block text-center border border-slate-800">ربط Bosta Express API</span>
-              </div>
-
-              <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                <span className="text-amber-400 font-bold block">استبدال ودعم (15 إيجنت)</span>
-                <p className="text-slate-400 text-[11px]">معالجة المقاسات والاستبدال المجاني بأسلوب مصري راقٍ يمتص غضب العميل.</p>
-                <span className="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded block text-center border border-slate-800">حماية التقييم ورضا العميل</span>
-              </div>
-            </div>
-
-            {/* Notification Center Automation Test */}
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Send className="w-4 h-4 text-emerald-400" />
-                    نظام الإشعارات الآلي الفوري (Telegram & WhatsApp Notifications)
-                  </h4>
-                  <p className="text-[11px] text-slate-400">تنبيه صاحب المتجر أو العميل فور حدوث أي حركة (طلب جديد، استلام تحويل إنستاباي، خروج بوليصة شحن).</p>
+              {/* Upload Zone */}
+              <div className="border-2 border-dashed border-white/[0.1] hover:border-[#7C3AED] p-8 rounded-2xl text-center space-y-3 transition">
+                <input
+                  type="file"
+                  id="diet-upload-input"
+                  className="hidden"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setUploadingDiet(true);
+                      setTimeout(() => {
+                        setUploadingDiet(false);
+                        const updated = {
+                          ...selectedAthlete,
+                          dietFile: file.name,
+                          dietStatus: "uploaded" as const,
+                        };
+                        setSelectedAthlete(updated);
+                        setAthletes(athletes.map(a => a.id === updated.id ? updated : a));
+                        sendNativePush(
+                          "تم رفع نظام أكل جديد بنجاح 📋",
+                          `تم رفع ${file.name} للمتدرب ${selectedAthlete.name} وإرسال إشعار التحديث إليه.`
+                        );
+                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                      }, 1000);
+                    }
+                  }}
+                />
+                
+                <div className="text-xs text-slate-300">
+                  {selectedAthlete.dietFile ? (
+                    <div>
+                      <span className="text-[#A78BFA] font-bold block text-sm mb-1">
+                        الملف المرفوع حالياً: {selectedAthlete.dietFile}
+                      </span>
+                      <span className="text-slate-500 text-[11px]">اضغط أدناه لاستبدال الملف بملف أحدث</span>
+                    </div>
+                  ) : (
+                    <span>لم يتم رفع نظام أكل لهذا اللاعب حتى الآن</span>
+                  )}
                 </div>
-                <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">
-                  Realtime Dispatcher
-                </span>
+
+                <label
+                  htmlFor="diet-upload-input"
+                  className="inline-block px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-lg shadow-purple-950/60"
+                >
+                  {uploadingDiet ? "جاري الرفع والمعالجة..." : "اختر ملف الدايت من جهازك (PDF / Excel)"}
+                </label>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 text-xs">
-                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sky-400">إشعارات تليجرام (Telegram Alerts)</span>
-                    <span className="text-[10px] text-emerald-400 font-bold">مفعل تلقائياً ✓</span>
+              {selectedAthlete.dietFile && (
+                <div className="p-4 rounded-xl bg-[#120A24] border border-white/[0.06] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-white block">{selectedAthlete.dietFile}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">جاهز ومفعل على تطبيق المتدرب PWA</span>
                   </div>
-                  <p className="text-slate-400 text-[11px]">يصل لجروب إدارة المتجر إشعار فوري: *تم إغلاق أوردر جديد بقيمة 1,850ج مع رقم بوليصة الشحن.*</p>
+                  <button
+                    type="button"
+                    onClick={() => openWhatsApp(selectedAthlete.phone, `يا بطل، تم رفع وتحديث نظام الأكل الجديد الخاص بيك على المنصة. ادخل شوفه دلوقتي!`)}
+                    className="px-3.5 py-1.5 rounded-lg bg-[#1D1136] hover:bg-[#2B184F] text-[#A78BFA] border border-purple-500/30 text-[11px] font-bold"
+                  >
+                    إرسال إشعار استلام على واتساب
+                  </button>
                 </div>
+              )}
+            </div>
+          )}
 
-                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-emerald-400">إشعارات واتساب (WhatsApp Customer Status)</span>
-                    <span className="text-[10px] text-emerald-400 font-bold">مفعل تلقائياً ✓</span>
+          {/* Tab Content 3: Financials & Debt Breakdown */}
+          {activeTab === "financials" && (
+            <div className="p-6 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-4">
+              <h3 className="text-base font-bold text-white">تفصيل الحسابات والاشتراكات الشهرية</h3>
+              
+              <div className="space-y-2.5 text-xs">
+                {athletes.map(ath => (
+                  <div key={ath.id} className="p-4 rounded-xl bg-[#0E081A] border border-white/[0.04] flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-white block text-sm">{ath.name}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{ath.plan}</span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <span className="font-mono font-bold text-white text-sm">{ath.monthlyFee} ج.م</span>
+                      <span className={`text-[10px] px-2.5 py-1 rounded-lg border font-medium ${
+                        ath.paymentStatus === "paid"
+                          ? "bg-[#140B24] border-white/[0.08] text-slate-300"
+                          : "bg-[#251245] border-[#7C3AED] text-[#A78BFA]"
+                      }`}>
+                        {ath.paymentStatus === "paid" ? "تم التحصيل" : "مستحق الدفع"}
+                      </span>
+                      {ath.paymentStatus === "unpaid" && (
+                        <button
+                          type="button"
+                          onClick={() => openWhatsApp(ath.phone, `كابتن ${ath.name}، تذكير بدفع الاشتراك الشهري بقيمة ${ath.monthlyFee} ج.م لتجديد الخطة.`)}
+                          className="px-3 py-1 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-[11px] font-bold"
+                        >
+                          مطالبة بالدفع
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-slate-400 text-[11px]">يصل العميل على واتسابه رسالة آلية: *ألف مبروك! أوردرك خرج مع مندوب بوسطة ورقم تتبع شحنتك هو BST-EG-XXXX.*</p>
-                </div>
+                ))}
               </div>
             </div>
+          )}
 
-            <div className="p-6 bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-white">المنظومة متصلة بالكامل بحسابك الآن! 🎉</h4>
-                <p className="text-xs text-slate-300 mt-0.5">يمكنك الدخول مباشرة لصندوق الوارد ومتابعة الردود الحية للـ Moderator.</p>
-              </div>
-              <Link
-                href="/inbox"
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/30"
-              >
-                دخول صندوق الوارد المباشر
-              </Link>
-            </div>
-          </div>
-        )}
+        </div>
 
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="py-4 text-center text-[10px] text-slate-600 border-t border-white/[0.03]">
+        CoachPR Platform · نظام متابعة الحضور والاشتراكات الحقيقي · 2026
+      </footer>
+
     </div>
   );
 }
