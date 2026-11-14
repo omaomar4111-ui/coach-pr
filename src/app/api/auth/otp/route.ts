@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHash } from "crypto";
+import { createHmac } from "crypto";
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { logAudit } from "@/lib/audit";
@@ -18,8 +18,14 @@ const memoryOtpStore = new Map<string, OtpState>();
 const sendTracker = new Map<string, number[]>(); // identifier -> timestamps[]
 const ipSendTracker = new Map<string, number[]>(); // ip -> timestamps[]
 
+/**
+ * Hardened Peppered HMAC-SHA256 for OTP hashing.
+ * Uses SERVER_PEPPER from environment to protect against rainbow table & brute-force
+ * attacks on 6-digit combinations if the database is compromised.
+ */
 function hashOtp(code: string): string {
-  return createHash("sha256").update(code.trim()).digest("hex");
+  const pepper = process.env.OTP_PEPPER_SECRET || "coachprb_dev_secret_pepper_2026";
+  return createHmac("sha256", pepper).update(code.trim()).digest("hex");
 }
 
 function cleanOldTimestamps(timestamps: number[], windowMs: number): number[] {

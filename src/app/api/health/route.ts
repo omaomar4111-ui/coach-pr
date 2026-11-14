@@ -33,19 +33,27 @@ export async function GET(req: Request) {
 
       clearTimeout(timer);
       dbLatencyMs = Date.now() - start;
-      dbOk = res.ok || res.status === 200 || res.status === 404; // 404 root head means server is active and responding
+      dbOk = res.ok || res.status === 200 || res.status === 404;
     } catch (e) {
       dbOk = false;
       dbLatencyMs = Date.now() - start;
     }
   } else {
-    // If not configured in dev
     dbOk = process.env.NODE_ENV !== "production";
   }
 
-  // 1. Authenticated Detailed View (Only for authorized Admin / Sentry / Monitoring token)
-  const healthSecret = process.env.HEALTH_CHECK_SECRET;
-  if (isDetailed && healthSecret && authHeader === `Bearer ${healthSecret}`) {
+  // 1. Detailed View Requested
+  if (isDetailed) {
+    const healthSecret = process.env.HEALTH_CHECK_SECRET;
+
+    // Fail-closed security: if no secret configured or invalid auth token -> 401 Unauthorized
+    if (!healthSecret || !authHeader || authHeader !== `Bearer ${healthSecret}`) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing HEALTH_CHECK_SECRET token" },
+        { status: 401, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
     return NextResponse.json(
       {
         status: dbOk ? "healthy" : "degraded",
