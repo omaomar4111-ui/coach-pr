@@ -9,6 +9,7 @@ import {
   calculate1RM 
 } from "@/lib/bodybuildingTemplatesData";
 import { SUPPLEMENTS_DATABASE } from "@/lib/supplementsAndHanyData";
+import ExerciseVisualAnatomyCard from "@/components/ExerciseVisualAnatomyCard";
 
 interface ExerciseState {
   id: string;
@@ -604,10 +605,10 @@ export default function UnifiedMasterApp() {
 
       </main>
 
-      {/* Anatomy GIF Modal */}
+      {/* Anatomy 3D Vector Highlight Modal */}
       {anatomyModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0E071A] border border-[#7C3AED] rounded-3xl max-w-sm w-full p-5 space-y-4">
+          <div className="bg-[#0E071A] border border-[#7C3AED] rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-white text-sm">{anatomyModal.name}</h3>
               <button 
@@ -618,21 +619,18 @@ export default function UnifiedMasterApp() {
               </button>
             </div>
 
-            <div className="rounded-2xl overflow-hidden border border-white/[0.08] bg-[#07040D] aspect-video flex items-center justify-center">
-              <img src={anatomyModal.anatomyGifUrl} alt={anatomyModal.name} className="w-full h-full object-cover" />
-            </div>
-
-            <div className="text-xs space-y-1 text-slate-300">
-              <span className="text-[#A78BFA] font-bold block">العضلات المستهدفة: {anatomyModal.target}</span>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                {anatomyModal.techniqueNote}
-              </p>
-            </div>
+            {/* Real Anatomical Vector Muscle Map */}
+            <ExerciseVisualAnatomyCard
+              exerciseName={anatomyModal.name}
+              primaryMuscle={anatomyModal.target}
+              techniqueNote={anatomyModal.techniqueNote}
+              tempo={anatomyModal.tempo}
+            />
 
             <button
               type="button"
               onClick={() => setAnatomyModal(null)}
-              className="w-full py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-xl"
+              className="w-full py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-950/60 transition"
             >
               فهمت التكنيك الصحيح ✓
             </button>
