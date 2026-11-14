@@ -21,7 +21,11 @@ import {
   ChevronDown,
   Layers,
   Save,
-  RotateCcw
+  RotateCcw,
+  Activity,
+  FileCheck2,
+  Eye,
+  X
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -61,8 +65,18 @@ export default function WorkoutBuilderPage() {
   const [clientProfile, setClientProfile] = useState({
     name: "كريم أحمد مصطفى",
     goal: "تنشيف عالي وبناء عضلات",
-    knownInjuries: ["غضروف وأسفل الظهر"]
+    knownInjuries: ["غضروف فقرات قطنية L4-L5", "التهاب وتر الكتف الأيمن"],
+    medicalNotes: "يمنع تحميل الأوزان المحورية المباشرة على العمود الفقري (Axial Loading)، ويُفضل استبدال الاسكوات بالهاك اسكوات أو الليج برس، وتجنب البنش برس بقبضة واسعة جداً.",
+    attachments: [
+      { id: "att-1", name: "رنين مغناطيسي MRI - فقرات قطنية.pdf", type: "xray", date: "2026-10-12", size: "2.4 MB" },
+      { id: "att-2", name: "تحليل دم شامل CBC ومؤشرات التهاب CRP.pdf", type: "lab", date: "2026-11-01", size: "1.1 MB" }
+    ]
   });
+
+  const [showInjuryModal, setShowInjuryModal] = useState(false);
+  const [uploadedReports, setUploadedReports] = useState(clientProfile.attachments);
+  const [newReportName, setNewReportName] = useState("");
+  const [newReportType, setNewReportType] = useState<"xray" | "lab">("xray");
 
   const [days, setDays] = useState<WorkoutDay[]>([
     {
@@ -333,13 +347,29 @@ export default function WorkoutBuilderPage() {
               <span className="text-purple-300 font-semibold">{clientProfile.goal}</span>
             </div>
 
-            {/* Injury Alert Warning Badge */}
-            <div className="bg-rose-950/40 border border-rose-500/40 p-2.5 rounded-xl text-xs text-rose-300 flex items-start gap-2 mt-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold">تحذير إصابة مسجلة: </span>
-                <span>{clientProfile.knownInjuries.join("، ")}. البيلدر سينبهك تلقائياً عند إضافة أي تمرين يضغط على هذه المنطقة.</span>
+            {/* Injury Alert Warning Badge & Interactive Report Trigger */}
+            <div className="bg-rose-950/40 border border-rose-500/40 p-3 rounded-2xl text-xs text-rose-300 space-y-2 mt-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-rose-200">إصابات مسجلة: </span>
+                    <span className="text-[11px] text-rose-300/90">{clientProfile.knownInjuries.join(" • ")}</span>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold shrink-0">
+                  {uploadedReports.length} ملفات مرفقة
+                </span>
               </div>
+
+              {/* View Full Medical Report & Lab Scans Button */}
+              <button
+                onClick={() => setShowInjuryModal(true)}
+                className="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-200 border border-rose-500/40 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow"
+              >
+                <Activity className="w-3.5 h-3.5 text-rose-400" />
+                <span>عرض تقرير الإصابة، الأشعة، والتحاليل</span>
+              </button>
             </div>
           </div>
 
@@ -788,6 +818,156 @@ export default function WorkoutBuilderPage() {
                 "أهلاً يا كريم! كابتن عمر قام بتحديث جدول تمرينك للأسبوع الجديد. افتح التطبيق وسجل أوزانك وراحتك مباشرة: coach-pr-beige.vercel.app/app"
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comprehensive Injury, Lab & MRI Medical Report Modal */}
+      {showInjuryModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#140C24] border border-rose-900/50 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-purple-900/30">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">الملف الطبي وتقرير الإصابات: {clientProfile.name}</h3>
+                  <p className="text-[11px] text-slate-400">تقرير شامل لتوجيه المدرب ببدائل التمارين وحماية مفاصل المتدرب</p>
+                </div>
+              </div>
+              <button onClick={() => setShowInjuryModal(false)} className="text-slate-400 hover:text-white p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Injury Badges & Critical Directives */}
+            <div className="bg-rose-950/30 border border-rose-900/40 p-4 rounded-2xl space-y-2.5">
+              <div className="text-xs font-bold text-rose-300 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-400" />
+                <span>الإصابات المشخصة طبياً:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {clientProfile.knownInjuries.map((inj, i) => (
+                  <span key={i} className="px-3 py-1 bg-rose-500/20 text-rose-200 border border-rose-500/30 rounded-xl text-xs font-bold">
+                    ⚠️ {inj}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-rose-200/90 leading-relaxed pt-2 border-t border-rose-900/30">
+                <b>توصيات المدرب الطبية:</b> {clientProfile.medicalNotes}
+              </p>
+            </div>
+
+            {/* Uploaded Scans & Lab Tests (MRI, X-Ray, Bloodwork) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                  <FileCheck2 className="w-4 h-4 text-[#A78BFA]" />
+                  <span>الأشعة والتحاليل المرفوعة من اللاعب ({uploadedReports.length})</span>
+                </h4>
+                <span className="text-[11px] text-slate-400">محدثة ومتاحة للكابتن للمعاينة المباشرة</span>
+              </div>
+
+              <div className="space-y-2">
+                {uploadedReports.map((file) => (
+                  <div key={file.id} className="p-3.5 bg-[#110A1E] rounded-2xl border border-purple-900/30 flex items-center justify-between text-xs hover:border-purple-600/40 transition">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-xl text-xs font-bold ${file.type === "xray" ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"}`}>
+                        {file.type === "xray" ? "أشعة MRI / رنين" : "تحليل معملي"}
+                      </div>
+                      <div>
+                        <div className="font-bold text-white text-sm">{file.name}</div>
+                        <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+                          <span>تاريخ الرفع: {file.date}</span>
+                          <span>•</span>
+                          <span>الحجم: {file.size}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => alert(`جاري فتح ومعاينة الملف المرفوع (${file.name}) بجودة عالية للكابتن.`)}
+                        className="px-3 py-1.5 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#A78BFA] border border-purple-500/30 rounded-xl font-bold text-xs transition flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>معاينة</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Client Scan / Lab Upload Box */}
+            <div className="bg-[#0F081D] p-4 rounded-2xl border border-purple-900/40 space-y-3">
+              <div className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                <UploadCloud className="w-4 h-4 text-[#A78BFA]" />
+                <span>رفع أشعة أو تحليل جديد من قِبل المتدرب:</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+                <input 
+                  type="text" 
+                  placeholder="اسم الفحص (مثال: أشعة سينية على الكتف، تحليل وظائف كبد...)" 
+                  value={newReportName}
+                  onChange={(e) => setNewReportName(e.target.value)}
+                  className="sm:col-span-7 bg-[#17102A] border border-purple-900/40 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#7C3AED]"
+                />
+
+                <select 
+                  value={newReportType}
+                  onChange={(e) => setNewReportType(e.target.value as "xray" | "lab")}
+                  className="sm:col-span-3 bg-[#17102A] border border-purple-900/40 rounded-xl px-2 py-2 text-white focus:outline-none focus:border-[#7C3AED]"
+                >
+                  <option value="xray">أشعة / رنين</option>
+                  <option value="lab">تحاليل دم / معمل</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newReportName.trim()) {
+                      alert("يرجى كتابة اسم الفحص أو الأشعة.");
+                      return;
+                    }
+                    setUploadedReports(prev => [
+                      ...prev,
+                      {
+                        id: `rep-${Date.now()}`,
+                        name: `${newReportName.trim()}.pdf`,
+                        type: newReportType,
+                        date: "2026-11-14",
+                        size: "1.8 MB"
+                      }
+                    ]);
+                    setNewReportName("");
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                    alert("تم حفظ وربط الفحص الطبي بنجاح بملف المتدرب ليرشده الكابتن بأمان!");
+                  }}
+                  className="sm:col-span-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-2 rounded-xl transition cursor-pointer flex items-center justify-center gap-1 shadow"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>إضافة</span>
+                </button>
+              </div>
+
+              <p className="text-[11px] text-slate-500">
+                يدعم المتدرب رفع ملفات PDF وصور الأشعة السينية (DICOM / JPEG / PNG) مباشرة من تطبيقه لتظهر للمدرب فوراً أثناء تصميم التمارين.
+              </p>
+            </div>
+
+            {/* Safety Rule Note for Coach */}
+            <div className="p-3 bg-purple-950/30 rounded-2xl border border-purple-900/30 text-[11px] text-purple-200 space-y-1">
+              <span className="font-bold text-white block">⚡ ميزة CoachPRB التلقائية لحماية العميل:</span>
+              <p className="text-slate-300 leading-relaxed">
+                عند قيام الكابتن بسحب أو كتابة تمرين مثل (Barbell Back Squat أو Deadlift) للاعب لديه إصابة مسجلة، يقوم النظام بتنبيه الكابتن فوراً باللون الأحمر ويقترح عليه بدائل ميكانيكية آمنة (مثل Dumbbell Split Squats أو Leg Press بزاوية مريحة).
+              </p>
+            </div>
+
           </div>
         </div>
       )}

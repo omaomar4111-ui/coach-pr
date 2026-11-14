@@ -17,25 +17,32 @@ import {
   Radio, 
   BarChart3,
   Users,
-  Filter
+  Filter,
+  CheckCircle,
+  RefreshCw,
+  PlusCircle,
+  ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function InboxPage() {
-  const [activeId, setActiveId] = useState<string>('conv-1');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [platformFilter, setPlatformFilter] = useState('ALL');
-  const [replyText, setReplyText] = useState('');
-  const [isAiActive, setIsAiActive] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+// قائمة الإيجنتس الحية المتصلين بالمنظومة (65 إيجنت)
+const AGENTS_LIST = [
+  { id: 'ag-01', name: 'سارة طارق', role: 'مبيعات واتساب VIP', platform: 'واتساب', status: 'ONLINE', rating: 4.95, avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' },
+  { id: 'ag-02', name: 'عمر خالد', role: 'كاشير وتأكيد إنستاباي', platform: 'واتساب', status: 'ONLINE', rating: 4.92, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
+  { id: 'ag-03', name: 'ياسمين ممدوح', role: 'فاشون إنستغرام ومقاسات', platform: 'إنستغرام', status: 'ONLINE', rating: 4.98, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+  { id: 'ag-04', name: 'محمود الصاوي', role: 'كلوزينج ومبيعات ماسنجر', platform: 'ماسنجر', status: 'ONLINE', rating: 4.88, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
+  { id: 'ag-05', name: 'هند الجوهري', role: 'استرجاع واستبدال فوري', platform: 'واتساب', status: 'ONLINE', rating: 4.91, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150' },
+  { id: 'ag-06', name: 'كريم علام', role: 'مبيعات تليجرام وجملة', platform: 'تليجرام', status: 'ONLINE', rating: 4.85, avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150' },
+];
 
-  // واقعي ومضبوط بلهجة مصرية تجارية متقنة
+export default function InboxPage() {
   const [conversations, setConversations] = useState<any[]>([
     {
       id: 'conv-1',
       customer: { name: 'أحمد محمود', phone: '+201001234567', initials: 'أ' },
       channel: 'واتساب',
       aiEnabled: true,
+      assignedAgent: AGENTS_LIST[0],
       lastMessage: 'ألف مبروك يا فندم! حجزتلك الجاكيت مقاس L والشحن مجاني 🚚',
       lastTime: '17:05',
       order: {
@@ -43,6 +50,7 @@ export default function InboxPage() {
         size: 'L',
         price: '1,850 ج.م',
         status: 'مسودة طلب آلي',
+        payment: 'INSTAPAY',
       },
       messages: [
         { id: '1', sender: 'customer', text: 'السلام عليكم، الجاكيت الجلد متوفر مقاس L؟', time: '17:01' },
@@ -55,20 +63,21 @@ export default function InboxPage() {
       id: 'conv-2',
       customer: { name: 'سارة علي', phone: '+201112345678', initials: 'س' },
       channel: 'إنستغرام',
-      aiEnabled: false,
+      aiEnabled: true,
+      assignedAgent: AGENTS_LIST[2],
       lastMessage: 'ممكن أكلم حد من خدمة العملاء؟',
       lastTime: '16:50',
       order: {
-        item: 'قميص قطن أوكسفورد (أبيض)',
+        item: 'فستان صيفي خامة ليكرا مستوردة',
         size: 'M',
-        price: '450 ج.م',
+        price: '750 ج.م',
         status: 'قيد الاستفسار',
+        payment: 'COD',
       },
       messages: [
-        { id: '1', sender: 'customer', text: 'ممكن أعرف مقاسات القميص الأوكسفورد وخامته إيه؟', time: '16:48' },
-        { id: '2', sender: 'bot', text: 'أهلاً بحضرتك يا سارة 🌸 القميص قطن مصري أوكسفورد 100% معالج ضد الانكماش، متوفر بمقاسات S / M / L / XL بألوان الأبيض والأزرق بسعر 450 جنيه بس. ولو أخدتي قطعتين عليه خصم فوري 10% 🛍️', time: '16:49' },
-        { id: '3', sender: 'customer', text: 'عايزة أكلم حد من خدمة العملاء بخصوص الأوردر اللي فات.', time: '16:50' },
-        { id: '4', sender: 'system', text: '🔔 تم تحويل المحادثة فوراً للأستاذ زياد بدر (رئيس قسم الشكاوى والاسترجاع)', time: '16:50' },
+        { id: '1', sender: 'customer', text: 'ممكن أعرف مقاسات الفستان وخامته إيه؟', time: '16:48' },
+        { id: '2', sender: 'bot', text: 'أهلاً بحضرتك يا سارة 🌸 الفستان خامة ليكرا مستوردة ناعمة جداً معالجة ضد الانكماش، متوفر بمقاسات M و L بسعر 750 جنيه بس. والشحن مجاني لو طلبتي معاه أي قطعة تانية 🛍️', time: '16:49' },
+        { id: '3', sender: 'customer', text: 'تحفة، عايزة أطلبه مقاس M كاش عند الاستلام في المنصورة.', time: '16:50' },
       ]
     },
     {
@@ -76,50 +85,145 @@ export default function InboxPage() {
       customer: { name: 'محمد حسن', phone: '+201223456789', initials: 'م' },
       channel: 'ماسنجر',
       aiEnabled: true,
+      assignedAgent: AGENTS_LIST[3],
       lastMessage: 'البنطلون الشينو البيج متاح مقاس 34؟',
       lastTime: '16:30',
       order: {
-        item: 'بنطلون شينو كلاسيك',
+        item: 'بنطلون شينو كلاسيك (بيج)',
         size: '34',
         price: '620 ج.م',
         status: 'مسودة طلب آلي',
+        payment: 'VODAFONE_CASH',
       },
       messages: [
         { id: '1', sender: 'customer', text: 'البنطلون الشينو البيج متاح مقاس 34؟', time: '16:30' },
-        { id: '2', sender: 'bot', text: 'يا هلا بحضرتك يا فندم! نعم مقاس 34 متاح حالياً باللون البيج والكحلي بسعر 620 جنيه، وخامته ليكرا قطن مريحة جداً في الحركة. تحب ننسق معاه قميص أوكسفورد أبيض وتستفيد بالشحن المجاني؟', time: '16:31' },
+        { id: '2', sender: 'bot', text: 'يا هلا بحضرتك يا فندم! نعم مقاس 34 متاح حالياً باللون البيج والكحلي بسعر 620 جنيه، وخامته ليكرا قطن مريحة جداً. تحب أحجزلك القطعة ونبعتهالك مع هدية شراب قطن؟', time: '16:31' },
       ]
     },
     {
       id: 'conv-4',
-      customer: { name: 'طارق يوسف (عميل VIP)', phone: '+201099887766', initials: 'ط' },
+      customer: { name: 'طارق يوسف (شركة الدلتا)', phone: '+201099887766', initials: 'ط' },
       channel: 'تليجرام',
       aiEnabled: true,
-      lastMessage: 'عايز أطلب 3 جواكت للشركة',
+      assignedAgent: AGENTS_LIST[5],
+      lastMessage: 'عايز أطلب 5 أطقم يونيفورم للشركة',
       lastTime: '16:15',
       order: {
-        item: '3 جواكت جلد طبيعي (جملة VIP)',
-        size: 'L, XL, XXL',
-        price: '5,550 ج.م',
+        item: '5 أطقم يونيفورم رجالي كامل (جملة VIP)',
+        size: 'L, XL',
+        price: '4,200 ج.م',
         status: 'طلب VIP معتمد',
+        payment: 'INSTAPAY',
       },
       messages: [
-        { id: '1', sender: 'customer', text: 'مساء الخير، محتاج أطلب 3 جواكت للشركة مقاسات مختلفة، في خصم للشركات؟', time: '16:14' },
-        { id: '2', sender: 'bot', text: 'مساء النور يا فندم! نورتنا وشرفتنا 👑 لحضرتك خصم خاص 15% على إجمالي الطلب مع إصدار فاتورة ضريبية رسمية وشحن VIP سريع لباب الشركة. تحب أربط حضرتك بمدير مبيعات الشركات أ / أشرف عبد الرحيم فوراً؟', time: '16:15' },
+        { id: '1', sender: 'customer', text: 'مساء الخير، محتاج 5 أطقم يونيفورم للشركة مقاسات مختلفة، في خصم للشركات؟', time: '16:14' },
+        { id: '2', sender: 'bot', text: 'مساء النور يا باشا! نورتنا وشرفتنا 👑 لحضرتك خصم خاص 20% على إجمالي الطلب مع إصدار فاتورة ضريبية رسمية وشحن VIP مجاني لباب مقر الشركة. إجمالي المبلغ بعد الخصم 4,200ج فقط. تحب ابعتلك بيانات التحويل البنكي أو إنستاباي؟', time: '16:15' },
       ]
     }
   ]);
 
+  const [activeId, setActiveId] = useState<string>('conv-1');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [platformFilter, setPlatformFilter] = useState('ALL');
+  const [replyText, setReplyText] = useState('');
+  const [isAiActive, setIsAiActive] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [testInput, setTestInput] = useState('');
+  const [testPlatform, setTestPlatform] = useState('واتساب');
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeConv = conversations.find(c => c.id === activeId) || conversations[0];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConv.messages]);
+    setIsAiActive(activeConv?.aiEnabled ?? true);
+    setOrderConfirmed(false);
+  }, [activeId]);
 
-  const handleSendReply = (e: React.FormEvent) => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeConv?.messages, isTyping]);
+
+  // محاكاة وصول رسالة حقيقية من العميل والرد التلقائي عليها فوراً من الإيجنت المسؤول
+  const handleSimulateIncoming = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = testInput.trim() || 'السلام عليكم، عايز أعرف السعر وطريقة الدفع لوسمحت؟';
+    setIsSimulating(true);
+
+    const currentTime = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    const newMsgId = Date.now().toString();
+
+    // 1. إضافة رسالة العميل فوراً في المحادثة الحالية
+    const customerMsg = {
+      id: newMsgId,
+      sender: 'customer',
+      text: query,
+      time: currentTime,
+    };
+
+    setConversations(prev => prev.map(c => {
+      if (c.id === activeId) {
+        return {
+          ...c,
+          lastMessage: query,
+          lastTime: currentTime,
+          messages: [...c.messages, customerMsg]
+        };
+      }
+      return c;
+    }));
+
+    setTestInput('');
+    setIsTyping(true);
+
+    // 2. رد فوري واقعي من الإيجنت الذكي بلهجة مصرية تجارية حاسمة خلال ثانية ونصف
+    setTimeout(() => {
+      setIsTyping(false);
+      setIsSimulating(false);
+
+      let reply = '';
+      let detectedItem = 'منتج بريميوم مميز';
+      let detectedPrice = '550 ج.م';
+
+      if (query.includes('سعر') || query.includes('بكام') || query.includes('كام')) {
+        reply = `يا هلا بيك يا فندم! 🌸 السعر حالياً عليه خصم 20% وبـ 550 جنيه بس بدلاً من 690 جنيه! والشحن مجاني بالكامل لو طلبت قطعتين لأي مكان في مصر 🚚 تحب نحجز لحضرتك قبل انتهاء كمية العرض؟`;
+      } else if (query.includes('دفع') || query.includes('انستاباي') || query.includes('كاش') || query.includes('فودافون')) {
+        reply = `متاح دفع كاش عند الاستلام مع المعاينة براحتك تماماً قبل ما تدفع قرش، ومتاح كمان تحويل فوري عبر إنستاباي أو فودافون كاش زي ما يناسبك يا فندم ❤️ تحب ابعتلك رقم التحويل؟`;
+      } else if (query.includes('مقاس') || query.includes('ألوان') || query.includes('لون')) {
+        reply = `المقاسات المتاحة حالياً من M لحد 3XL، والتلبيس مرتاح جداً ومطابق لجدول المقاسات. لو حابب قولي وزنك وطولك تقريباً وأنا هختارلك أنسب مقاس بالضبط! 👔`;
+      } else {
+        reply = `تحت أمرك يا فندم في أي وقت! معاك ${activeConv.assignedAgent?.name || 'إيجنت المبيعات'}، وكل منتجاتنا بضمان استبدال ومعاينة فورية مجانية. أقدر أساعد حضرتك إزاي في اختيار طلبك؟ ✨`;
+      }
+
+      const botMsg = {
+        id: (Date.now() + 1).toString(),
+        sender: 'bot',
+        text: reply,
+        time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      setConversations(prev => prev.map(c => {
+        if (c.id === activeId) {
+          return {
+            ...c,
+            lastMessage: reply,
+            lastTime: botMsg.time,
+            order: c.order || { item: detectedItem, size: 'L', price: detectedPrice, status: 'مسودة طلب آلي' },
+            messages: [...c.messages, botMsg]
+          };
+        }
+        return c;
+      }));
+    }, 1200);
+  };
+
+  // إرسال رد يدوي من الموظف
+  const handleSendManualReply = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
 
-    const newMsg = {
+    const manualMsg = {
       id: Date.now().toString(),
       sender: 'agent',
       text: replyText.trim(),
@@ -130,22 +234,20 @@ export default function InboxPage() {
       if (c.id === activeId) {
         return {
           ...c,
-          aiEnabled: false,
           lastMessage: replyText.trim(),
-          messages: [...c.messages, newMsg]
+          messages: [...c.messages, manualMsg]
         };
       }
       return c;
     }));
 
-    setIsAiActive(false);
     setReplyText('');
   };
 
   const toggleAi = () => {
-    const nextState = !isAiActive;
-    setIsAiActive(nextState);
-    setConversations(prev => prev.map(c => c.id === activeId ? { ...c, aiEnabled: nextState } : c));
+    const next = !isAiActive;
+    setIsAiActive(next);
+    setConversations(prev => prev.map(c => c.id === activeId ? { ...c, aiEnabled: next } : c));
   };
 
   const filtered = conversations.filter(c => {
@@ -163,10 +265,16 @@ export default function InboxPage() {
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-white tracking-wide">
-              Social Inbox & AI Commerce (Omnichannel)
-            </h1>
-            <p className="text-[11px] text-slate-400">إدارة مركزية لـ 65 إيجنت وبوت عبر WhatsApp و IG و Messenger و Telegram</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-bold text-white tracking-wide">
+                Social Inbox & Live Fleet Orchestrator
+              </h1>
+              <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                65 إيجنت متصلين وبيردو حالاً
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400">إدارة مركزية لردود ومبيعات WhatsApp و Instagram و Messenger و Telegram</p>
           </div>
         </div>
 
@@ -177,293 +285,377 @@ export default function InboxPage() {
             className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
           >
             <Users className="w-3.5 h-3.5 text-emerald-400" />
-            <span>أسطول الإيجنتس (65 Agent)</span>
+            <span>أسطول الـ 65 إيجنت</span>
           </Link>
 
           <Link
             href="/analytics"
             className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
           >
-            <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>لوحة المبيعات والتحليلات</span>
+            <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
+            <span>لوحة الـ 1000 عميل</span>
           </Link>
-
-          <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-full border border-slate-800 text-xs">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="text-emerald-400 font-medium">الربط السحابي متصل (Live)</span>
-          </div>
         </div>
       </header>
 
-      {/* 3-Column Layout */}
-      <main className="flex-1 grid grid-cols-[360px_1fr_330px] overflow-hidden">
+      {/* Main 3-Column Layout */}
+      <div className="flex flex-1 overflow-hidden">
         
-        {/* Column 1: Conversations List with Omnichannel Filter */}
-        <section className="flex flex-col h-full bg-slate-900 border-l border-slate-800">
-          <div className="p-4 border-b border-slate-800 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-emerald-400" />
-                صندوق الوارد الموحد
-              </h2>
-              <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium border border-emerald-500/20">
-                {conversations.length} نشطة
-              </span>
-            </div>
-
+        {/* COLUMN 1: Conversation List */}
+        <div className="w-80 border-l border-slate-800 flex flex-col bg-slate-900/50 flex-shrink-0">
+          
+          {/* Search & Channel Tabs */}
+          <div className="p-3 border-b border-slate-800 space-y-2">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
-              <input
-                type="text"
-                placeholder="بحث بالاسم أو الهاتف..."
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-2.5" />
+              <input 
+                type="text" 
+                placeholder="بحث بالاسم أو الهاتف..." 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pr-9 pl-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg pr-9 pl-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
 
-            {/* Platform Filter Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[11px]">
-              {['ALL', 'واتساب', 'إنستغرام', 'ماسنجر', 'تليجرام'].map(plat => (
+            {/* Platform Filter Buttons */}
+            <div className="grid grid-cols-5 gap-1 text-[11px] font-medium text-slate-400">
+              {['ALL', 'واتساب', 'إنستغرام', 'ماسنجر', 'تليجرام'].map(p => (
                 <button
-                  key={plat}
-                  onClick={() => setPlatformFilter(plat)}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                    platformFilter === plat
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                  key={p}
+                  onClick={() => setPlatformFilter(p)}
+                  className={`py-1 rounded text-center transition-colors ${
+                    platformFilter === p 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                      : 'hover:bg-slate-800 text-slate-400'
                   }`}
                 >
-                  {plat === 'ALL' ? 'الكل' : plat}
+                  {p === 'ALL' ? 'الكل' : p}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-800/50">
-            {filtered.map(conv => {
-              const isSelected = conv.id === activeId;
+          {/* Conversations Scrollable List */}
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60">
+            {filtered.map(c => {
+              const isSelected = c.id === activeId;
               return (
-                <button
-                  key={conv.id}
-                  onClick={() => {
-                    setActiveId(conv.id);
-                    setIsAiActive(conv.aiEnabled);
-                  }}
-                  className={`w-full text-right p-3.5 flex items-start gap-3 transition-colors ${
-                    isSelected ? 'bg-slate-800/90 border-r-4 border-r-emerald-500' : 'hover:bg-slate-800/40'
+                <div 
+                  key={c.id} 
+                  onClick={() => setActiveId(c.id)}
+                  className={`p-3.5 cursor-pointer transition-colors relative flex items-start gap-3 ${
+                    isSelected ? 'bg-slate-800/80' : 'hover:bg-slate-800/40'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center font-bold text-sm border border-slate-700 flex-shrink-0">
-                    {conv.customer.initials}
+                  {isSelected && <div className="absolute right-0 top-0 bottom-0 w-1 bg-emerald-500"></div>}
+
+                  <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white flex-shrink-0 text-sm">
+                    {c.customer.initials}
                   </div>
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-xs text-white truncate">{conv.customer.name}</span>
-                      <span className="text-[10px] text-slate-400">{conv.lastTime}</span>
+                      <h4 className="text-xs font-semibold text-white truncate">{c.customer.name}</h4>
+                      <span className="text-[10px] text-slate-500">{c.lastTime}</span>
                     </div>
-                    <p className="text-xs text-slate-400 truncate mb-1.5">{conv.lastMessage}</p>
-                    <div className="flex items-center gap-1.5">
-                      {conv.aiEnabled ? (
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                          <Bot className="w-2.5 h-2.5" /> رد مصري ذكي
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">
-                          تدخل بشري
+
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                        c.channel === 'واتساب' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
+                        c.channel === 'إنستغرام' ? 'bg-pink-950 text-pink-400 border border-pink-800' :
+                        c.channel === 'ماسنجر' ? 'bg-blue-950 text-blue-400 border border-blue-800' :
+                        'bg-sky-950 text-sky-400 border border-sky-800'
+                      }`}>
+                        {c.channel}
+                      </span>
+                      {c.aiEnabled && (
+                        <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 bg-emerald-950/60 px-1 py-0.5 rounded border border-emerald-800">
+                          <Bot className="w-2.5 h-2.5" /> AI نشط
                         </span>
                       )}
-                      <span className="text-[9px] text-slate-300 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 font-medium">
-                        {conv.channel}
-                      </span>
                     </div>
+
+                    <p className="text-[11px] text-slate-400 truncate">{c.lastMessage}</p>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
-        </section>
 
-        {/* Column 2: Message Thread with Natural Arabic Flow */}
-        <section className="flex flex-col h-full bg-slate-950">
-          <div className="p-3.5 border-b border-slate-800 bg-slate-900/60 backdrop-blur flex items-center justify-between">
+          {/* Quick Simulation Bar (Live Client Simulator) */}
+          <div className="p-3 border-t border-slate-800 bg-slate-950">
+            <div className="text-[10px] text-emerald-400 font-bold mb-1.5 flex items-center justify-between">
+              <span>⚡ محاكي رسالة عميل حقيقي:</span>
+              <span className="text-slate-500 text-[9px]">اختبر رد الإيجنت فوراً</span>
+            </div>
+            <form onSubmit={handleSimulateIncoming} className="space-y-1.5">
+              <input
+                type="text"
+                placeholder="اكتب سؤال عميل (مثل: السعر بكام؟)"
+                value={testInput}
+                onChange={e => setTestInput(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="submit"
+                disabled={isSimulating}
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs py-1.5 rounded font-medium transition-all flex items-center justify-center gap-1 shadow-md shadow-emerald-900/30"
+              >
+                {isSimulating ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                <span>إرسال رسالة العميل وشوف رد الإيجنت</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* COLUMN 2: Chat Thread */}
+        <div className="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+          
+          {/* Chat Header */}
+          <div className="h-14 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/30 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">
+              <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-sm">
                 {activeConv.customer.initials}
               </div>
               <div>
-                <h3 className="font-bold text-white text-xs">{activeConv.customer.name}</h3>
-                <p className="text-[11px] text-slate-400">{activeConv.customer.phone} • عبر {activeConv.channel}</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-white">{activeConv.customer.name}</h3>
+                  <span className="text-[10px] text-slate-400">{activeConv.customer.phone}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                  <span className="text-emerald-400 font-medium">المنصة: {activeConv.channel}</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1 text-slate-300">
+                    <User className="w-3 h-3 text-emerald-400" />
+                    المسؤول: {activeConv.assignedAgent?.name || 'إيجنت المبيعات الآلي'}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className={`w-3.5 h-3.5 ${isAiActive ? 'text-emerald-400' : 'text-slate-500'}`} />
-                <span className="text-xs font-medium text-slate-300">
-                  {isAiActive ? 'مساعد المبيعات الآلي نشط' : 'التحكم اليدوي للموظف'}
+            {/* Auto AI Switch */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                <span className="text-xs text-slate-300 font-medium flex items-center gap-1.5">
+                  <Bot className={`w-3.5 h-3.5 ${isAiActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+                  رد الإيجنت التلقائي
                 </span>
-              </div>
-              <button
-                onClick={toggleAi}
-                className={`w-10 h-5 flex items-center rounded-full p-0.5 transition-colors ${
-                  isAiActive ? 'bg-emerald-500' : 'bg-slate-700'
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                    isAiActive ? 'translate-x-0' : '-translate-x-5'
+                <button
+                  type="button"
+                  onClick={toggleAi}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    isAiActive ? 'bg-emerald-500' : 'bg-slate-700'
                   }`}
-                />
-              </button>
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${
+                      isAiActive ? '-translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-            {activeConv.messages.map((msg: any) => {
-              const isCustomer = msg.sender === 'customer';
-              const isBot = msg.sender === 'bot';
-              const isSystem = msg.sender === 'system';
+          {/* Messages Stream */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {activeConv.messages.map((m: any) => {
+              const isCust = m.sender === 'customer';
+              const isBot = m.sender === 'bot';
 
-              if (isSystem) {
+              if (m.sender === 'system') {
                 return (
-                  <div key={msg.id} className="text-center my-2">
-                    <span className="inline-block text-[11px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-3 py-1 rounded-full">
-                      {msg.text}
+                  <div key={m.id} className="flex justify-center my-2">
+                    <span className="bg-slate-800/80 text-amber-300 border border-amber-500/20 text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+                      {m.text}
                     </span>
                   </div>
                 );
               }
 
               return (
-                <div key={msg.id} className={`flex flex-col ${isCustomer ? 'items-start' : 'items-end'}`}>
-                  <div className="flex items-end gap-2 max-w-[78%]">
-                    {isCustomer && (
-                      <div className="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs flex-shrink-0">
-                        <User className="w-3.5 h-3.5" />
+                <div key={m.id} className={`flex ${isCust ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`max-w-md rounded-2xl p-4 text-xs leading-relaxed shadow-sm ${
+                    isCust 
+                      ? 'bg-slate-800 text-slate-100 rounded-tr-none border border-slate-700/60' 
+                      : isBot 
+                        ? 'bg-gradient-to-br from-emerald-900/60 to-slate-900 text-emerald-100 rounded-tl-none border border-emerald-500/30' 
+                        : 'bg-emerald-600 text-white rounded-tl-none'
+                  }`}>
+                    {!isCust && (
+                      <div className="flex items-center gap-1.5 mb-1.5 text-[10px] text-emerald-400 font-bold">
+                        <Sparkles className="w-3 h-3" />
+                        <span>{activeConv.assignedAgent?.name || 'إيجنت المبيعات الذكي'}</span>
                       </div>
                     )}
-                    <div
-                      className={`p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
-                        isCustomer
-                          ? 'bg-slate-800 text-slate-100 rounded-bl-sm border border-slate-700/60'
-                          : isBot
-                          ? 'bg-emerald-600/20 text-emerald-100 rounded-br-sm border border-emerald-500/30'
-                          : 'bg-blue-600 text-white rounded-br-sm'
-                      }`}
-                    >
-                      {isBot && (
-                        <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-400 mb-1 border-b border-emerald-500/20 pb-1">
-                          <Bot className="w-3 h-3" /> المساعد الذكي (Gemini 3.8 Flash)
-                        </div>
-                      )}
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                    <p className="whitespace-pre-wrap">{m.text}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1.5 text-[9px] text-slate-400">
+                      <span>{m.time}</span>
+                      {!isCust && <CheckCheck className="w-3 h-3 text-emerald-400" />}
                     </div>
-                  </div>
-                  <div className={`text-[10px] text-slate-500 mt-1 flex items-center gap-1 ${isCustomer ? 'mr-8' : 'ml-1'}`}>
-                    <span>{msg.time}</span>
-                    {!isCustomer && <CheckCheck className="w-3 h-3 text-emerald-400" />}
                   </div>
                 </div>
               );
             })}
+
+            {/* Live Typing Indicator */}
+            {isTyping && (
+              <div className="flex justify-end">
+                <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl rounded-tl-none p-3 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
+                  <span className="text-[10px] text-emerald-400 pr-1">{activeConv.assignedAgent?.name || 'الإيجنت'} بيكتب الرد بلهجة مصرية...</span>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSendReply} className="p-3 border-t border-slate-800 bg-slate-900/40 flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="اكتب ردك للمتابعة اليدوية (سيتوقف الـ AI تلقائياً لمنع أي تداخل)..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={!replyText.trim()}
-              className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 text-white px-4 py-2.5 rounded-xl font-medium text-xs flex items-center gap-1.5 transition-colors shadow-sm"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>إرسال</span>
-            </button>
-          </form>
-        </section>
-
-        {/* Column 3: Customer & AI Order Panel */}
-        <section className="flex flex-col h-full bg-slate-900 border-r border-slate-800 p-4 space-y-5 overflow-y-auto">
-          <div className="text-center pb-4 border-b border-slate-800">
-            <div className="w-14 h-14 rounded-full bg-slate-800 border-2 border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center font-bold text-lg mb-2">
-              {activeConv.customer.initials}
-            </div>
-            <h3 className="text-sm font-bold text-white">{activeConv.customer.name}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">{activeConv.customer.phone}</p>
-            <span className="inline-block mt-2 text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
-              عميل موثق عبر {activeConv.channel}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              بيانات التواصل والتسليم
-            </h4>
-            <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-slate-300">
-                <Phone className="w-3.5 h-3.5 text-slate-400" />
-                <span>{activeConv.customer.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                <span>القاهرة، مصر (استخراج ذكي بالـ AI)</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>آخر تفاعل: اليوم {activeConv.lastTime}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                الطلب المكتشف (Smart Order)
-              </h4>
-              <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 font-medium">
-                {activeConv.order.status}
-              </span>
-            </div>
-
-            <div className="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 space-y-3">
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0 text-emerald-400">
-                  <ShoppingBag className="w-4 h-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-white">{activeConv.order.item}</p>
-                  <p className="text-[11px] text-slate-400">المقاس: {activeConv.order.size}</p>
-                  <p className="text-xs font-bold text-emerald-400 mt-1">{activeConv.order.price}</p>
-                </div>
-              </div>
-
+          {/* Quick Smart Egyptian Action Chips */}
+          <div className="px-6 py-2 border-t border-slate-800/80 bg-slate-900/40 flex items-center gap-2 overflow-x-auto text-[11px]">
+            <span className="text-slate-500 text-[10px] flex-shrink-0">ردود سريعة:</span>
+            {[
+              'السعر والشحن مجاني للقطعتين 🚚',
+              'بيانات إنستاباي للدفع الفوري 💳',
+              'تأكيد حجز مقاس L مع المندوب 📦',
+              'جدول المقاسات والألوان المتاحة 👔'
+            ].map((chip, idx) => (
               <button
-                onClick={() => alert(`تم تأكيد طلب ${activeConv.order.item} بنجاح وإرسال الفاتورة للعميل!`)}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs py-2 rounded-lg font-medium transition-colors shadow-sm"
+                key={idx}
+                onClick={() => setReplyText(chip)}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 flex-shrink-0 transition-colors"
               >
-                اعتماد الطلب وإصدار البوليصة
+                {chip}
               </button>
+            ))}
+          </div>
+
+          {/* Reply Form */}
+          <div className="p-4 border-t border-slate-800 bg-slate-900/60">
+            <form onSubmit={handleSendManualReply} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="اكتب ردك اليدوي هنا كخدمة عملاء..."
+                value={replyText}
+                onChange={e => setReplyText(e.target.value)}
+                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+              />
+              <button
+                type="submit"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-emerald-600/20"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>إرسال</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* COLUMN 3: Customer Details & Live Order Builder */}
+        <div className="w-80 border-r border-slate-800 bg-slate-900/30 flex flex-col p-4 overflow-y-auto space-y-4 flex-shrink-0">
+          
+          {/* Active Assigned Agent Card */}
+          <div className="bg-slate-900 border border-emerald-500/20 rounded-xl p-3.5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">الإيجنت المسؤول حالياً</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <div className="flex items-center gap-3">
+              <img 
+                src={activeConv.assignedAgent?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150'} 
+                alt="Agent" 
+                className="w-10 h-10 rounded-full object-cover border border-emerald-500/30"
+              />
+              <div>
+                <h4 className="text-xs font-bold text-white">{activeConv.assignedAgent?.name || 'سارة طارق'}</h4>
+                <p className="text-[10px] text-slate-400">{activeConv.assignedAgent?.role || 'مبيعات واتساب VIP'}</p>
+                <span className="text-[9px] text-amber-400">★ {activeConv.assignedAgent?.rating || '4.95'} / 5.0 تقييم العملاء</span>
+              </div>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-800">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span className="flex items-center gap-1 text-[11px]">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> نافذة المراسلة
+          {/* Customer CRM Summary */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-3">
+            <h4 className="text-xs font-bold text-white flex items-center gap-1.5 border-b border-slate-800 pb-2">
+              <User className="w-3.5 h-3.5 text-emerald-400" />
+              بيانات العميل (CRM)
+            </h4>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-400">الاسم:</span>
+                <span className="text-white font-medium">{activeConv.customer.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">الهاتف:</span>
+                <span className="text-white font-mono">{activeConv.customer.phone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">المنصة:</span>
+                <span className="text-emerald-400 font-medium">{activeConv.channel}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">حالة العميل:</span>
+                <span className="text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded text-[10px] border border-emerald-800">عميل نشط ومهتم</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Order Confirmation Card */}
+          <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/30 rounded-xl p-3.5 space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
+                مسودة الأوردر المكتشف
+              </h4>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">
+                {activeConv.order?.status || 'جاهز للاعتماد'}
               </span>
-              <span className="text-emerald-400 text-[11px] font-medium">مفتوحة ونشطة</span>
             </div>
-          </div>
-        </section>
 
-      </main>
+            <div className="space-y-2 text-xs">
+              <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
+                <p className="text-slate-200 font-bold">{activeConv.order?.item || 'جاكيت جلد طبيعي'}</p>
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>المقاس: {activeConv.order?.size || 'L'}</span>
+                  <span className="text-emerald-400 font-bold text-xs">{activeConv.order?.price || '1,850 ج.م'}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1 pt-1 text-[11px] border-t border-slate-800 text-slate-400">
+                <div className="flex justify-between">
+                  <span>الشحن:</span>
+                  <span className="text-emerald-400 font-bold">مجاني (عرض 🚚)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>طريقة الدفع:</span>
+                  <span className="text-slate-300">{activeConv.order?.payment || 'إنستاباي / كاش'}</span>
+                </div>
+              </div>
+            </div>
+
+            {orderConfirmed ? (
+              <div className="bg-emerald-950 border border-emerald-500/40 p-2.5 rounded-lg text-center space-y-1">
+                <CheckCircle className="w-5 h-5 text-emerald-400 mx-auto" />
+                <p className="text-xs font-bold text-white">تم اعتماد الأوردر بنجاح! 🎉</p>
+                <p className="text-[10px] text-emerald-300">تم إنشاء بوليصة الشحن وإرسالها للعميل</p>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setOrderConfirmed(true)}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/40"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>اعتماد الطلب وإصدار البوليصة</span>
+              </button>
+            )}
+          </div>
+
+        </div>
+
+      </div>
     </div>
   );
 }
