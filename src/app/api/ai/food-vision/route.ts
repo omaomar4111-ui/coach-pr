@@ -39,25 +39,53 @@ export async function POST(req: Request) {
   "coachVerdict": "نصيحة الكابتن"
 }`;
 
-        const response = await ai.models.generateContent({
-          model: "gemini-3.5-flash-lite",
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: prompt },
-                {
-                  inlineData: {
-                    mimeType: "image/jpeg",
-                    data: cleanBase64,
+        // Try Gemini 4 Argon first for high-precision multi-item nutrition extraction
+        let replyText = "";
+        try {
+          const response = await ai.models.generateContent({
+            model: "gemini-4-argon",
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inlineData: {
+                      mimeType: "image/jpeg",
+                      data: cleanBase64,
+                    },
                   },
-                },
-              ],
+                ],
+              },
+            ],
+            config: {
+              thinkingConfig: {
+                thinkingBudget: 1024,
+              },
             },
-          ],
-        });
-
-        const replyText = response.text || "";
+          });
+          replyText = response.text || "";
+        } catch (argonErr) {
+          console.warn("Gemini 4 Argon busy, falling back to 3.5 Flash-Lite:", argonErr);
+          const response = await ai.models.generateContent({
+            model: "gemini-3.5-flash-lite",
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inlineData: {
+                      mimeType: "image/jpeg",
+                      data: cleanBase64,
+                    },
+                  },
+                ],
+              },
+            ],
+          });
+          replyText = response.text || "";
+        }
         
         // Try extracting JSON
         const jsonMatch = replyText.match(/\{[\s\S]*\}/);
