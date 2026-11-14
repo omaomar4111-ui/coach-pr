@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Hardened Health Check Endpoint for Monitoring & Uptime
-export const dynamic = "force-dynamic";
+// dynamic config omitted for Turbopack cacheComponents compatibility
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

@@ -34,6 +34,46 @@ export default function InboxPage() {
   const [waybill, setWaybill] = useState('');
   const [activeModel, setActiveModel] = useState<'4-argon' | 'fast-flash'>('4-argon');
 
+  // Dynamic Fleet Agents State
+  const [agentsList, setAgentsList] = useState<any[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('sara_tarek');
+  const [isSwitchingAgent, setIsSwitchingAgent] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/agents')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.agents) {
+          setAgentsList(data.agents);
+        }
+      })
+      .catch(err => console.warn('Could not fetch agents:', err));
+  }, []);
+
+  const handleSelectAgent = async (agentId: string) => {
+    setSelectedAgentId(agentId);
+    setIsSwitchingAgent(true);
+    const target = agentsList.find(a => a.id === agentId);
+
+    try {
+      await fetch('/api/conversations/demo-conv-1/agent', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent_id: agentId })
+      });
+    } catch (e) {
+      console.warn('Agent switch patch error:', e);
+    }
+
+    setIsSwitchingAgent(false);
+    setMessages(prev => [...prev, {
+      id: String(Date.now()),
+      sender: 'bot',
+      text: `🔄 تم تحويل المحادثة إلى: ${target?.name || agentId} (${target?.role || 'مساعد'}) - جاهز للرد بأسلوبه فوراً!`,
+      time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+    }]);
+  };
+
   // 4 Argon Extracted State
   const [extractedData, setExtractedData] = useState({
     customerName: 'أحمد محمود (عميل محادثة)',
@@ -68,12 +108,13 @@ export default function InboxPage() {
     setIsTyping(true);
 
     try {
-      // 1. Call Backend Chat with 4 Argon Support
+      // 1. Call Backend Chat with Selected Agent & 4 Argon Support
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
+          agentId: selectedAgentId,
           modelPreference: activeModel
         })
       });
@@ -248,11 +289,35 @@ export default function InboxPage() {
                   متصل الآن (WhatsApp)
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">المودريتور المسؤول: <strong className="text-slate-200">سارة طارق (Sales Lead)</strong></p>
+              <p className="text-[11px] text-slate-400">
+                المودريتور المسؤول: <strong className="text-emerald-400">
+                  {agentsList.find(a => a.id === selectedAgentId)?.name || 'سارة طارق'} ({agentsList.find(a => a.id === selectedAgentId)?.role || 'Sales Lead'})
+                </strong>
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Dynamic Fleet Agents Switcher Dropdown */}
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-xl px-2 py-1 text-xs">
+              <Users className="w-3.5 h-3.5 text-emerald-400" />
+              <select
+                value={selectedAgentId}
+                onChange={e => handleSelectAgent(e.target.value)}
+                disabled={isSwitchingAgent}
+                className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer text-xs"
+              >
+                {agentsList.length > 0 ? (
+                  agentsList.map(a => (
+                    <option key={a.id} value={a.id} className="bg-slate-900 text-white">
+                      {a.name} — {a.role}
+                    </option>
+                  ))
+                ) : (
+                  <option value="sara_tarek">سارة طارق — Sales Lead</option>
+                )}
+              </select>
+            </div>
             <button
               onClick={() => setActiveModel(prev => prev === '4-argon' ? 'fast-flash' : '4-argon')}
               className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 ${

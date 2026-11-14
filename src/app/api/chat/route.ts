@@ -1,52 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseClient';
+import { AGENTS } from '@/data/agents';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history, brief, agentId, modelPreference } = await req.json();
+    const { 
+      message, 
+      history, 
+      brief, 
+      agentId: requestedAgentId, 
+      conversationId,
+      modelPreference 
+    } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || '';
     const cleanMsg = message.trim();
+    let currentAgentId = requestedAgentId;
 
-    // 1. Determine Query Complexity
-    // Fast queries: Sizes, Price, Shipping, Hello
-    // Complex queries (Routing to 4 Argon / Reasoning Pro): Custom styling, complaints, complex bundle calculation, returns
+    // 1. Resolve Active Agent from Supabase if conversationId is provided
+    if (conversationId && !currentAgentId) {
+      try {
+        const { data: conv } = await supabaseAdmin
+          .from('conversations')
+          .select('active_agent')
+          .eq('id', conversationId)
+          .maybeSingle();
+
+        if (conv?.active_agent) {
+          currentAgentId = conv.active_agent;
+        }
+      } catch (err) {
+        console.warn('Could not read conversation active agent, using fallback');
+      }
+    }
+
+    // Default to Sara Tarek if none resolved
+    const activeAgent = AGENTS.find(a => a.id === currentAgentId) || AGENTS[0];
+
+    // 2. Determine Query Complexity for 4 Argon Routing
     const isComplexQuery = 
       modelPreference === '4-argon' ||
       cleanMsg.length > 70 ||
+      activeAgent.id === 'payment_verify' ||
+      activeAgent.id === 'complaints' ||
       cleanMsg.includes('مشكلة') ||
       cleanMsg.includes('شكوى') ||
       cleanMsg.includes('استرجاع') ||
-      cleanMsg.includes('بدل') ||
-      cleanMsg.includes('خامة') ||
-      cleanMsg.includes('تنسيق') ||
-      cleanMsg.includes('عرض خاص');
+      cleanMsg.includes('خامة');
 
-    // 2. Persona & System Instructions
-    const systemPrompt = `
-أنت الآن "سارة طارق" (كبير مديري المبيعات وخدمة العملاء في PR Agent).
-الموديل المشغل للرد: ${isComplexQuery ? '4 Argon (Reasoning & Advanced Analysis Engine)' : 'Fast Stream Engine'}
-أسلوبك: مصري قاهري راقٍ وذكي ومقنع، بدون مبالغة أو تصنع.
-بريف المتجر:
-- المنتجات: ${brief?.productsCatalogSummary || 'هوديز أوفرسايز (650ج)، جواكت جلد (1850ج)، قمصان قطن (450ج)'}
+    // 3. Dynamic System Prompt tailored to the selected Agent
+    const dynamicSystemPrompt = `
+أنت الآن تلعب دور: "${activeAgent.name}" (${activeAgent.role}).
+شخصيتك وتوجيهك الأساسي:
+${activeAgent.system_prompt}
+
+بريف البراند والمتجر:
+- المنتجات: ${brief?.productsCatalogSummary || 'هوديز أوفرسايز (650ج)، جواكت جلد مستورد (1850ج)، قمصان قطن (450ج)'}
 - الشحن المجاني: فوق ${brief?.freeShippingThreshold || '1000'} جنيه.
-- سياسة المعاينة: معاينة مجانية مع المندوب قبل الدفع واستبدال مجاني خلال 14 يوم.
-- طرق الدفع: إنستاباي، فودافون كاش، الدفع عند الاستلام.
+- سياسة المعاينة: معاينة كاملة ومجانية مع المندوب قبل دفع أي جنيه واستبدال مجاني خلال 14 يوم.
+- طرق الدفع: إنستاباي، فودافون كاش، الدفع عند الاستلام (COD).
 
-القواعد:
-1. لو السؤال بسيط: جملة أو جملتين فقط ومباشرة زي شات الواتساب.
-2. لو السؤال استفسار عن خامة أو تنسيق أو مشكلة (وضع 4 Argon): قدم حلاً ذكياً احترافياً يطمئن العميل ويقفل معاه الطلب فوراً.
+قواعد صارمة:
+1. التزم بشخصيتك ودورك المحدد كـ (${activeAgent.name}) ولا تخرج عنه.
+2. الرد يجب أن يكون مصرياً راقياً، ذكياً، مختصراً (جملتين أو 3 جمل كحد أقصى كشات الواتساب الحقيقي).
 `.trim();
 
-    // 3. If API Key is present, attempt model call with safety abort controller
+    const apiKey = process.env.GEMINI_API_KEY || '';
+
+    // 4. Invoke Gemini with Dynamic Instruction
     if (apiKey) {
       try {
         const targetModel = isComplexQuery ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
         const controller = new AbortController();
-        const timeoutMs = isComplexQuery ? 9000 : 4500;
+        const timeoutMs = isComplexQuery ? 8000 : 4500;
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
@@ -59,12 +88,12 @@ export async function POST(req: NextRequest) {
             contents: [
               {
                 role: 'user',
-                parts: [{ text: `${systemPrompt}\n\nرسالة العميل:\n"${cleanMsg}"` }]
+                parts: [{ text: `${dynamicSystemPrompt}\n\nرسالة العميل:\n"${cleanMsg}"` }]
               }
             ],
             generationConfig: {
-              temperature: isComplexQuery ? 0.4 : 0.7,
-              maxOutputTokens: isComplexQuery ? 200 : 100,
+              temperature: 0.6,
+              maxOutputTokens: 120,
             }
           })
         });
@@ -77,62 +106,78 @@ export async function POST(req: NextRequest) {
           if (reply) {
             return NextResponse.json({
               reply,
-              source: isComplexQuery ? '4_ARGON_DEEP_REASONING' : 'FAST_AI_STREAM',
-              model: isComplexQuery ? '4 Argon (Reasoning)' : 'Fast Flash',
+              agent: {
+                id: activeAgent.id,
+                name: activeAgent.name,
+                role: activeAgent.role
+              },
+              source: isComplexQuery ? '4_ARGON_DYNAMIC_AGENT' : 'FAST_DYNAMIC_AGENT',
               timestamp: new Date().toISOString()
             });
           }
         }
-      } catch (e) {
-        console.warn('API call timed out or failed, falling back to smart instant heuristics');
+      } catch (err) {
+        console.warn('Gemini call bypassed, falling back to agent specific offline logic');
       }
     }
 
-    // 4. Instant Smart Fallback (0ms latency, zero downtime)
-    const fallbackReply = generateSmartResponse(cleanMsg, isComplexQuery);
+    // 5. Agent-Specific Heuristics (Zero-Latency Guarantee)
+    const fallbackReply = generateAgentSpecificFallback(activeAgent.id, cleanMsg);
 
     return NextResponse.json({
       reply: fallbackReply,
-      source: isComplexQuery ? '4_ARGON_OFFLINE_LOGIC' : 'INSTANT_SPEED_ENGINE',
-      model: isComplexQuery ? '4 Argon (Deterministic Logic)' : 'Instant Flash',
+      agent: {
+        id: activeAgent.id,
+        name: activeAgent.name,
+        role: activeAgent.role
+      },
+      source: 'AGENT_OFFLINE_LOGIC',
       timestamp: new Date().toISOString()
     });
 
   } catch (error: any) {
     return NextResponse.json({
-      reply: 'يا فندم نورتنا! معاك سارة طارق، ثواني ومسؤول المبيعات بيتابع طلبك فوراً.',
-      source: 'FALLBACK_SAFETY',
+      reply: 'يا فندم أهلاً بك! تم تحويل استفسارك لمسؤول القسم وهيتابع معاك فوراً.',
+      source: 'SAFETY_FALLBACK',
       timestamp: new Date().toISOString()
     }, { status: 200 });
   }
 }
 
-function generateSmartResponse(text: string, isArgonMode: boolean): string {
+function generateAgentSpecificFallback(agentId: string, text: string): string {
   const lower = text.toLowerCase();
 
-  // Advanced 4 Argon Handling for Complex Cases
-  if (isArgonMode) {
-    if (lower.includes('خامة') || lower.includes('قطن') || lower.includes('جلد') || lower.includes('جودة')) {
-      return 'خاماتنا كلها قطن مصري 100% ميلتون تقيل 380 جرام معالج ضد الانكماش والوبرة، والجواكت جلد طبيعي مستورد. وأهم ميزة إن معاك معاينة كاملة ومجانية بتفتح الشحنة وتقيس وتلمس الخامة بنفسك قبل ما تدفع أي جنيه للمندوب 🛡️';
-    }
-    if (lower.includes('استبدال') || lower.includes('مشكلة') || lower.includes('شكوى') || lower.includes('ضيق') || lower.includes('واسع')) {
-      return 'حقك علينا تماماً يا فندم وراحتك أولويتنا! بنبعتلك مندوب استبدال مجاناً لحد عندك بالقطعة والمقاس المظبوط خلال 48 ساعة فقط بدون أي مصاريف شحن إضافية. ممكن تديني رقم تليفونك المسجل به الأوردر؟ 🙏';
-    }
-    if (lower.includes('تنسيق') || lower.includes('ألوان') || lower.includes('ألبس إيه')) {
-      return 'الأوفرسايز هودي باللون الأسود أو الزيتي بيمشي شيك جداً مع بنطلون شينو بيج وسنيكرز أبيض، وبيديك لوك كاجوال فاخر ومريح. تحب أبعتلك تشكيلة صور التنسيق المقترحة؟ 👔✨';
-    }
-  }
+  switch (agentId) {
+    case 'cashier':
+      return 'أهلاً بك يا فندم! معاك عمر من قسم الحسابات. تقدر تحول فوراً على إنستاباي برقمنا المعتمد، وأول ما تبعت صورة التحويل هنا هأكدلك الأوردر في ثوانٍ 💳';
 
-  // Fast Instant WhatsApp Flow
-  if (lower.includes('مقاس') || lower.includes('سايز') || lower.includes('size')) {
-    return 'المقاسات متوفرة من M لحد 3XL تلبيس أوفرسايز مظبوط جداً ومريح. ابعتلي طولك ووزنك وأنا هحددلك المقاس المثالي فوراً!';
-  }
-  if (lower.includes('سعر') || lower.includes('بكام') || lower.includes('كام')) {
-    return 'الهودي الأوفرسايز عليه خصم حصري بـ 650ج بدلاً من 850ج، ولو طلبت قطعتين الشحن بيكون مجاناً لحد باب بيتك! 🔥';
-  }
-  if (lower.includes('شحن') || lower.includes('توصيل') || lower.includes('كام يوم')) {
-    return 'التوصيل خلال 48 لـ 72 ساعة في كل محافظات مصر، ومعاك معاينة مجانية بالكامل قبل الدفع 🚚';
-  }
+    case 'returns':
+      return 'مساء الخير يا فندم! معاك مروة من قسم الاستبدال. متقلقش خالص حقك مضمون 100%، بنبعتلك مندوب استبدال مجاناً لحد عندك بالقطعة والمقاس المظبوط خلال 48 ساعة فقط 🙏';
 
-  return 'أهلاً بحضرتك يا فندم! معاك سارة طارق من PR Agent. إيه الموديل أو القطعة اللي حابب تستفسر عنها عشان أحجزلك مقاسك؟ ✨';
+    case 'shipping':
+      return 'يا هلا بيك! كابتن هيثم معاك من التنسيق اللوجستي وبوسطة. الشحن بياخد من 24 لـ 48 ساعة في القاهرة والجيزة و 72 ساعة للمحافظات، وبوليصتك بتطلع فوراً برابط تتبع حي 🚚';
+
+    case 'complaints':
+      return 'حقك علينا تماماً يا فندم وراحتك أولويتنا! أنا د. خالد الصاوي مدير خدمة العملاء ومسؤول شخصياً عن حل المشكلة دي فوراً وتعويض حضرتك بما يليق بيك 🌹';
+
+    case 'upselling':
+      return 'يا فندم اختيارك للهودي ممتاز! بس حابب أفيدك إنك لو أضفت بنطلون شينو بـ 620ج هيتطبق عليك الشحن المجاني فوراً وهتوفر 130ج بالكامل، تحب أضيفه مع الأوردر؟ 🔥';
+
+    case 'catalog':
+      return 'أهلاً بحضرتك! معاك نوران فاشون. خاماتنا قطن مصري 100% ميلتون تقيل 380 جرام معالج، والتلبيس أوفرسايز مظبوط جداً ومريح. تحب أساعدك تختار المقاس الأنسب؟ 👔';
+
+    case 'payment_verify':
+      return 'تمام يا فندم! أنا مدقق المدفوعات الذكي 4 Argon. بمجرد رفع سكرين شوت التحويل سأقوم بمطابقة الرقم المرجعي والمبلغ بالقرش واعتماد الشحنة تلقائياً 🛡️';
+
+    case 'order_tracker':
+      return 'أهلاً بحضرتك يا فندم! معاك يوسف من تتبع الشحنات. اديني بس رقم تليفونك أو رقم الأوردر وهطلعلك مكان المندوب وحالة الشحنة في ثوانٍ 📍';
+
+    case 'fallback':
+      return 'عفواً يا فندم لتفاصيل طلبك الخاصة، أنا حولت الشات حالياً لأحد المشرفين البشريين من فريق الإدارة وسينضم للمحادثة خلال دقائق للرد عليك مباشرة 🙏';
+
+    default: // sara_tarek
+      if (lower.includes('مقاس')) return 'مقاساتنا متوفرة من M لـ 3XL وتلبيسها أوفرسايز مريح جداً ومظبوط. ابعتلي طولك ووزنك وأنا هطلعلك المقاس المثالي فوراً! ✨';
+      if (lower.includes('سعر') || lower.includes('كام')) return 'الهودي الأوفرسايز عليه خصم حصري بـ 650ج بدلاً من 850ج، ولو طلبت قطعتين الشحن بيكون مجاناً لحد باب بيتك! 🔥';
+      return 'يا هلا بيك يا فندم! نورتنا في المتجر، معاك سارة طارق من المبيعات. إيه الموديل أو القطعة اللي عاجباك عشان أحجزلك مقاسك قبل نفاذ الكمية؟ ✨';
+  }
 }
