@@ -43,7 +43,7 @@ export default function RegisterCoachPage() {
       {/* Header */}
       <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/pr-logo.png" alt="CoachPRB" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
+          <img src="/pr-logo.png" alt="CoachPR" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
           <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
         </Link>
         <Link href="/" className="text-xs text-purple-300 hover:text-white flex items-center gap-1 font-bold transition">
@@ -59,7 +59,7 @@ export default function RegisterCoachPage() {
             <span className="text-[11px] bg-[#7C3AED]/20 text-[#A78BFA] border border-purple-500/30 px-3 py-1 rounded-full font-bold">
               ضمان استرجاع كامل 7 أيام
             </span>
-            <h1 className="text-2xl font-black font-heading text-white">ابدأ حساب المدرب في CoachPRB</h1>
+            <h1 className="text-2xl font-black font-heading text-white">ابدأ حساب المدرب في CoachPR</h1>
             <p className="text-xs text-slate-400">سجل بياناتك للبدء فوراً في إدخال عملائك وبناء خطط التمارين</p>
           </div>
 

@@ -268,7 +268,7 @@ export default function NutritionDietBuilderPage() {
           <div className="bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-transparent p-4 rounded-2xl border border-purple-500/30 space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-[#A78BFA]">
               <Sparkles className="w-4 h-4" />
-              <span>تحليل CoachPRB AI للتغذية:</span>
+              <span>تحليل CoachPR AI للتغذية:</span>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
               توزيع البروتين مثالي على مدار الوجبات (بمعدل 35-45 جم لكل وجبة لتحفيز الـ MPS). تم اقتراح بدائل تلقائية لكل صنف لضمان استمرارية العميل بدون ملل.
@@ -473,7 +473,7 @@ export default function NutritionDietBuilderPage() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText("قائمة مشتريات أسبوعك من CoachPRB: 1.26 كجم صدور دجاج، 1.4 كجم أرز، 21 بيضة، 420 جم شوفان.");
+                  navigator.clipboard.writeText("قائمة مشتريات أسبوعك من CoachPR: 1.26 كجم صدور دجاج، 1.4 كجم أرز، 21 بيضة، 420 جم شوفان.");
                   alert("تم نسخ قائمة المشتريات لإرسالها للعميل عبر واتساب!");
                 }}
                 className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl text-xs font-bold transition shadow-md"

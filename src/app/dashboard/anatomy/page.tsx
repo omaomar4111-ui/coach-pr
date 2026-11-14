@@ -44,7 +44,7 @@ export default function AnatomyPage() {
       <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/pr-logo.png" alt="CoachPRB" style={{ height: "34px", width: "auto" }} />
+            <img src="/pr-logo.png" alt="CoachPR" style={{ height: "34px", width: "auto" }} />
             <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
           </Link>
           <span className="hidden sm:inline-block px-2.5 py-1 text-[11px] font-bold bg-[#7C3AED]/20 text-[#A78BFA] border border-purple-500/30 rounded-full">

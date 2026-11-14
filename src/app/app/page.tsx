@@ -134,11 +134,11 @@ export default function ClientAppPage() {
       {/* Client Header */}
       <header className="bg-[#110A1E] border-b border-purple-900/30 p-4 sticky top-0 z-40 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/pr-logo.png" alt="CoachPRB" className="h-8 w-auto object-contain" />
+          <img src="/pr-logo.png" alt="CoachPR" className="h-8 w-auto object-contain" />
           <div>
             <div className="text-xs font-bold text-white flex items-center gap-1.5">
               <span>كريم أحمد</span>
-              <span className="text-[10px] bg-purple-900/60 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">CoachPRB</span>
+              <span className="text-[10px] bg-purple-900/60 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">CoachPR</span>
             </div>
             <div className="text-[10px] text-slate-400">المدرب: كابتن عمر مصطفى</div>
           </div>

@@ -149,9 +149,15 @@ export default function DashboardPage() {
       {/* Top Navigation */}
       <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <img src="/pr-logo.png" alt="CoachPRB Logo" className="h-9 w-auto object-contain" />
-            <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
+          <Link href="/" className="flex items-center gap-3">
+            <div className="p-1 rounded-xl bg-purple-950/40 border border-purple-500/40 flex items-center justify-center">
+              <img 
+                src="/pr-logo.png" 
+                alt="PR Logo" 
+                className="h-8 w-auto max-h-8 object-contain filter drop-shadow-[0_0_8px_rgba(167,139,250,0.5)]" 
+              />
+            </div>
+            <span className="font-heading font-black text-xl text-white tracking-wide">Coach<span className="text-[#A78BFA]">PR</span></span>
           </Link>
           <span className="text-xs font-semibold px-2.5 py-1 bg-[#17102A] text-purple-300 border border-purple-500/30 rounded-full flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-purple-300 animate-pulse" />
@@ -361,11 +367,35 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* Coach Confirmation Action: Confirm & Activate Client Registration */}
+              <div className="bg-gradient-to-r from-purple-950/40 to-[#140C24] p-4 rounded-2xl border border-purple-700/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="space-y-0.5 text-right w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-black text-white">تأكيد واعتماد تسجيل المتدرب (Confirm Client)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">فحص تفاصيل اللاعب، تفعيل صلاحيات الدخول للتطبيق، وتعيين الكابتن المباشر</p>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    onClick={() => {
+                      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+                      alert(`تم اعتماد وتأكيد تسجيل اللاعب (${selectedClient.name}) بنجاح! تم إرسال إشعار الترحيب وربط حسابه.`);
+                    }}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-950 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>تأكيد تسجيل اللاعب ✓</span>
+                  </button>
+                </div>
+              </div>
+
               {/* AI Assistant Insight */}
               <div className="bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-transparent p-4 rounded-xl border border-purple-500/30">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#A78BFA] mb-1.5">
                   <Sparkles className="w-4 h-4" />
-                  <span>توصية CoachPRB الذكية:</span>
+                  <span>توصية CoachPR الذكية:</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {selectedClient.atRisk 

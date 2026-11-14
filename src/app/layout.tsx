@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CoachPRB",
-  description: "CoachPRB Platform",
+  title: "CoachPR",
+  description: "CoachPR Platform",
   icons: {
     icon: "/pr-logo.png",
     shortcut: "/pr-logo.png",

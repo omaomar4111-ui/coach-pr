@@ -247,7 +247,7 @@ export default function WorkoutBuilderPage() {
   // WhatsApp Notification Dispatcher
   const handleSendWhatsAppNotification = (channel: "whatsapp" | "inapp" | "email") => {
     const message = encodeURIComponent(
-      `أهلاً يا كابتن كريم! كابتن عمر مصطفى قام برفع جدولك التدريبي الجديد والمحدث للأسبوع على تطبيق CoachPRB.\n\nتقدر تفتح الجدول وتبدأ تمرينك مباشرة وتسجل أوزانك من الرابط ده:\nhttps://coach-pr-beige.vercel.app/app\n\nعاش يا بطل وركز في التكنيك! 💪`
+      `أهلاً يا كابتن كريم! كابتن عمر مصطفى قام برفع جدولك التدريبي الجديد والمحدث للأسبوع على تطبيق CoachPR.\n\nتقدر تفتح الجدول وتبدأ تمرينك مباشرة وتسجل أوزانك من الرابط ده:\nhttps://coach-pr-beige.vercel.app/app\n\nعاش يا بطل وركز في التكنيك! 💪`
     );
     if (channel === "whatsapp") {
       window.open(`https://wa.me/201144826641?text=${message}`, "_blank");
@@ -356,7 +356,7 @@ export default function WorkoutBuilderPage() {
           <div className="flex items-center gap-2">
             <Dumbbell className="w-5 h-5 text-[#A78BFA]" />
             <h1 className="font-heading font-black text-lg text-white">
-              بيلدر التمارين الذكي <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-sans font-bold">CoachPRB 2.0</span>
+              بيلدر التمارين الذكي <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-sans font-bold">CoachPR 2.0</span>
             </h1>
           </div>
         </div>
@@ -1020,7 +1020,7 @@ export default function WorkoutBuilderPage() {
 
             {/* Safety Rule Note for Coach */}
             <div className="p-3 bg-purple-950/30 rounded-2xl border border-purple-900/30 text-[11px] text-purple-200 space-y-1">
-              <span className="font-bold text-white block">⚡ ميزة CoachPRB التلقائية لحماية العميل:</span>
+              <span className="font-bold text-white block">⚡ ميزة CoachPR التلقائية لحماية العميل:</span>
               <p className="text-slate-300 leading-relaxed">
                 عند قيام الكابتن بسحب أو كتابة تمرين مثل (Barbell Back Squat أو Deadlift) للاعب لديه إصابة مسجلة، يقوم النظام بتنبيه الكابتن فوراً باللون الأحمر ويقترح عليه بدائل ميكانيكية آمنة (مثل Dumbbell Split Squats أو Leg Press بزاوية مريحة).
               </p>

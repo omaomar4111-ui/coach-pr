@@ -99,7 +99,7 @@ export default function RanksAndCertificationsPage() {
       <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/pr-logo.png" alt="CoachPRB" style={{ height: "34px", width: "auto" }} />
+            <img src="/pr-logo.png" alt="CoachPR" style={{ height: "34px", width: "auto" }} />
             <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
           </Link>
           <span className="hidden sm:inline-block px-2.5 py-1 text-[11px] font-bold bg-[#7C3AED]/20 text-[#A78BFA] border border-purple-500/30 rounded-full">
@@ -123,7 +123,7 @@ export default function RanksAndCertificationsPage() {
           رانك البطولات والشهادات المعتمدة (Ranks &amp; Client Influx)
         </h1>
         <p className="text-xs text-slate-400 max-w-2xl mx-auto">
-          ارتقِ برانك حسابك وحساب متدربك من البرونز حتى الكونكورر! بالإضافة إلى توثيق شهاداتك الدولية (ISSA, NASM, FST-7) في دليل CoachPRB العام لتستقبل عملاء جدد مباشرة دون الحاجة لحملات إعلانية.
+          ارتقِ برانك حسابك وحساب متدربك من البرونز حتى الكونكورر! بالإضافة إلى توثيق شهاداتك الدولية (ISSA, NASM, FST-7) في دليل CoachPR العام لتستقبل عملاء جدد مباشرة دون الحاجة لحملات إعلانية.
         </p>
 
         {/* Tab Controls */}
@@ -254,7 +254,7 @@ export default function RanksAndCertificationsPage() {
                     <h3 className="text-base font-black text-white">الشهادات المعتمدة الموثقة</h3>
                   </div>
                   <span className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">
-                    موثق رسمياً في دليل CoachPRB
+                    موثق رسمياً في دليل CoachPR
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">

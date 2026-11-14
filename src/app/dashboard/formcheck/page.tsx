@@ -195,7 +195,7 @@ export default function FormCheckAndAIStudioPage() {
     {
       id: "msg-1",
       sender: "ai",
-      text: "أهلاً يا كابتن عمر! أنا CoachPRB AI Co-Pilot. جاهز لمساعدتك في تحليل أداء المتدربين، اقتراح تمارين بديلة، أو صياغة رسائل تحفيزية للعملاء المعرضين للتسرب.",
+      text: "أهلاً يا كابتن عمر! أنا CoachPR AI Co-Pilot. جاهز لمساعدتك في تحليل أداء المتدربين، اقتراح تمارين بديلة، أو صياغة رسائل تحفيزية للعملاء المعرضين للتسرب.",
       time: "10:00 ص"
     }
   ]);
@@ -300,7 +300,7 @@ export default function FormCheckAndAIStudioPage() {
               activeTab === "aichat" ? "bg-[#7C3AED] text-white" : "text-slate-400 hover:text-white"
             }`}
           >
-            مساعد CoachPRB AI
+            مساعد CoachPR AI
           </button>
         </div>
       </header>
@@ -532,7 +532,7 @@ export default function FormCheckAndAIStudioPage() {
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm">مساعد التدريب الذكي (CoachPRB AI)</h3>
+                  <h3 className="font-bold text-white text-sm">مساعد التدريب الذكي (CoachPR AI)</h3>
                   <p className="text-[11px] text-slate-400">مساعدك في صياغة الخطط، اقتراح البدائل، والتنبيه بالمتسربين</p>
                 </div>
               </div>
@@ -568,7 +568,7 @@ export default function FormCheckAndAIStudioPage() {
               {isAiTyping && (
                 <div className="flex items-center gap-2 text-xs text-purple-400 font-bold animate-pulse">
                   <Bot className="w-4 h-4" />
-                  <span>CoachPRB AI يكتب الرد...</span>
+                  <span>CoachPR AI يكتب الرد...</span>
                 </div>
               )}
             </div>
@@ -594,7 +594,7 @@ export default function FormCheckAndAIStudioPage() {
             <form onSubmit={handleSendAiPrompt} className="flex gap-2 pt-2">
               <input
                 type="text"
-                placeholder="اسأل CoachPRB AI عن أي شيء في خططك أو عملائك..."
+                placeholder="اسأل CoachPR AI عن أي شيء في خططك أو عملائك..."
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
                 className="flex-1 bg-[#110A1E] border border-purple-900/40 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#7C3AED]"
