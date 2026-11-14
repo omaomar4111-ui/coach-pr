@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CoachPRB — سجّل رقمك. غيّر جسمك. — The Next Level of Online Coaching",
-  description: "ابعت خطة التمرين والدايت لعميلك في تطبيق بدل الـ PDF، وتابعه كل أسبوع من مكان واحد.",
+  title: "CoachPRB",
+  description: "CoachPRB Platform",
+  icons: {
+    icon: "/pr-logo.png",
+    shortcut: "/pr-logo.png",
+    apple: "/pr-logo.png"
+  }
 };
 
 export default function RootLayout({
