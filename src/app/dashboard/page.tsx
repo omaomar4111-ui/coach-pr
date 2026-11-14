@@ -162,6 +162,13 @@ export default function DashboardPage() {
             <div className="text-[11px] text-purple-400">باقة Pro · 50 عميل</div>
           </div>
           <Link 
+            href="/dashboard/elite"
+            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-orange-300 border border-orange-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+          >
+            <Flame className="w-3.5 h-3.5 text-orange-400" />
+            <span className="hidden sm:inline">هاني رامبود &amp; المكملات</span>
+          </Link>
+          <Link 
             href="/dashboard/anatomy"
             className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
           >
