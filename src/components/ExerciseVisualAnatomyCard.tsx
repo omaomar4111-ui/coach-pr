@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Model, { IExerciseData } from "react-body-highlighter";
 
 interface ExerciseVisualAnatomyCardProps {
   exerciseName: string;
@@ -18,8 +19,9 @@ export default function ExerciseVisualAnatomyCard({
   gifUrl,
 }: ExerciseVisualAnatomyCardProps) {
   const [activeMode, setActiveMode] = useState<"gif" | "anatomy">("gif");
+  const [modelSide, setModelSide] = useState<"anterior" | "posterior">("anterior");
 
-  // Determine standard GIF fallback if not directly passed
+  // Determine standard GIF fallback
   const getAutoGifUrl = (): string => {
     if (gifUrl && !gifUrl.includes("unsplash.com")) return gifUrl;
     const lower = (exerciseName + " " + primaryMuscle).toLowerCase();
@@ -55,64 +57,82 @@ export default function ExerciseVisualAnatomyCard({
 
   const currentGif = getAutoGifUrl();
 
-  const getMuscleTitle = (m: string) => {
-    switch (m.toLowerCase()) {
-      case "chest":
-        return "عضلات الصدر (Pectoralis Major & Minor)";
-      case "back":
-      case "lats":
-        return "عضلات الظهر والمجنص (Latissimus Dorsi)";
-      case "legs":
-      case "quads":
-        return "الفخذ الأمامي (Quadriceps)";
-      case "shoulders":
-      case "side-delts":
-      case "front-delts":
-        return "عضلات الأكتاف (Deltoids)";
-      case "biceps":
-        return "عضلات البايسبس (Biceps Brachii)";
-      case "triceps":
-        return "عضلات الترايسبس (Triceps Brachii)";
-      default:
-        return "المجموعة العضلية المستهدفة";
+  // Map Arabic/English muscle names to react-body-highlighter accepted slugs
+  const getHighlighterMuscles = (): { muscles: string[]; side: "anterior" | "posterior"; titleAr: string } => {
+    const text = (exerciseName + " " + primaryMuscle).toLowerCase();
+    
+    if (text.includes("chest") || text.includes("صدر") || text.includes("بنش") || text.includes("press")) {
+      return { muscles: ["chest", "front-deltoids", "triceps"], side: "anterior", titleAr: "عضلات الصدر (Pectoralis Major) والترايسبس" };
     }
+    if (text.includes("lat") || text.includes("سحب") || text.includes("ظهر") || text.includes("مجنص")) {
+      return { muscles: ["upper-back", "biceps"], side: "posterior", titleAr: "عضلات الظهر والمجنص (Lats & Upper Back)" };
+    }
+    if (text.includes("row") || text.includes("تجديف")) {
+      return { muscles: ["upper-back", "lower-back", "biceps", "trapezius"], side: "posterior", titleAr: "عضلات الظهر الأوسط والترابيس" };
+    }
+    if (text.includes("squat") || text.includes("اسكوات") || text.includes("quads") || text.includes("فخذ أمامي")) {
+      return { muscles: ["quadriceps", "gluteal"], side: "anterior", titleAr: "الفخذ الأمامي (Quadriceps) والمقعدة" };
+    }
+    if (text.includes("hamstring") || text.includes("خلفي") || text.includes("ديدليفت") || text.includes("rdl")) {
+      return { muscles: ["hamstring", "gluteal", "lower-back"], side: "posterior", titleAr: "الفخذ الخلفي (Hamstrings) وأسفل الظهر" };
+    }
+    if (text.includes("باي") || text.includes("biceps") || text.includes("curl")) {
+      return { muscles: ["biceps", "forearm"], side: "anterior", titleAr: "عضلات البايسبس (Biceps Brachii)" };
+    }
+    if (text.includes("تراي") || text.includes("triceps") || text.includes("pushdown")) {
+      return { muscles: ["triceps"], side: "posterior", titleAr: "عضلات الترايسبس (Triceps Brachii)" };
+    }
+    if (text.includes("كتف") || text.includes("delts") || text.includes("رفرفة")) {
+      return { muscles: ["front-deltoids", "back-deltoids", "trapezius"], side: "anterior", titleAr: "عضلات الأكتاف (Deltoids)" };
+    }
+    if (text.includes("بطن") || text.includes("abs") || text.includes("core")) {
+      return { muscles: ["abs", "obliques"], side: "anterior", titleAr: "عضلات البطن والجذع (Abs & Core)" };
+    }
+
+    return { muscles: ["chest"], side: "anterior", titleAr: "المجموعة العضلية المستهدفة" };
   };
 
-  const isChest = primaryMuscle.includes("chest") || exerciseName.includes("صدر") || exerciseName.includes("بنش");
-  const isBack = primaryMuscle.includes("lats") || primaryMuscle.includes("back") || exerciseName.includes("ظهر") || exerciseName.includes("سحب");
-  const isLegs = primaryMuscle.includes("quads") || primaryMuscle.includes("legs") || exerciseName.includes("أرجل") || exerciseName.includes("اسكوات");
-  const isArms = primaryMuscle.includes("biceps") || primaryMuscle.includes("triceps") || exerciseName.includes("باي") || exerciseName.includes("تراي");
+  const muscleMeta = getHighlighterMuscles();
+  const highlightData: IExerciseData[] = [
+    {
+      name: exerciseName,
+      muscles: muscleMeta.muscles as any,
+    },
+  ];
 
   return (
     <div className="bg-[#0B0516] border border-purple-500/30 rounded-2xl p-4 flex flex-col items-center text-center space-y-3">
-      {/* Switcher: Real Exercise Anatomy Loop (GIF) vs 3D Muscle Target Highlight */}
+      {/* Switcher: Real Anatomy Loop (GIF) vs Professional 3D Muscle Anatomy Map */}
       <div className="flex items-center gap-1 bg-[#150A26] p-1 rounded-xl border border-white/[0.08] text-[11px] font-bold">
         <button
           type="button"
           onClick={() => setActiveMode("gif")}
-          className={`px-3 py-1 rounded-lg transition ${
+          className={`px-3 py-1.5 rounded-lg transition ${
             activeMode === "gif"
               ? "bg-[#7C3AED] text-white shadow"
               : "text-slate-400 hover:text-white"
           }`}
         >
-          حركة التمرين الأناتومي (Loop GIF)
+          حركة التمرين (Loop GIF)
         </button>
         <button
           type="button"
-          onClick={() => setActiveMode("anatomy")}
-          className={`px-3 py-1 rounded-lg transition ${
+          onClick={() => {
+            setActiveMode("anatomy");
+            setModelSide(muscleMeta.side);
+          }}
+          className={`px-3 py-1.5 rounded-lg transition ${
             activeMode === "anatomy"
               ? "bg-[#7C3AED] text-white shadow"
               : "text-slate-400 hover:text-white"
           }`}
         >
-          خريطة تفعيل العضلة (3D Target)
+          خريطة تشريح العضلات (3D Map)
         </button>
       </div>
 
       {/* Visual Display Container */}
-      <div className="relative w-full max-w-[280px] h-60 bg-[#07030E] border border-white/[0.08] rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
+      <div className="relative w-full max-w-[280px] h-64 bg-[#07030E] border border-white/[0.08] rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
         {activeMode === "gif" ? (
           <div className="relative w-full h-full flex items-center justify-center bg-black">
             <img
@@ -122,57 +142,41 @@ export default function ExerciseVisualAnatomyCard({
               loading="lazy"
             />
             <span className="absolute bottom-2 right-2 text-[9px] font-mono text-purple-200 bg-black/80 px-2 py-0.5 rounded-full border border-purple-500/30">
-              أناتومي الأداء الحركي (Anatomy Loop)
+              أناتومي الأداء الحركي (Loop)
             </span>
           </div>
         ) : (
-          <div className="relative w-full h-full flex items-center justify-center p-2">
-            <svg viewBox="0 0 160 160" className="w-full h-full">
-              {/* Anatomical Torso Silhouette */}
-              <path
-                d="M50 35 C40 40, 30 55, 34 75 C38 88, 44 88, 48 78 L52 110 L50 145 L75 145 L78 115 L82 115 L85 145 L110 145 L108 110 L112 78 C116 88, 122 88, 126 75 C130 55, 120 40, 110 35 Z"
-                fill="#180D2B"
-                stroke="#3F1D6E"
-                strokeWidth="1.5"
+          <div className="relative w-full h-full flex flex-col items-center justify-center p-2 bg-[#090412]">
+            {/* Front / Back Toggle for Anatomy */}
+            <div className="absolute top-2 left-2 z-10 flex gap-1 bg-black/70 p-0.5 rounded-lg border border-purple-500/20 text-[9px]">
+              <button
+                type="button"
+                onClick={() => setModelSide("anterior")}
+                className={`px-2 py-0.5 rounded ${modelSide === "anterior" ? "bg-[#7C3AED] text-white" : "text-slate-400"}`}
+              >
+                أمامي
+              </button>
+              <button
+                type="button"
+                onClick={() => setModelSide("posterior")}
+                className={`px-2 py-0.5 rounded ${modelSide === "posterior" ? "bg-[#7C3AED] text-white" : "text-slate-400"}`}
+              >
+                خلفي
+              </button>
+            </div>
+
+            <div className="w-40 h-56 flex items-center justify-center filter drop-shadow-[0_0_12px_rgba(167,139,250,0.35)]">
+              <Model
+                type={modelSide}
+                data={highlightData}
+                style={{ width: "9.5rem", padding: "0.2rem" }}
+                bodyColor="#1F1235"
+                highlightedColors={["#A78BFA", "#7C3AED"]}
               />
-              {/* Head & Neck */}
-              <ellipse cx="80" cy="20" rx="12" ry="14" fill="#180D2B" stroke="#3F1D6E" strokeWidth="1.5" />
-
-              {/* CHEST HIGHLIGHT */}
-              {isChest && (
-                <g className="animate-pulse">
-                  <path d="M54 44 C65 42, 78 44, 78 68 C68 70, 52 66, 50 58 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                  <path d="M106 44 C95 42, 82 44, 82 68 C92 70, 108 66, 110 58 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                </g>
-              )}
-
-              {/* BACK HIGHLIGHT */}
-              {isBack && (
-                <g className="animate-pulse">
-                  <path d="M52 50 C46 68, 52 90, 68 98 L78 65 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                  <path d="M108 50 C114 68, 108 90, 92 98 L82 65 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                </g>
-              )}
-
-              {/* LEGS HIGHLIGHT */}
-              {isLegs && (
-                <g className="animate-pulse">
-                  <path d="M54 112 C50 125, 52 142, 60 152 L74 152 C76 138, 76 122, 74 112 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                  <path d="M106 112 C110 125, 108 142, 100 152 L86 152 C84 138, 84 122, 86 112 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                </g>
-              )}
-
-              {/* ARMS HIGHLIGHT */}
-              {isArms && (
-                <g className="animate-pulse">
-                  <path d="M34 65 C30 75, 30 92, 38 100 C44 100, 46 92, 44 80 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                  <path d="M126 65 C130 75, 130 92, 122 100 C116 100, 114 92, 116 80 Z" fill="#A78BFA" opacity="0.9" stroke="#FFFFFF" strokeWidth="1" />
-                </g>
-              )}
-            </svg>
+            </div>
 
             <span className="absolute bottom-2 right-2 text-[9px] font-mono text-[#A78BFA] bg-black/80 px-2 py-0.5 rounded-full border border-purple-500/30">
-              مجسم تفعيل الألياف (Target Muscle)
+              مجسم العضلات التشريحي المعتمد
             </span>
           </div>
         )}
@@ -180,7 +184,7 @@ export default function ExerciseVisualAnatomyCard({
 
       <div className="space-y-1">
         <span className="text-xs font-bold text-white block">{exerciseName}</span>
-        <span className="text-[11px] text-[#A78BFA] font-bold block">{getMuscleTitle(primaryMuscle)}</span>
+        <span className="text-[11px] text-[#A78BFA] font-bold block">{muscleMeta.titleAr}</span>
         {tempo && <span className="text-[10px] text-slate-400 font-mono block">التمبو وسرعة التكرار: {tempo}</span>}
       </div>
 
