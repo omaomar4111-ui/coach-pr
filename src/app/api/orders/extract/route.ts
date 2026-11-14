@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 
 export interface ExtractedOrder {
   customerName?: string;
@@ -24,7 +25,7 @@ export interface ExtractedOrder {
 
 export async function POST(req: NextRequest) {
   try {
-    const { chatTranscript, latestMessage } = await req.json();
+    const { chatTranscript, latestMessage, tenantSlug = 'demo-store', conversationId } = await req.json();
 
     const textToAnalyze = chatTranscript || latestMessage;
     if (!textToAnalyze) {
@@ -32,8 +33,9 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY || '';
+    let extractedData: ExtractedOrder;
 
-    // If Gemini 4 Argon is available via API, invoke structured extraction
+    // 1. Try Gemini 4 Argon Extraction
     if (apiKey) {
       try {
         const prompt = `
@@ -50,13 +52,13 @@ ${textToAnalyze}
   "customerName": "اسم العميل إن وُجد",
   "phone": "رقم الهاتف الأساسي (01xxxxxxxxx)",
   "alternatePhone": "رقم بديل إن وُجد",
-  "governorate": "المحافظة (مثلاً القاهرة / الجيزة / الإسكندرية)",
-  "cityArea": "المنطقة (مثلاً المعادي / مدينة نصر / الدقي)",
+  "governorate": "المحافظة",
+  "cityArea": "المنطقة",
   "detailedAddress": "العنوان بالتفصيل",
   "items": [
     {
-      "name": "اسم الموديل (مثلاً هودي أوفرسايز)",
-      "size": "المقاس (M, L, XL, XXL)",
+      "name": "اسم الموديل",
+      "size": "المقاس",
       "color": "اللون",
       "quantity": 1,
       "estimatedPrice": 650
@@ -65,7 +67,7 @@ ${textToAnalyze}
   "totalAmount": 650,
   "paymentMethod": "COD",
   "shippingCost": 0,
-  "notes": "أي ملاحظات خاصة بالتوصيل",
+  "notes": "ملاحظات",
   "confidenceScore": 0.95,
   "isReadyForDispatch": true
 }
@@ -93,26 +95,69 @@ ${textToAnalyze}
           const data = await res.json();
           const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            const parsed = JSON.parse(rawText);
-            return NextResponse.json({
-              success: true,
-              engine: '4_ARGON_REASONING_PRO',
-              data: parsed
-            });
+            extractedData = JSON.parse(rawText);
+          } else {
+            extractedData = parseEgyptianOrder(textToAnalyze);
           }
+        } else {
+          extractedData = parseEgyptianOrder(textToAnalyze);
         }
       } catch (e) {
-        console.warn('Fallback to Deterministic 4 Argon Parser');
+        extractedData = parseEgyptianOrder(textToAnalyze);
       }
+    } else {
+      extractedData = parseEgyptianOrder(textToAnalyze);
     }
 
-    // High Reliability Deterministic 4 Argon Parser (Regex + Egyptian Telecom Rules)
-    const deterministicData = parseEgyptianOrder(textToAnalyze);
+    // 2. Persist in Supabase `orders` table
+    const random4 = Math.floor(1000 + Math.random() * 9000);
+    const orderNumber = `ORD-${Date.now().toString().slice(-6)}-${random4}`;
+
+    // Get Tenant
+    const { data: tenant } = await supabaseAdmin
+      .from('tenants')
+      .select('id')
+      .eq('slug', tenantSlug)
+      .maybeSingle();
+
+    const tenantId = tenant?.id || null;
+
+    const firstItem = extractedData.items?.[0];
+
+    const { data: savedOrder, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .insert({
+        tenant_id: tenantId,
+        conversation_id: conversationId || null,
+        order_number: orderNumber,
+        customer_name: extractedData.customerName || 'عميل محادثة',
+        phone: extractedData.phone || '01000000000',
+        address: `${extractedData.detailedAddress || ''} - ${extractedData.cityArea || ''} - ${extractedData.governorate || ''}`.trim(),
+        product: firstItem?.name || 'منتج براند',
+        size: firstItem?.size || 'L',
+        color: firstItem?.color || 'أسود',
+        quantity: firstItem?.quantity || 1,
+        total_amount: extractedData.totalAmount || 650,
+        payment_method: extractedData.paymentMethod || 'COD',
+        payment_verified: false,
+        status: 'pending',
+        raw_ai_extraction: extractedData
+      })
+      .select()
+      .single();
+
+    if (orderError) {
+      console.error('[Supabase Order Insert Error]:', orderError);
+    }
 
     return NextResponse.json({
       success: true,
-      engine: '4_ARGON_DETERMINISTIC_PARSER',
-      data: deterministicData
+      engine: '4_ARGON_SUPABASE_PERSISTENT',
+      order: savedOrder || {
+        order_number: orderNumber,
+        ...extractedData
+      },
+      data: extractedData
     });
 
   } catch (error: any) {
@@ -121,11 +166,9 @@ ${textToAnalyze}
 }
 
 function parseEgyptianOrder(text: string): ExtractedOrder {
-  // 1. Extract Phone Numbers (010, 011, 012, 015)
   const phoneRegex = /(?:01[0125][0-9]{8})/g;
   const phones = text.match(phoneRegex) || [];
 
-  // 2. Extract Sizes
   let size = 'L';
   const upper = text.toUpperCase();
   if (upper.includes('3XL') || upper.includes('XXXL')) size = '3XL';
@@ -134,7 +177,6 @@ function parseEgyptianOrder(text: string): ExtractedOrder {
   else if (upper.includes(' L ') || upper.includes('مقاس L') || upper.includes('مقاس لارج')) size = 'L';
   else if (upper.includes(' M ') || upper.includes('مقاس M') || upper.includes('مقاس ميديم')) size = 'M';
 
-  // 3. Extract Governorate & Area
   let gov = 'القاهرة';
   let area = 'المعادي';
 
@@ -151,7 +193,6 @@ function parseEgyptianOrder(text: string): ExtractedOrder {
   else if (text.includes('أكتوبر') || text.includes('اكتوبر')) area = '6 أكتوبر';
   else if (text.includes('سموحة')) area = 'سموحة';
 
-  // 4. Check Payment Method
   let paymentMethod: 'COD' | 'INSTAPAY' | 'VODAFONE_CASH' = 'COD';
   if (text.includes('انستاباي') || text.includes('إنستاباي') || text.includes('instapay')) paymentMethod = 'INSTAPAY';
   else if (text.includes('فودافون كاش') || text.includes('vodafone cash')) paymentMethod = 'VODAFONE_CASH';
@@ -176,7 +217,7 @@ function parseEgyptianOrder(text: string): ExtractedOrder {
     ],
     totalAmount: text.includes('جاكت') ? 1850 : 650,
     paymentMethod: paymentMethod,
-    shippingCost: 0, // Free promotion threshold met
+    shippingCost: 0,
     notes: 'معاينة مجانية واستلام مع مندوب بوسطة',
     confidenceScore: isReady ? 0.94 : 0.65,
     isReadyForDispatch: isReady

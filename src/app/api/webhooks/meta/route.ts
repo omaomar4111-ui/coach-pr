@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 
-// 1. Meta Webhook Verification (WhatsApp / Instagram / Messenger)
-// Meta sends a GET request to verify the webhook URL with hub.mode, hub.verify_token, and hub.challenge
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mode = searchParams.get('hub.mode');
@@ -18,11 +17,9 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ error: 'Verification failed' }, { status: 403 });
 }
 
-// 2. Incoming Messages Handler
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log('[Incoming Meta Webhook Event]:', JSON.stringify(body, null, 2));
 
     // Support WhatsApp Cloud API Payload
     if (body.object === 'whatsapp_business_account') {
@@ -31,32 +28,110 @@ export async function POST(req: NextRequest) {
       const message = change?.messages?.[0];
 
       if (message) {
-        const fromNumber = message.from; // Sender phone (e.g. 201012345678)
+        const providerMessageId = message.id;
+        const fromNumber = message.from; // e.g. 201012345678
         const messageText = message.text?.body || '';
-        const messageId = message.id;
 
-        console.log(`[WhatsApp Inbound] From: ${fromNumber} | Message: "${messageText}"`);
+        // 1. Idempotency Check: Don't process the same message twice
+        const { data: existingMsg } = await supabaseAdmin
+          .from('messages')
+          .select('id')
+          .eq('provider_message_id', providerMessageId)
+          .maybeSingle();
 
-        // Instant dispatch to PR Agent AI engine logic
-        // Auto-reply will be executed via Meta Graph API
+        if (existingMsg) {
+          console.log(`[Idempotency] Duplicate message ${providerMessageId} skipped.`);
+          return NextResponse.json({ skipped: true, reason: 'DUPLICATE_MESSAGE' });
+        }
+
+        // 2. Resolve or Create Demo Tenant
+        let tenantId: string | null = null;
+        const { data: tenant } = await supabaseAdmin
+          .from('tenants')
+          .select('id')
+          .limit(1)
+          .maybeSingle();
+
+        if (tenant) {
+          tenantId = tenant.id;
+        }
+
+        // 3. Find or Create Customer
+        let customerId: string | null = null;
+        const { data: existingCustomer } = await supabaseAdmin
+          .from('customers')
+          .select('id')
+          .eq('phone', fromNumber)
+          .maybeSingle();
+
+        if (existingCustomer) {
+          customerId = existingCustomer.id;
+        } else if (tenantId) {
+          const { data: newCustomer } = await supabaseAdmin
+            .from('customers')
+            .insert({
+              tenant_id: tenantId,
+              phone: fromNumber,
+              name: `عميل واتساب (${fromNumber.slice(-4)})`,
+              channel: 'whatsapp'
+            })
+            .select('id')
+            .maybeSingle();
+
+          customerId = newCustomer?.id || null;
+        }
+
+        // 4. Find or Create Open Conversation
+        let conversationId: string | null = null;
+        if (customerId && tenantId) {
+          const { data: existingConv } = await supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('customer_id', customerId)
+            .eq('status', 'open')
+            .maybeSingle();
+
+          if (existingConv) {
+            conversationId = existingConv.id;
+            await supabaseAdmin
+              .from('conversations')
+              .update({ last_message_at: new Date().toISOString() })
+              .eq('id', conversationId);
+          } else {
+            const { data: newConv } = await supabaseAdmin
+              .from('conversations')
+              .insert({
+                tenant_id: tenantId,
+                customer_id: customerId,
+                status: 'open',
+                ai_enabled: true,
+                active_agent: 'sara_tarek'
+              })
+              .select('id')
+              .maybeSingle();
+
+            conversationId = newConv?.id || null;
+          }
+        }
+
+        // 5. Save Incoming Message to Supabase
+        if (conversationId) {
+          await supabaseAdmin
+            .from('messages')
+            .insert({
+              conversation_id: conversationId,
+              provider_message_id: providerMessageId,
+              direction: 'inbound',
+              sender_type: 'customer',
+              sender_id: fromNumber,
+              content: messageText,
+              metadata: { raw: message }
+            });
+        }
       }
     }
 
-    // Support Instagram / Facebook Messenger Webhook Payload
-    if (body.object === 'instagram' || body.object === 'page') {
-      const entry = body.entry?.[0];
-      const messaging = entry?.messaging?.[0];
-
-      if (messaging) {
-        const senderId = messaging.sender?.id;
-        const recipientId = messaging.recipient?.id;
-        const messageText = messaging.message?.text || '';
-
-        console.log(`[Meta Inbound] From: ${senderId} | To: ${recipientId} | Message: "${messageText}"`);
-      }
-    }
-
-    return NextResponse.json({ status: 'EVENT_RECEIVED' }, { status: 200 });
+    return NextResponse.json({ status: 'EVENT_RECEIVED_AND_PERSISTED' }, { status: 200 });
   } catch (error: any) {
     console.error('[Webhook Processing Error]:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
