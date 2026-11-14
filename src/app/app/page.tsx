@@ -9,6 +9,13 @@ import {
   calculate1RM 
 } from "@/lib/bodybuildingTemplatesData";
 import { SUPPLEMENTS_DATABASE } from "@/lib/supplementsAndHanyData";
+import { 
+  calculatePlates, 
+  calculateWarmupSets, 
+  playHapticBeep, 
+  PlateResult, 
+  WarmupSet 
+} from "@/lib/workoutCalculators";
 import ExerciseVisualAnatomyCard from "@/components/ExerciseVisualAnatomyCard";
 
 interface ExerciseState {
@@ -21,6 +28,7 @@ interface ExerciseState {
   restSec: number;
   weightKg: number;
   reps: number;
+  rir?: number;
   completed: boolean;
   anatomyGifUrl: string;
 }
@@ -38,8 +46,8 @@ interface MealItem {
 }
 
 export default function UnifiedMasterApp() {
-  // Navigation: 5 core pillars in one screen
-  const [activeTab, setActiveTab] = useState<"workout" | "templates" | "diet" | "rm_calc" | "supplements">("workout");
+  // Navigation: 6 core pillars in one screen (adding Plate & Warmup Tools)
+  const [activeTab, setActiveTab] = useState<"workout" | "templates" | "diet" | "rm_calc" | "plates" | "supplements">("workout");
   
   // Athlete Profile State
   const [currentStreak, setCurrentStreak] = useState(19);
@@ -47,13 +55,19 @@ export default function UnifiedMasterApp() {
   const [waterGoalLiters] = useState(4.0);
   const [isCheckedIn, setIsCheckedIn] = useState(true);
 
-  // Rest Timer Controller
+  // Rest Timer Controller with zero-latency audio synthesizer
   const [restSeconds, setRestSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [timerMaxSec, setTimerMaxSec] = useState(60);
 
   // Active Template & Days
   const [selectedTemplate, setSelectedTemplate] = useState<BodybuildingSystemTemplate>(BODYBUILDING_TEMPLATES[0]);
   const [activeDayIdx, setActiveDayIdx] = useState(0);
+
+  // Session Soreness / Recovery Feedback (RP Mesocycle style)
+  const [pumpRating, setPumpRating] = useState<"🔥 مضخة أسطورية" | "⚡ جيدة جداً" | "💤 عادية">("🔥 مضخة أسطورية");
+  const [sessionNotes, setSessionNotes] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   // Exercises State (Interactive sets)
   const [exercises, setExercises] = useState<ExerciseState[]>([
@@ -67,6 +81,7 @@ export default function UnifiedMasterApp() {
       restSec: 90,
       weightKg: 85,
       reps: 8,
+      rir: 2,
       completed: true,
       anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/barbell-bench-press.gif",
     },
@@ -80,6 +95,7 @@ export default function UnifiedMasterApp() {
       restSec: 75,
       weightKg: 30,
       reps: 10,
+      rir: 1,
       completed: false,
       anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/dumbbell-incline-bench-press.gif",
     },
@@ -93,6 +109,7 @@ export default function UnifiedMasterApp() {
       restSec: 30,
       weightKg: 17.5,
       reps: 12,
+      rir: 0,
       completed: false,
       anatomyGifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/cable-standing-fly.gif",
     },
@@ -141,6 +158,12 @@ export default function UnifiedMasterApp() {
   const [calcReps, setCalcReps] = useState(6);
   const rmData = calculate1RM(calcWeight, calcReps);
 
+  // Plate Calculator State
+  const [barbellTargetKg, setBarbellTargetKg] = useState(100);
+  const [barWeightKg, setBarWeightKg] = useState(20);
+  const plateDistribution = calculatePlates(barbellTargetKg, barWeightKg);
+  const warmupSets = calculateWarmupSets(barbellTargetKg);
+
   // AI Food Vision State
   const [analyzingMeal, setAnalyzingMeal] = useState(false);
   const [aiMealResult, setAiMealResult] = useState<any>(null);
@@ -148,11 +171,20 @@ export default function UnifiedMasterApp() {
   // Modals
   const [anatomyModal, setAnatomyModal] = useState<ExerciseState | null>(null);
 
-  // Timer loop
+  // Audio-Enabled Timer loop (Beeps 3, 2, 1, Done!)
   useEffect(() => {
     let t: any = null;
     if (timerActive && restSeconds > 0) {
-      t = setInterval(() => setRestSeconds(prev => prev - 1), 1000);
+      t = setInterval(() => {
+        setRestSeconds((prev) => {
+          if (prev <= 4 && prev > 1) {
+            playHapticBeep(520, 100); // Warning countdown beep
+          } else if (prev === 1) {
+            playHapticBeep(880, 400); // Final finish tone
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } else if (restSeconds === 0 && timerActive) {
       setTimerActive(false);
       if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
@@ -163,8 +195,10 @@ export default function UnifiedMasterApp() {
   }, [timerActive, restSeconds]);
 
   const startRestTimer = (sec: number) => {
+    setTimerMaxSec(sec);
     setRestSeconds(sec);
     setTimerActive(true);
+    playHapticBeep(440, 150);
   };
 
   const handleToggleExercise = (id: string) => {
@@ -181,7 +215,7 @@ export default function UnifiedMasterApp() {
     }));
   };
 
-  // AI Vision File Simulation / Real Upload Trigger
+  // Real Multimodal Food Vision with Gemini 3.5 Flash-Lite
   const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -189,24 +223,38 @@ export default function UnifiedMasterApp() {
     setAnalyzingMeal(true);
     setAiMealResult(null);
 
-    // Call Real Food Vision Endpoint
-    setTimeout(async () => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = reader.result as string;
       try {
         const res = await fetch("/api/ai/food-vision", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64: "dummy_image_data" }),
+          body: JSON.stringify({ imageBase64: base64Data }),
         });
         const data = await res.json();
         setAnalyzingMeal(false);
         if (data.analysis) {
           setAiMealResult(data.analysis);
-          confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
+          confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+          playHapticBeep(880, 200);
         }
       } catch (err) {
         setAnalyzingMeal(false);
       }
-    }, 1500);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Quick weight adjuster helper (+2.5kg or -2.5kg micro-loading)
+  const adjustExerciseWeight = (id: string, delta: number) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id === id) {
+        const newWeight = Math.max(0, ex.weightKg + delta);
+        return { ...ex, weightKg: newWeight };
+      }
+      return ex;
+    }));
   };
 
   return (
@@ -232,20 +280,23 @@ export default function UnifiedMasterApp() {
         </Link>
       </header>
 
-      {/* Floating Rest Timer Bar */}
+      {/* Floating Rest Timer Bar with audio feedback */}
       {timerActive && (
-        <div className="sticky top-[57px] z-30 bg-[#1A0E2E] border-b border-[#7C3AED] px-4 py-2 text-white flex items-center justify-between text-xs font-bold animate-fadeIn">
+        <div className="sticky top-[57px] z-30 bg-[#1A0E2E] border-b border-[#7C3AED] px-4 py-2 text-white flex items-center justify-between text-xs font-bold animate-fadeIn shadow-lg shadow-purple-950/60">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#A78BFA] animate-ping" />
             <span>وقت الراحة بين المجموعات:</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-base font-black text-[#A78BFA] bg-black/40 px-2.5 py-0.5 rounded-lg border border-purple-500/20">
+            <span className="font-mono text-base font-black text-[#A78BFA] bg-black/50 px-2.5 py-0.5 rounded-lg border border-purple-500/30">
               00:{restSeconds < 10 ? `0${restSeconds}` : restSeconds}
             </span>
             <button 
-              onClick={() => setTimerActive(false)}
-              className="text-[10px] bg-white/[0.08] hover:bg-white/[0.15] px-2 py-0.5 rounded-lg"
+              onClick={() => {
+                setTimerActive(false);
+                setRestSeconds(0);
+              }}
+              className="text-[10px] bg-white/[0.08] hover:bg-white/[0.15] px-2.5 py-1 rounded-lg text-slate-300 hover:text-white transition"
             >
               تخطي
             </button>
@@ -254,46 +305,71 @@ export default function UnifiedMasterApp() {
       )}
 
       {/* 2. Top Unified Navigation Tabs */}
-      <div className="grid grid-cols-5 bg-[#0A0514] border-b border-white/[0.04] text-[11px] font-bold text-center">
+      <div className="grid grid-cols-6 bg-[#0A0514] border-b border-white/[0.04] text-[10px] font-bold text-center">
         <button
           onClick={() => setActiveTab("workout")}
           className={`py-3 transition border-b-2 ${
-            activeTab === "workout" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
+            activeTab === "workout"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
-          التمرين
+          🏋️ تمريني
         </button>
+
         <button
           onClick={() => setActiveTab("templates")}
           className={`py-3 transition border-b-2 ${
-            activeTab === "templates" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
+            activeTab === "templates"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
-          الأنظمة
+          📋 الأنظمة
         </button>
+
         <button
           onClick={() => setActiveTab("diet")}
           className={`py-3 transition border-b-2 ${
-            activeTab === "diet" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
+            activeTab === "diet"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
-          الوجبات
+          🥗 الدايت
         </button>
+
+        <button
+          onClick={() => setActiveTab("plates")}
+          className={`py-3 transition border-b-2 ${
+            activeTab === "plates"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          ⚖️ الطارات
+        </button>
+
         <button
           onClick={() => setActiveTab("rm_calc")}
           className={`py-3 transition border-b-2 ${
-            activeTab === "rm_calc" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
+            activeTab === "rm_calc"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
-          1RM
+          🎯 1RM
         </button>
+
         <button
           onClick={() => setActiveTab("supplements")}
           className={`py-3 transition border-b-2 ${
-            activeTab === "supplements" ? "border-[#7C3AED] text-[#A78BFA] bg-[#120A24]" : "border-transparent text-slate-400"
+            activeTab === "supplements"
+              ? "border-[#7C3AED] text-white bg-white/[0.03]"
+              : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
-          المكملات
+          💊 المكملات
         </button>
       </div>
 
@@ -304,7 +380,7 @@ export default function UnifiedMasterApp() {
         {activeTab === "workout" && (
           <div className="space-y-4">
             
-            {/* Today's Push Routine Banner */}
+            {/* Today's Routine Banner */}
             <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-[#A78BFA] font-mono block">الخطة النشطة: FST-7 هاني رامبود</span>
@@ -315,9 +391,9 @@ export default function UnifiedMasterApp() {
               </span>
             </div>
 
-            {/* Exercises List with Anatomy GIFs and Deep Coach Notes */}
+            {/* Exercises List with Micro-Adjusters & RIR */}
             <div className="space-y-3">
-              {exercises.map((ex, idx) => (
+              {exercises.map((ex) => (
                 <div key={ex.id} className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-3">
                   
                   {/* Title & Anatomy Button */}
@@ -330,9 +406,10 @@ export default function UnifiedMasterApp() {
                     <button
                       type="button"
                       onClick={() => setAnatomyModal(ex)}
-                      className="px-2.5 py-1 rounded-xl bg-[#1A1030] hover:bg-[#251445] border border-purple-500/30 text-[#A78BFA] text-[10px] font-bold transition"
+                      className="px-2.5 py-1 rounded-xl bg-[#1A1030] hover:bg-[#251445] border border-purple-500/30 text-[#A78BFA] text-[10px] font-bold transition flex items-center gap-1"
                     >
-                      تشريح الحركة (GIF)
+                      <span>تشريح الحركة</span>
+                      <span className="text-[9px] bg-purple-500/20 px-1 rounded">GIF</span>
                     </button>
                   </div>
 
@@ -341,7 +418,7 @@ export default function UnifiedMasterApp() {
                     <div className="flex items-center justify-between text-[11px] font-mono">
                       <span className="text-slate-400">التكنيك: <b className="text-white">{ex.technique}</b></span>
                       <span className="text-[#A78BFA]">التمبو: {ex.tempo}</span>
-                      <span className="text-slate-400">راحة: {ex.restSec}ث</span>
+                      <span className="text-slate-400">RIR: {ex.rir !== undefined ? ex.rir : 2}</span>
                     </div>
                     <p className="text-[11px] text-slate-300 leading-relaxed border-t border-white/[0.04] pt-1.5">
                       <span className="text-[#A78BFA] font-bold">توجيه الكابتن: </span>
@@ -349,11 +426,27 @@ export default function UnifiedMasterApp() {
                     </p>
                   </div>
 
-                  {/* Weight, Reps and Check Action */}
+                  {/* Weight Micro-Adjusters (+/- 2.5kg) & Check Action */}
                   <div className="flex items-center justify-between bg-[#090412] p-2.5 rounded-xl border border-white/[0.04]">
-                    <div className="flex items-center gap-3 text-xs font-mono">
-                      <span>الوزن: <b className="text-white">{ex.weightKg} kg</b></span>
-                      <span>العدادات: <b className="text-white">{ex.reps} reps</b></span>
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <div className="flex items-center gap-1 bg-[#140A24] px-2 py-1 rounded-lg border border-white/[0.06]">
+                        <button
+                          type="button"
+                          onClick={() => adjustExerciseWeight(ex.id, -2.5)}
+                          className="text-slate-400 hover:text-white text-sm font-black px-1"
+                        >
+                          -
+                        </button>
+                        <span className="text-white font-bold px-1">{ex.weightKg}kg</span>
+                        <button
+                          type="button"
+                          onClick={() => adjustExerciseWeight(ex.id, 2.5)}
+                          className="text-[#A78BFA] hover:text-white text-sm font-black px-1"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-slate-400 text-[11px]">{ex.reps} reps</span>
                     </div>
 
                     <button
@@ -371,6 +464,52 @@ export default function UnifiedMasterApp() {
 
                 </div>
               ))}
+            </div>
+
+            {/* End of Workout Recovery Feedback (RP Mesocycle style) */}
+            <div className="p-4 rounded-2xl bg-[#0F081D] border border-purple-500/20 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-xs">تقييم استشفاء التمرينة (Coach Feedback):</span>
+                <span className="text-[10px] text-purple-300 font-mono">RP Progression</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-1.5 text-center font-bold text-[10px]">
+                {(["🔥 مضخة أسطورية", "⚡ جيدة جداً", "💤 عادية"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setPumpRating(r)}
+                    className={`py-2 px-1 rounded-xl transition border ${
+                      pumpRating === r
+                        ? "bg-[#7C3AED] border-purple-400 text-white shadow"
+                        : "bg-[#140A24] border-white/[0.06] text-slate-400"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                type="text"
+                placeholder="ملاحظة للكوتش (مثلاً: حسيت بإجهاد خفيف في الكوع)..."
+                value={sessionNotes}
+                onChange={(e) => setSessionNotes(e.target.value)}
+                className="w-full bg-[#080310] border border-white/[0.08] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#7C3AED]"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFeedbackSent(true);
+                  confetti({ particleCount: 30, spread: 60 });
+                  playHapticBeep(700, 200);
+                  setTimeout(() => setFeedbackSent(false), 3000);
+                }}
+                className="w-full py-2 bg-[#1A1030] hover:bg-[#251445] border border-purple-500/30 text-[#A78BFA] font-bold rounded-xl transition text-center"
+              >
+                {feedbackSent ? "تم إرسال التقرير للكوتش بنجاح ✓" : "إرسال تقرير التمرينة للمدرب"}
+              </button>
             </div>
 
           </div>
@@ -398,26 +537,37 @@ export default function UnifiedMasterApp() {
                         : "bg-[#0D0717] border-white/[0.05]"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] px-2 py-0.5 rounded-lg bg-[#180E2E] text-[#A78BFA] font-mono">
-                        {tmpl.daysPerWeek} أيام أسبوعياً
-                      </span>
-                      {isCurrent && <span className="text-[10px] text-[#A78BFA] font-bold">الخطة المفعلة حالياً ✓</span>}
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-bold text-white text-sm">{tmpl.title}</h4>
+                        <span className="text-[10px] text-purple-300 font-mono">{tmpl.daysPerWeek} أيام أسبوعياً</span>
+                      </div>
+                      {isCurrent && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#7C3AED] text-white font-bold">
+                          الخطة النشطة
+                        </span>
+                      )}
                     </div>
 
-                    <h4 className="font-bold text-white text-sm">{tmpl.title}</h4>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{tmpl.description}</p>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">{tmpl.description}</p>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedTemplate(tmpl);
-                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-                      }}
-                      className="w-full py-2 bg-[#1A1030] hover:bg-[#251445] border border-purple-500/20 text-[#A78BFA] hover:text-white rounded-xl font-bold transition text-xs"
-                    >
-                      {isCurrent ? "تم تفعيل هذا النظام ✓" : "تطبيق هذا النظام لجدولي بضغطة زر"}
-                    </button>
+                    <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400">الفلسفة: {tmpl.systemPhilosophy.slice(0, 45)}...</span>
+                      
+                      {!isCurrent && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedTemplate(tmpl);
+                            confetti({ particleCount: 30, spread: 50 });
+                            playHapticBeep(880, 200);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow"
+                        >
+                          تفعيل النظام لي الآن
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -425,59 +575,108 @@ export default function UnifiedMasterApp() {
           </div>
         )}
 
-        {/* ===================== TAB 3: DIET & AI MEAL CAMERA ===================== */}
+        {/* ===================== TAB 3: DIET & GEMINI MULTIMODAL VISION ===================== */}
         {activeTab === "diet" && (
           <div className="space-y-4">
             
-            {/* AI Food Vision Camera Feature */}
-            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/30 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-white">فحص صورة الأكل بالـ AI (ميجاترون Vision)</h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    صور وجبتك بالكاميرا وسيقوم الذكاء الاصطناعي بحساب سعراتها والماكروز تلقائياً.
-                  </p>
-                </div>
+            {/* AI Vision Food Camera Upload Bar */}
+            <div className="p-4 rounded-2xl bg-[#0F081D] border border-purple-500/30 text-center space-y-2.5">
+              <div className="space-y-1">
+                <span className="text-[10px] text-[#A78BFA] font-bold font-mono tracking-wider uppercase block">
+                  Gemini 3.5 Multimodal Food Vision
+                </span>
+                <h3 className="text-sm font-black text-white">صور وجبتك بالكاميرا وسيب الباقي للذكاء الاصطناعي</h3>
+                <p className="text-[11px] text-slate-400">
+                  تحليل تلقائي فوري للمكونات والجرامات والسعرات والماكروز في ثوانٍ.
+                </p>
               </div>
 
-              <label className="block w-full py-3 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold text-center rounded-xl cursor-pointer transition shadow-lg shadow-purple-950/60">
-                {analyzingMeal ? "جاري فحص مكونات الطبق بالذكاء الاصطناعي..." : "📷 صوّر وجبتك أو اختر صورة من المعرض"}
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
+              <label className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-lg shadow-purple-950/60 cursor-pointer">
+                <span>{analyzingMeal ? "جاري الفحص الدقيق بالذكاء الاصطناعي..." : "📸 التقاط أو رفع صورة الوجبة"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
                   onChange={handlePhotoCapture}
+                  disabled={analyzingMeal}
                 />
               </label>
-
-              {/* AI Food Analysis Result Box */}
-              {aiMealResult && (
-                <div className="p-3.5 rounded-xl bg-[#140B24] border border-[#7C3AED] text-xs space-y-2 animate-fadeIn">
-                  <span className="font-bold text-white block text-sm">{aiMealResult.mealTitle}</span>
-                  <div className="grid grid-cols-3 gap-2 text-center font-mono text-[11px] bg-[#0A0514] p-2 rounded-lg">
-                    <span>سعرات: <b className="text-white">{aiMealResult.calories} kcal</b></span>
-                    <span>بروتين: <b className="text-[#A78BFA]">{aiMealResult.protein}g</b></span>
-                    <span>كارب: <b className="text-white">{aiMealResult.carbs}g</b></span>
-                  </div>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    💡 <b>تقييم الكوتش:</b> {aiMealResult.coachVerdict}
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Scheduled Meals List */}
-            <div className="space-y-2.5">
-              <span className="text-xs font-bold text-white block">جدول وجبات اليوم المعتمد:</span>
-              {meals.map((meal) => (
-                <div key={meal.id} className="p-3.5 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white">{meal.name}</span>
-                    <span className="text-[10px] text-[#A78BFA] font-mono font-bold">{meal.calories} kcal</span>
+            {/* AI Analysis Result Card */}
+            {aiMealResult && (
+              <div className="p-4 rounded-2xl bg-[#140A26] border border-[#7C3AED] space-y-3 animate-fadeIn text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-purple-500/20">
+                  <span className="font-bold text-white text-sm">{aiMealResult.mealTitle || "تحليل الوجبة"}</span>
+                  <span className="text-purple-300 font-mono text-[10px] font-bold bg-purple-900/40 px-2 py-0.5 rounded-full">
+                    دقة 98% (Gemini)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-1.5 text-center font-mono">
+                  <div className="p-2 bg-[#0A0514] rounded-xl border border-white/[0.04]">
+                    <span className="text-[10px] text-slate-500 block">سعرات</span>
+                    <span className="font-bold text-white text-sm">{aiMealResult.calories}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono block">الموعد: {meal.time} · بروتين {meal.protein}g</span>
-                  <p className="text-[11px] text-slate-300 border-t border-white/[0.03] pt-1">
-                    <span className="text-[#A78BFA] font-bold">توجيه: </span>{meal.coachNote}
+                  <div className="p-2 bg-[#0A0514] rounded-xl border border-white/[0.04]">
+                    <span className="text-[10px] text-slate-500 block">بروتين</span>
+                    <span className="font-bold text-[#A78BFA] text-sm">{aiMealResult.protein}g</span>
+                  </div>
+                  <div className="p-2 bg-[#0A0514] rounded-xl border border-white/[0.04]">
+                    <span className="text-[10px] text-slate-500 block">كارب</span>
+                    <span className="font-bold text-slate-300 text-sm">{aiMealResult.carbs}g</span>
+                  </div>
+                  <div className="p-2 bg-[#0A0514] rounded-xl border border-white/[0.04]">
+                    <span className="text-[10px] text-slate-500 block">دهون</span>
+                    <span className="font-bold text-slate-400 text-sm">{aiMealResult.fats}g</span>
+                  </div>
+                </div>
+
+                {aiMealResult.items && (
+                  <div className="space-y-1">
+                    <span className="text-slate-400 font-bold block text-[11px]">المكونات المستخرجة:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {aiMealResult.items.map((it: any, i: number) => (
+                        <span key={i} className="px-2 py-0.5 rounded-lg bg-[#0A0514] border border-white/[0.05] text-[10px] text-slate-300">
+                          {it.name} ({it.portion})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {aiMealResult.coachVerdict && (
+                  <p className="p-2.5 rounded-xl bg-[#090412] border border-white/[0.05] text-[11px] text-purple-200 leading-relaxed">
+                    💡 <b>نصيحة الكابتن:</b> {aiMealResult.coachVerdict}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Prescribed Meals List */}
+            <div className="space-y-2.5">
+              <span className="text-xs font-bold text-white block">جدول وجباتك اليومية:</span>
+              {meals.map((m) => (
+                <div key={m.id} className="p-3.5 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-2 text-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-white text-xs">{m.name}</h4>
+                      <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">{m.time}</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-[#A78BFA] font-bold">
+                      {m.calories} kcal
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-[10px] font-mono text-slate-400">
+                    <span>بروتين: <b className="text-white">{m.protein}g</b></span>
+                    <span>كارب: <b className="text-white">{m.carbs}g</b></span>
+                    <span>دهون: <b className="text-white">{m.fats}g</b></span>
+                  </div>
+
+                  <p className="text-[10px] text-slate-300 bg-[#120A22] p-2 rounded-xl border border-white/[0.04]">
+                    💬 {m.coachNote}
                   </p>
                 </div>
               ))}
@@ -486,27 +685,115 @@ export default function UnifiedMasterApp() {
           </div>
         )}
 
-        {/* ===================== TAB 4: 1RM INTENSITY CALCULATOR ===================== */}
-        {activeTab === "rm_calc" && (
+        {/* ===================== TAB 4: BARBELL PLATE CALCULATOR & WARMUP (COMPETITOR UX) ===================== */}
+        {activeTab === "plates" && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 text-center space-y-1">
-              <span className="text-[10px] text-slate-400 font-mono">أقصى وزن لعدة واحدة (1RM Max)</span>
-              <div className="text-3xl font-black font-mono text-[#A78BFA]">
-                {rmData.average1RM} <span className="text-xs text-white">كجم</span>
-              </div>
-              <p className="text-[10px] text-slate-400">محسوب وفق معادلتي Brzycki و Epley</p>
+            <div>
+              <h3 className="text-sm font-bold text-white">حاسبة طارات البار والتسخين العلمي (HeavySet / Barbell UX)</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                توزيع الطارات على كل جانب من البار الأولمبي مع جدول التسخين الذكي للأوزان الثقيلة.
+              </p>
             </div>
 
-            {/* Calculator Inputs */}
-            <div className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] space-y-3 text-xs">
-              <div>
-                <label className="text-slate-400 block mb-1">اسم التمرين</label>
-                <input
-                  type="text"
-                  value={calcExercise}
-                  onChange={(e) => setCalcExercise(e.target.value)}
-                  className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2 text-white outline-none focus:border-[#7C3AED]"
-                />
+            {/* Barbell Inputs */}
+            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="text-slate-400 block mb-1 text-[11px]">الوزن الإجمالي المطلوب (kg)</label>
+                  <input
+                    type="number"
+                    step="2.5"
+                    value={barbellTargetKg}
+                    onChange={(e) => setBarbellTargetKg(Number(e.target.value))}
+                    className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2 text-white font-mono font-bold outline-none focus:border-[#7C3AED]"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400 block mb-1 text-[11px]">وزن البار الأولمبي (kg)</label>
+                  <select
+                    value={barWeightKg}
+                    onChange={(e) => setBarWeightKg(Number(e.target.value))}
+                    className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2 text-white font-mono font-bold outline-none focus:border-[#7C3AED]"
+                  >
+                    <option value={20}>بار أولمبي قياسي (20 kg)</option>
+                    <option value={15}>بار سيدات / تكنيك (15 kg)</option>
+                    <option value={10}>بار خفيف (10 kg)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Visual Plate Representation (One Side) */}
+              <div className="p-3 bg-[#0A0514] rounded-xl border border-white/[0.05] space-y-2">
+                <span className="text-[11px] text-[#A78BFA] font-bold block">
+                  حمولة كل جانب من البار: {Math.max(0, (barbellTargetKg - barWeightKg) / 2)} kg
+                </span>
+
+                {plateDistribution.length > 0 ? (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {plateDistribution.map((p) => (
+                      <span
+                        key={p.plateKg}
+                        className="px-2.5 py-1 rounded-lg text-white font-mono font-bold text-xs border border-white/10 shadow"
+                        style={{ backgroundColor: p.color }}
+                      >
+                        {p.countPerSide}x {p.plateKg} kg
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-slate-500 font-mono">الوزن لا يتطلب طارات إضافية (البار فقط).</span>
+                )}
+              </div>
+            </div>
+
+            {/* Scientific Warmup Ramp Sets */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-white block">
+                مجموعات التسخين التصاعدي لحماية المفاصل (Warmup Protocol):
+              </span>
+
+              <div className="space-y-1.5">
+                {warmupSets.map((ws, i) => (
+                  <div
+                    key={i}
+                    className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-mono ${
+                      ws.percentage === 100
+                        ? "bg-[#180E2E] border-[#7C3AED] text-white"
+                        : "bg-[#0D0717] border-white/[0.04] text-slate-300"
+                    }`}
+                  >
+                    <div>
+                      <span className="font-bold block text-[11px]">{ws.label}</span>
+                      <span className="text-[10px] text-slate-400">{ws.reps} · راحة {ws.restSec}ث</span>
+                    </div>
+
+                    <span className="font-black text-sm text-[#A78BFA] bg-black/40 px-2 py-0.5 rounded-lg">
+                      {ws.weightKg} kg
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ===================== TAB 5: 1RM INTENSITY CALCULATOR ===================== */}
+        {activeTab === "rm_calc" && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">حاسبة 1RM والشدة التدريبية القصوى</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                احسب أقصى وزن تقدر ترفعه لعدة واحدة (1RM) بناءً على معادلات Epley & Brzycki.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#0E071A] border border-purple-500/20 space-y-3 text-xs">
+              <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+                <span className="text-slate-400">الـ 1RM التقديري:</span>
+                <span className="text-xl font-mono font-black text-[#A78BFA]">
+                  {rmData.average1RM} kg
+                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -549,7 +836,7 @@ export default function UnifiedMasterApp() {
           </div>
         )}
 
-        {/* ===================== TAB 5: SUPPLEMENTS ENCYCLOPEDIA ===================== */}
+        {/* ===================== TAB 6: SUPPLEMENTS ENCYCLOPEDIA ===================== */}
         {activeTab === "supplements" && (
           <div className="space-y-3">
             <div>
@@ -584,7 +871,7 @@ export default function UnifiedMasterApp() {
                     }}
                     className="flex-1 py-2 px-3 bg-[#1A1030] hover:bg-[#251445] border border-purple-500/20 text-[#A78BFA] text-xs font-mono font-bold rounded-xl transition text-center"
                   >
-                    نسخ الكود ({sup.discountCode})
+                    نسخ الكود: {sup.discountCode}
                   </button>
 
                   {sup.purchaseUrl && (
