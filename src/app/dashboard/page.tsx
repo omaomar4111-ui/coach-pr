@@ -10,6 +10,7 @@ import {
   Award, 
   Video, 
   Apple,
+  CreditCard,
   Calendar, 
   Search, 
   Plus, 
@@ -161,10 +162,24 @@ export default function DashboardPage() {
             <div className="text-[11px] text-purple-400">باقة Pro · 50 عميل</div>
           </div>
           <Link 
-            href="/"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+            href="/dashboard/formcheck"
+            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
           >
-            <span>الموقع الرئيسي</span>
+            <Video className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">فورم تشيك و AI</span>
+          </Link>
+          <Link 
+            href="/dashboard/business"
+            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+          >
+            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">الاشتراكات والجدولة</span>
+          </Link>
+          <Link 
+            href="/app"
+            className="text-xs bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold shadow-md shadow-purple-900/40"
+          >
+            <span>تطبيق المتدرب PWA</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
         </div>
