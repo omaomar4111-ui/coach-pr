@@ -240,8 +240,8 @@ class CoachStore {
       streakDays: 19,
       dailyScore: 8,
       attachments: [
-        { id: "att-1", name: "رنين مغناطيسي MRI - فقرات قطنية.pdf", type: "xray", date: "2026-10-12", size: "2.4 MB" },
-        { id: "att-2", name: "تحليل دم شامل CBC ومؤشرات التهاب CRP.pdf", type: "lab", date: "2026-11-01", size: "1.1 MB" }
+        { id: "att-1", name: "رنين مغناطيسي MRI - فقرات قطنية.pdf", type: "xray", date: "2026-10-12", size: "2.4 MB", storagePath: "clients/client-1/att-1-xray.pdf" },
+        { id: "att-2", name: "تحليل دم شامل CBC ومؤشرات التهاب CRP.pdf", type: "lab", date: "2026-11-01", size: "1.1 MB", storagePath: "clients/client-1/att-2-lab.pdf" }
       ]
     },
     {

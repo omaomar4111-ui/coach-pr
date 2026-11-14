@@ -1005,11 +1005,24 @@ export default function WorkoutBuilderPage() {
 
                     <div className="flex items-center gap-2">
                       <button 
-                        onClick={() => alert(`جاري فتح ومعاينة الملف المرفوع (${file.name}) بجودة عالية للكابتن.`)}
-                        className="px-3 py-1.5 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#A78BFA] border border-purple-500/30 rounded-xl font-bold text-xs transition flex items-center gap-1"
+                        onClick={async () => {
+                          try {
+                            const p = (file as any).storagePath || ("clients/client-1/" + file.id + ".pdf");
+                            const res = await fetch("/api/attachments/signed-url?path=" + encodeURIComponent(p) + "&clientId=client-1&attachmentId=" + file.id);
+                            const data = await res.json();
+                            if (data.signedUrl) {
+                              alert("تم توليد رابط آمن ومؤقت (15 دقيقة) للمعاينة:\n\n" + data.signedUrl + "\n\nتم تسجيل الدخول في سجل الأمان Audit Log.");
+                            } else {
+                              alert("جاري فتح ومعاينة الملف المرفوع (" + file.name + ") بجودة عالية للكابتن.");
+                            }
+                          } catch {
+                            alert("جاري فتح ومعاينة الملف المرفوع (" + file.name + ") بجودة عالية للكابتن.");
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#A78BFA] border border-purple-500/30 rounded-xl font-bold text-xs transition flex items-center gap-1 cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>معاينة</span>
+                        <span>معاينة آمنة (15 دقيقة)</span>
                       </button>
                     </div>
                   </div>
