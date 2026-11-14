@@ -39,12 +39,7 @@ interface TourStep {
   text: string;
   waitHint?: string;
   actionButtonText: string;
-  spotlightRect?: {
-    top: number | string;
-    left: number | string;
-    width: number | string;
-    height: number | string;
-  };
+  targetId?: string; // DOM element ID to dynamically spotlight
 }
 
 const STEPS: TourStep[] = [
@@ -65,7 +60,7 @@ const STEPS: TourStep[] = [
     title: "اليوم بيبدأ بقايمة واحدة",
     text: "بدل 147 رسالة واتساب: لوحة التحكم بتقولك كام حاجة مستنياك النهارده، الأهم الأول. متابعات، طلبات انضمام، فورم تشيك، ورسايل.",
     actionButtonText: "التالي",
-    spotlightRect: { top: 220, left: "4%", width: "92%", height: 260 },
+    targetId: "tour-queue-card",
   },
   {
     id: "megatron",
@@ -75,7 +70,7 @@ const STEPS: TourStep[] = [
     title: "ميجاترون بيلاحظ قبلك",
     text: "مساعدك الذكي لاحظ إن <b>عمر</b> اختفى 8 أيام، وإن وزن <b>كريم</b> ثابت أسبوعين. وكاتبلك الرسالة كمان، وانت اللي بتقرر.",
     actionButtonText: "التالي",
-    spotlightRect: { top: 70, left: "4%", width: "92%", height: 135 },
+    targetId: "tour-megatron-card",
   },
   {
     id: "checkin-open",
@@ -86,7 +81,7 @@ const STEPS: TourStep[] = [
     text: "كل عميل بيبعت متابعته الأسبوعية من التطبيق: الوزن والنوم والطاقة والمقاسات وكلامه هو. <b>دوس على متابعة كريم</b>.",
     waitHint: "دوس على متابعة كريم",
     actionButtonText: "متابعة كريم",
-    spotlightRect: { top: 280, left: "4%", width: "92%", height: 55 },
+    targetId: "tour-karim-item",
   },
   {
     id: "checkin-reply",
@@ -97,7 +92,7 @@ const STEPS: TourStep[] = [
     text: "الميزان ثابت بس الوسط نزل، يعني بيخسر دهون. دوس <b>«صياغة بالذكاء الاصطناعي»</b> يكتبلك رد على قد كلامه، عدّل فيه زي ما تحب، وبعدين <b>ابعته لكريم</b>.",
     waitHint: "ابعت الرد لكريم",
     actionButtonText: "ابعت الرد لكريم",
-    spotlightRect: { top: 350, left: "6%", width: "88%", height: 170 },
+    targetId: "tour-ai-reply-box",
   },
   {
     id: "plan-edit",
@@ -108,7 +103,7 @@ const STEPS: TourStep[] = [
     text: "دي نسخة كريم الخاصة من خطة الدايت، والماكروز بتتحسب وانت بتكتب. قلّل الرز في <b>الغدا</b> شوية، وبعدين دوس <b>«احفظ وعيّن»</b>.",
     waitHint: "احفظ خطة كريم",
     actionButtonText: "احفظ خطة كريم",
-    spotlightRect: { top: 120, left: "4%", width: "92%", height: 380 },
+    targetId: "tour-plan-card",
   },
   {
     id: "phone-update",
@@ -118,6 +113,7 @@ const STEPS: TourStep[] = [
     title: "وصلت على موبايل كريم",
     text: "ده التطبيق الحقيقي اللي عميلك بيستخدمه. أي تعديل في الخطة بيوصل لكريم على طول، وبيشوف إيه اللي اتغيّر بالظبط: الكمية قبل وبعد، ومين عدّل وإمتى.",
     actionButtonText: "التالي",
+    targetId: "tour-phone-body",
   },
   {
     id: "phone-log",
@@ -128,6 +124,7 @@ const STEPS: TourStep[] = [
     text: "ده تمرين كريم النهارده في التطبيق. اختار مدة الجلسة وسجّل <b>أول مجموعة</b>: الوزن والعدّات بضغطة، وكل مجموعة بتوصل لوحة التحكم على طول.",
     waitHint: "سجّل مجموعة من الموبايل",
     actionButtonText: "سجّل المجموعة الأولى",
+    targetId: "tour-phone-body",
   },
   {
     id: "ten",
@@ -137,7 +134,7 @@ const STEPS: TourStep[] = [
     title: "يوم 10/10: درجة لكل يوم",
     text: "كل عميل بياخد درجة من 10 كل يوم، نصها تمرين ونصها أكل، والأيام الكاملة بتعمل سلسلة. دي آخر 30 يوم لـ<b>سارة</b>: ماشية 12 يوم كامل ورا بعض.",
     actionButtonText: "التالي",
-    spotlightRect: { top: 220, left: "4%", width: "92%", height: 280 },
+    targetId: "tour-ten-card",
   },
   {
     id: "chat",
@@ -148,7 +145,7 @@ const STEPS: TourStep[] = [
     text: "كل عميل ليه شات بالڤويس نوت والصور. <b>ياسمين</b> بتسأل عن الرز. ردّ عليها من هنا، والرد بيوصلها في التطبيق.",
     waitHint: "ابعت رسالة لياسمين",
     actionButtonText: "ابعت رسالة لياسمين",
-    spotlightRect: { top: 460, left: "10%", width: "80%", height: 60 },
+    targetId: "tour-chat-card",
   },
   {
     id: "money",
@@ -158,7 +155,7 @@ const STEPS: TourStep[] = [
     title: "والبيزنس كمان",
     text: "الالتزام والنشاط والإيراد المتوقع من باقاتك، والاشتراكات اللي قربت تخلص قبل ما العميل يمشي. (الأرقام هنا تجريبية.)",
     actionButtonText: "التالي",
-    spotlightRect: { top: 260, left: "4%", width: "92%", height: 260 },
+    targetId: "tour-money-card",
   },
   {
     id: "end",
@@ -175,6 +172,16 @@ export default function ExactGymRateTourEngine() {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const currentStep = STEPS[currentStepIdx];
   const [activePaneView, setActivePaneView] = useState<"dash" | "phone">("dash");
+
+  // Dynamic Spotlight Geometry
+  const [spotlightStyle, setSpotlightStyle] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+    borderRadius: string;
+    opacity: number;
+  }>({ top: 0, left: 0, width: 0, height: 0, borderRadius: "16px", opacity: 0 });
 
   // Simulated Interactions
   const [karimReplied, setKarimReplied] = useState(false);
@@ -203,6 +210,48 @@ export default function ExactGymRateTourEngine() {
       setActiveTabSub("money");
     }
   }, [currentStepIdx]);
+
+  // Recalculate Spotlight Position dynamically from real DOM elements
+  const updateSpotlight = () => {
+    if (!currentStep.targetId) {
+      setSpotlightStyle(prev => ({ ...prev, opacity: 0 }));
+      return;
+    }
+
+    const el = document.getElementById(currentStep.targetId);
+    if (!el) {
+      setSpotlightStyle(prev => ({ ...prev, opacity: 0 }));
+      return;
+    }
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      setSpotlightStyle(prev => ({ ...prev, opacity: 0 }));
+      return;
+    }
+
+    const pad = currentStep.targetId === "tour-phone-body" ? 4 : 6;
+    setSpotlightStyle({
+      top: rect.top - pad,
+      left: rect.left - pad,
+      width: rect.width + pad * 2,
+      height: rect.height + pad * 2,
+      borderRadius: currentStep.targetId === "tour-phone-body" ? "54px" : "18px",
+      opacity: 1,
+    });
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(updateSpotlight, 120);
+    window.addEventListener("resize", updateSpotlight);
+    window.addEventListener("scroll", updateSpotlight, true);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateSpotlight);
+      window.removeEventListener("scroll", updateSpotlight, true);
+    };
+  }, [currentStepIdx, activeTabSub, activePaneView]);
 
   const handleNext = () => {
     playHapticBeep(700, 100);
@@ -318,7 +367,10 @@ export default function ExactGymRateTourEngine() {
             </div>
 
             {/* Megatron Alert Card (Screenshot 2) */}
-            <div className="p-4 rounded-2xl bg-[#140A26] border border-purple-500/40 flex items-start justify-between relative shadow-lg">
+            <div 
+              id="tour-megatron-card"
+              className="p-4 rounded-2xl bg-[#140A26] border border-purple-500/40 flex items-start justify-between relative shadow-lg transition-all"
+            >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-ping" />
@@ -335,7 +387,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 1: Work Queue (Screenshot 1 & 3) */}
             {activeTabSub === "queue" && (
-              <div className="space-y-2.5">
+              <div id="tour-queue-card" className="space-y-2.5">
                 <div className="flex items-center justify-between pb-1">
                   <h3 className="font-bold text-white text-xs">قائمة العمل (المتابعات وطلبات الانضمام)</h3>
                   <span className="text-[10px] text-[#A78BFA] font-bold">افتح الوارد ↗</span>
@@ -359,7 +411,9 @@ export default function ExactGymRateTourEngine() {
                   </div>
 
                   {/* Item 2: Karim Galal (Highlighted in Screenshot 1 & 3) */}
-                  <div className={`p-3 rounded-xl border transition-all ${
+                  <div 
+                    id="tour-karim-item"
+                    className={`p-3 rounded-xl border transition-all ${
                     currentStep.id === "checkin-open"
                       ? "bg-[#1C0F35] border-[#A78BFA] shadow-[0_0_20px_rgba(167,139,250,0.3)] ring-1 ring-purple-400"
                       : "bg-[#110A1E] border-white/5"
@@ -406,7 +460,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 2: AI Reply Review (Screenshot 4) */}
             {activeTabSub === "overview" && (
-              <div className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
+              <div id="tour-ai-reply-box" className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <span className="font-bold text-white text-sm">متابعة كريم جلال (الأسبوع 13)</span>
                   <span className="text-[10px] bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded">ثبات وزن + حرق دهون</span>
@@ -459,7 +513,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 3: Diet Plan Editor (Screenshot 5 & 6) */}
             {activeTabSub === "plan" && (
-              <div className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
+              <div id="tour-plan-card" className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <span className="font-bold text-white text-sm">تعديل خطة دايت كريم (Lunch · وجبة الغداء)</span>
                   <span className="text-[10px] text-purple-300 font-mono">543 سعر · بروتين 74g · كارب 51g</span>
@@ -503,7 +557,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 4: 10/10 Streak Grid (Screenshot 9) */}
             {activeTabSub === "ten" && (
-              <div className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
+              <div id="tour-ten-card" className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <h4 className="font-bold text-white text-xs">أيام 10/10 · آخر 30 يوم (اللاعبة سارة أحمد)</h4>
                   <span className="text-[10px] text-emerald-400 font-mono font-bold">12 يوم متواصل 🔥</span>
@@ -531,7 +585,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 5: Chat (Screenshot 10) */}
             {activeTabSub === "chat" && (
-              <div className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
+              <div id="tour-chat-card" className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <span className="font-bold text-white text-xs">شات اللاعبة ياسمين طارق</span>
                   <span className="text-[10px] text-emerald-400 font-bold">متصل الآن 🟢</span>
@@ -571,7 +625,7 @@ export default function ExactGymRateTourEngine() {
 
             {/* Sub-Tab 6: Business Revenue (Screenshot 11 & 12) */}
             {activeTabSub === "money" && (
-              <div className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
+              <div id="tour-money-card" className="p-4 rounded-2xl bg-[#130B24] border border-purple-500/30 space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <span className="font-bold text-white text-xs">تحليلات الإيراد المتوقع من الباقات النشطة</span>
                   <span className="text-[10px] text-[#A78BFA] font-mono">نوفمبر 2026</span>
@@ -592,18 +646,6 @@ export default function ExactGymRateTourEngine() {
 
           </div>
 
-          {/* Dynamic Spotlight Overlay (Exact yellow/purple outline from screenshots) */}
-          {currentStep.spotlightRect && (
-            <div 
-              className="absolute z-20 pointer-events-none rounded-2xl border-2 border-[#A78BFA] shadow-[0_0_0_9999px_rgba(0,0,0,0.55),0_0_25px_rgba(167,139,250,0.5)] transition-all duration-300 animate-pulse"
-              style={{
-                top: currentStep.spotlightRect.top,
-                left: currentStep.spotlightRect.left,
-                width: currentStep.spotlightRect.width,
-                height: currentStep.spotlightRect.height,
-              }}
-            />
-          )}
         </section>
 
         {/* ==================== RIGHT PANE: TRAINEE KARIM'S REAL PHONE (Screenshot 2, 7 & 8) ==================== */}
@@ -616,7 +658,10 @@ export default function ExactGymRateTourEngine() {
           </div>
 
           {/* iPhone 15 Bezel & Hardware Simulation */}
-          <div className="relative w-[340px] h-[660px] bg-[#050605] rounded-[52px] border-[7px] border-[#1C0F35] shadow-[0_0_50px_rgba(124,58,237,0.3)] p-3 flex flex-col justify-between overflow-hidden">
+          <div 
+            id="tour-phone-body"
+            className="relative w-[340px] h-[660px] bg-[#050605] rounded-[52px] border-[7px] border-[#1C0F35] shadow-[0_0_50px_rgba(124,58,237,0.3)] p-3 flex flex-col justify-between overflow-hidden transition-all"
+          >
             {/* Dynamic Island */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#000000] rounded-full z-30" />
 
@@ -690,6 +735,21 @@ export default function ExactGymRateTourEngine() {
         </section>
 
       </main>
+
+      {/* 2.5 EXACT DYNAMIC SPOTLIGHT OVERLAY (Bounding Box matched to target element) */}
+      <div 
+        className="fixed z-20 pointer-events-none transition-all duration-300 ease-out"
+        style={{
+          top: `${spotlightStyle.top}px`,
+          left: `${spotlightStyle.left}px`,
+          width: `${spotlightStyle.width}px`,
+          height: `${spotlightStyle.height}px`,
+          borderRadius: spotlightStyle.borderRadius,
+          opacity: spotlightStyle.opacity,
+          boxShadow: "0 0 0 3px #A78BFA, 0 0 0 9999px rgba(0, 0, 0, 0.65), 0 0 35px 8px rgba(167, 139, 250, 0.45)",
+          display: spotlightStyle.opacity === 0 ? "none" : "block",
+        }}
+      />
 
       {/* 3. Mobile Navigation Tabs (for small screens) */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 h-12 bg-[#090A09] border-t border-white/10 grid grid-cols-2 z-30">
