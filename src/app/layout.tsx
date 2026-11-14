@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "CoachPR",
-  description: "CoachPR Platform",
+  title: "CoachPRB - سجّل رقمك. غيّر جسمك",
+  description: "المنصة الذكية لإدارة وتدريب الأبطال ومتابعة كمال الأجسام واللياقة البدنية في الشرق الأوسط",
+  manifest: "/manifest.json",
+  themeColor: "#7C3AED",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CoachPRB"
+  },
   icons: {
     icon: "/pr-logo.png",
     shortcut: "/pr-logo.png",
@@ -19,6 +27,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="changa_4c9d147c-module__hpPt_W__variable barlow_condensed_1cab9ff4-module__V-zrxq__variable inter_8a594245-module__h1XLeG__variable">
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -28,6 +39,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <PwaInstallPrompt />
       </body>
     </html>
   );
