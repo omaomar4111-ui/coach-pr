@@ -537,6 +537,40 @@ export default function ClientOnboardingDashboard() {
               </div>
             </div>
 
+            {/* Notification Center Automation Test */}
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Send className="w-4 h-4 text-emerald-400" />
+                    نظام الإشعارات الآلي الفوري (Telegram & WhatsApp Notifications)
+                  </h4>
+                  <p className="text-[11px] text-slate-400">تنبيه صاحب المتجر أو العميل فور حدوث أي حركة (طلب جديد، استلام تحويل إنستاباي، خروج بوليصة شحن).</p>
+                </div>
+                <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">
+                  Realtime Dispatcher
+                </span>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 text-xs">
+                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sky-400">إشعارات تليجرام (Telegram Alerts)</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">مفعل تلقائياً ✓</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px]">يصل لجروب إدارة المتجر إشعار فوري: *تم إغلاق أوردر جديد بقيمة 1,850ج مع رقم بوليصة الشحن.*</p>
+                </div>
+
+                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-emerald-400">إشعارات واتساب (WhatsApp Customer Status)</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">مفعل تلقائياً ✓</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px]">يصل العميل على واتسابه رسالة آلية: *ألف مبروك! أوردرك خرج مع مندوب بوسطة ورقم تتبع شحنتك هو BST-EG-XXXX.*</p>
+                </div>
+              </div>
+            </div>
+
             <div className="p-6 bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-bold text-white">المنظومة متصلة بالكامل بحسابك الآن! 🎉</h4>
