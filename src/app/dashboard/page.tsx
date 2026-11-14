@@ -341,12 +341,13 @@ export default function DashboardPage() {
                     <Dumbbell className="w-4 h-4 text-[#A78BFA]" />
                     <span>جدول تمارين العميل النشط</span>
                   </h3>
-                  <button 
-                    onClick={() => alert("تم فتح بيلدر التمارين لتعديل الخطة")}
-                    className="text-xs text-purple-400 hover:text-purple-300 font-semibold"
+                  <Link 
+                    href="/dashboard/builder"
+                    className="text-xs text-[#A78BFA] hover:text-white bg-purple-900/30 border border-purple-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
                   >
-                    + تعديل الخطة
-                  </button>
+                    <span>فتح بيلدر التمارين</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
 
                 <div className="space-y-2 text-xs">
