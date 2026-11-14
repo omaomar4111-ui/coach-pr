@@ -2,542 +2,746 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { 
-  Users, 
-  Dumbbell, 
-  Activity, 
-  TrendingUp, 
-  Award, 
-  Video, 
-  Apple,
-  CreditCard,
-  Calendar, 
-  Search, 
-  Plus, 
-  Phone, 
-  ChevronRight, 
-  Sparkles, 
-  AlertTriangle,
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Flame,
-  LayoutDashboard,
-  Trophy,
-  ShieldCheck,
-  UserCheck
-} from "lucide-react";
 import confetti from "canvas-confetti";
 
-interface Client {
+interface ClientMeal {
+  id: string;
+  name: string;
+  time: string;
+  status: "done" | "pending" | "delayed";
+  calories: number;
+  protein: number;
+  waterTargetMl: number;
+  waterCurrentMl: number;
+}
+
+interface ClientCycle {
   id: string;
   name: string;
   phone: string;
-  currentWeight: number;
-  startWeight: number;
-  goal: string;
-  adherence: number;
-  dailyStreak: number;
-  lastActive: string;
-  atRisk: boolean;
-  status: "active" | "warning" | "frozen";
+  email: string;
+  plan: string;
+  currentDay: string;
+  waterDrankLiters: number;
+  waterGoalLiters: number;
+  adherenceRate: number;
+  status: "active" | "delayed" | "completed";
+  meals: ClientMeal[];
+  lastUpdate: string;
 }
 
-const initialClients: Client[] = [
+interface NotificationItem {
+  id: string;
+  audience: "athlete" | "coach" | "admin";
+  title: string;
+  message: string;
+  time: string;
+  type: "water" | "meal" | "cycle" | "security";
+  isRead: boolean;
+}
+
+const initialClientsData: ClientCycle[] = [
   {
-    id: "1",
+    id: "cl-1",
     name: "كريم أحمد مصطفى",
-    phone: "01099238411",
-    currentWeight: 76.2,
-    startWeight: 84.0,
-    goal: "تنشيف وبناء عضلات",
-    adherence: 94,
-    dailyStreak: 18,
-    lastActive: "منذ ساعتين",
-    atRisk: false,
-    status: "active"
+    phone: "01144826641",
+    email: "kareem@example.com",
+    plan: "FST-7 تضخيم وقوة عضلية",
+    currentDay: "اليوم 18 من 90",
+    waterDrankLiters: 2.5,
+    waterGoalLiters: 4.0,
+    adherenceRate: 94,
+    status: "active",
+    lastUpdate: "منذ 15 دقيقة",
+    meals: [
+      { id: "m1", name: "وجبة 1: شوفان + سكوب واي + مكسرات", time: "09:00 ص", status: "done", calories: 550, protein: 42, waterTargetMl: 500, waterCurrentMl: 500 },
+      { id: "m2", name: "وجبة 2: صدور دجاج مشوي + رز بسمتي + خضار سوتيه", time: "01:30 م", status: "done", calories: 650, protein: 55, waterTargetMl: 750, waterCurrentMl: 750 },
+      { id: "m3", name: "وجبة 3 (قبل التمرين): بطاطا مسلوقة + عصير برتقال طبيعي", time: "05:00 م", status: "delayed", calories: 380, protein: 12, waterTargetMl: 750, waterCurrentMl: 250 },
+      { id: "m4", name: "وجبة 4 (بعد التمرين): لحم بقري صافي + بطاطس بيوريه", time: "08:30 م", status: "pending", calories: 600, protein: 50, waterTargetMl: 1000, waterCurrentMl: 0 },
+    ],
   },
   {
-    id: "2",
+    id: "cl-2",
     name: "محمود حسن السيد",
-    phone: "01155829910",
-    currentWeight: 89.5,
-    startWeight: 90.0,
-    goal: "خسارة دهون وزن زائد",
-    adherence: 48,
-    dailyStreak: 0,
-    lastActive: "منذ 4 أيام",
-    atRisk: true,
-    status: "warning"
+    phone: "01099238411",
+    email: "mahmoud@example.com",
+    plan: "تنشيف عالي وخسارة دهون",
+    currentDay: "اليوم 4 من 60",
+    waterDrankLiters: 1.2,
+    waterGoalLiters: 3.5,
+    adherenceRate: 68,
+    status: "delayed",
+    lastUpdate: "منذ 3 ساعات",
+    meals: [
+      { id: "m21", name: "وجبة 1: 4 بياض بيض + توست بني + خيار", time: "08:30 ص", status: "done", calories: 320, protein: 32, waterTargetMl: 500, waterCurrentMl: 500 },
+      { id: "m22", name: "وجبة 2: تونة مصفاة + سلطة خضراء ليمون", time: "01:00 م", status: "delayed", calories: 280, protein: 35, waterTargetMl: 750, waterCurrentMl: 200 },
+      { id: "m23", name: "وجبة 3: صدور رومي مدخن + أرز بني", time: "05:30 م", status: "pending", calories: 450, protein: 40, waterTargetMl: 750, waterCurrentMl: 0 },
+    ],
   },
   {
-    id: "3",
+    id: "cl-3",
     name: "عمر فاروق عبد الله",
     phone: "01288334412",
-    currentWeight: 71.0,
-    startWeight: 65.0,
-    goal: "زيادة وزن وتضخيم (Bulk)",
-    adherence: 88,
-    dailyStreak: 12,
-    lastActive: "منذ 5 ساعات",
-    atRisk: false,
-    status: "active"
+    email: "omar.f@example.com",
+    plan: "تحضير بطولة كلاسيك فيزيك",
+    currentDay: "اليوم 42 من 120",
+    waterDrankLiters: 4.8,
+    waterGoalLiters: 5.0,
+    adherenceRate: 99,
+    status: "active",
+    lastUpdate: "الآن",
+    meals: [
+      { id: "m31", name: "وجبة 1: بياض بيض + دقيق شوفان + زبدة فول سوداني", time: "07:30 ص", status: "done", calories: 620, protein: 48, waterTargetMl: 800, waterCurrentMl: 800 },
+      { id: "m32", name: "وجبة 2: سلمون مشوي + كينوا + أسباراجوس", time: "11:30 ص", status: "done", calories: 580, protein: 45, waterTargetMl: 1000, waterCurrentMl: 1000 },
+      { id: "m33", name: "وجبة 3: لحمة مفرومة 5% دهون + أرز أبيض", time: "03:30 م", status: "done", calories: 680, protein: 52, waterTargetMl: 1000, waterCurrentMl: 1000 },
+    ],
   },
-  {
-    id: "4",
-    name: "يوسف إبراهيم",
-    phone: "01011883390",
-    currentWeight: 82.0,
-    startWeight: 82.0,
-    goal: "لياقة بدنية وقوة",
-    adherence: 70,
-    dailyStreak: 5,
-    lastActive: "أمس",
-    atRisk: false,
-    status: "frozen"
-  }
 ];
 
-export default function DashboardPage() {
-  const [clients, setClients] = useState<Client[]>(initialClients);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(initialClients[0]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newClientName, setNewClientName] = useState("");
-  const [newClientPhone, setNewClientPhone] = useState("");
-  const [newClientGoal, setNewClientGoal] = useState("تنشيف");
-  const [newClientWeight, setNewClientWeight] = useState("80");
+const initialNotifications: NotificationItem[] = [
+  {
+    id: "n1",
+    audience: "athlete",
+    title: "تذكير بشرب الماء 💧",
+    message: "باقي لك 1.5 لتر للوصول لهدفك اليومي. اشرب كوبين ماء الآن للحفاظ على ضخ الدم العضلي.",
+    time: "منذ 10 دقائق",
+    type: "water",
+    isRead: false,
+  },
+  {
+    id: "n2",
+    audience: "coach",
+    title: "وجبة متأخرة للمتدرب كريم أحمد",
+    message: "تأخرت وجبة قبل التمرين 45 دقيقة عن موعدها المحدد (05:00 م). تم إرسال تنبيه بالواتساب للاعب.",
+    time: "منذ 35 دقيقة",
+    type: "meal",
+    isRead: false,
+  },
+  {
+    id: "n3",
+    audience: "admin",
+    title: "تقرير دورة التدريب اليومية (Cycle Monitor)",
+    message: "إجمالي 3 متدربين نشطين، تم تأكيد 7 وجبات، وجبة واحدة متأخرة، معدل شرب الماء العام 76%.",
+    time: "منذ ساعة",
+    type: "cycle",
+    isRead: true,
+  },
+  {
+    id: "n4",
+    audience: "coach",
+    title: "فيديو فورمتشيك جديد في الانتظار",
+    message: "رفع اللاعب كريم فيديو سكوات للمراجعة قبل انتهاء مدة التخزين المؤقتة (متبقي 10 ساعات).",
+    time: "منذ ساعتين",
+    type: "security",
+    isRead: true,
+  },
+];
 
-  const filteredClients = clients.filter(c => 
-    c.name.includes(searchTerm) || c.phone.includes(searchTerm)
-  );
+export default function LuxuryMinimalDashboard() {
+  const [clients, setClients] = useState<ClientCycle[]>(initialClientsData);
+  const [selectedClient, setSelectedClient] = useState<ClientCycle>(initialClientsData[0]);
+  const [activeTab, setActiveTab] = useState<"cycles" | "meals" | "water" | "notifications" | "settings">("cycles");
+  const [notifRole, setNotifRole] = useState<"all" | "athlete" | "coach" | "admin">("all");
+  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
+  const [showAddMealModal, setShowAddMealModal] = useState(false);
+  const [newMealName, setNewMealName] = useState("");
+  const [newMealTime, setNewMealTime] = useState("06:00 م");
+  const [newMealCal, setNewMealCal] = useState("450");
+  const [newMealProt, setNewMealProt] = useState("40");
+  const [waterAmountInput, setWaterAmountInput] = useState(250);
 
-  const handleAddClient = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newClientName || !newClientPhone) return;
-
-    const newClient: Client = {
-      id: String(Date.now()),
-      name: newClientName,
-      phone: newClientPhone,
-      currentWeight: parseFloat(newClientWeight) || 80,
-      startWeight: parseFloat(newClientWeight) || 80,
-      goal: newClientGoal,
-      adherence: 100,
-      dailyStreak: 1,
-      lastActive: "الآن",
-      atRisk: false,
-      status: "active"
-    };
-
-    setClients([newClient, ...clients]);
-    setSelectedClient(newClient);
-    setShowAddModal(false);
-    setNewClientName("");
-    setNewClientPhone("");
-
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.6 }
-    });
+  // Send WhatsApp Reminder
+  const sendWhatsAppReminder = (client: ClientCycle, msg: string) => {
+    const cleanPhone = client.phone.replace(/[^0-9]/g, "");
+    const formattedPhone = cleanPhone.startsWith("0") ? "2" + cleanPhone : cleanPhone;
+    const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
   };
 
+  // Add Water Log
+  const handleAddWater = () => {
+    const updated = {
+      ...selectedClient,
+      waterDrankLiters: Math.min(selectedClient.waterGoalLiters, Number((selectedClient.waterDrankLiters + waterAmountInput / 1000).toFixed(2))),
+    };
+    setSelectedClient(updated);
+    setClients(clients.map(c => c.id === updated.id ? updated : c));
+
+    // Push notification to athlete & coach
+    const newNotif: NotificationItem = {
+      id: String(Date.now()),
+      audience: "athlete",
+      title: "تم تسجيل شرب الماء",
+      message: `أضاف ${selectedClient.name} كمية ${waterAmountInput} مل من الماء. الإجمالي: ${updated.waterDrankLiters} لتر.`,
+      time: "الآن",
+      type: "water",
+      isRead: false,
+    };
+    setNotifications([newNotif, ...notifications]);
+    confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
+  };
+
+  // Mark Meal as Done
+  const handleToggleMeal = (mealId: string) => {
+    const updatedMeals = selectedClient.meals.map(m => {
+      if (m.id === mealId) {
+        const nextStatus = m.status === "done" ? "pending" : "done";
+        return { ...m, status: nextStatus };
+      }
+      return m;
+    });
+
+    const updated = { ...selectedClient, meals: updatedMeals as ClientMeal[] };
+    setSelectedClient(updated);
+    setClients(clients.map(c => c.id === updated.id ? updated : c));
+
+    // Admin & Coach Notification
+    const notif: NotificationItem = {
+      id: String(Date.now()),
+      audience: "admin",
+      title: "تحديث وجبة لاعب",
+      message: `قام الكابتن بتحديث حالة وجبة للمتدرب ${selectedClient.name}.`,
+      time: "الآن",
+      type: "meal",
+      isRead: false,
+    };
+    setNotifications([notif, ...notifications]);
+  };
+
+  // Filtered Notifications
+  const filteredNotifications = notifications.filter(n => notifRole === "all" || n.audience === notifRole);
+
   return (
-    <div className="min-h-screen bg-[#0A0612] text-slate-100 flex flex-col font-sans" dir="rtl">
-      {/* Top Navigation */}
-      <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="p-1 rounded-xl bg-purple-950/40 border border-purple-500/40 flex items-center justify-center">
-              <img 
-                src="/pr-logo.png" 
-                alt="PR Logo" 
-                className="h-8 w-auto max-h-8 object-contain filter drop-shadow-[0_0_8px_rgba(167,139,250,0.5)]" 
-              />
-            </div>
-            <span className="font-heading font-black text-xl text-white tracking-wide">Coach<span className="text-[#A78BFA]">PR</span></span>
+    <div className="min-h-screen bg-[#07040D] text-white flex flex-col font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
+      
+      {/* 1. Quiet Cinematic Navigation Header (Zero Noise, PR Identity Only) */}
+      <header className="border-b border-white/[0.04] px-6 py-4 flex items-center justify-between sticky top-0 z-40 bg-[#07040D]/95 backdrop-blur-md">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <img 
+              src="/pr-logo.png" 
+              alt="PR" 
+              className="h-8 w-auto object-contain filter drop-shadow-[0_0_8px_rgba(167,139,250,0.3)]" 
+            />
+            <span className="font-heading font-black text-lg tracking-wider text-white">
+              COACH<span className="text-[#A78BFA]">PR</span>
+            </span>
           </Link>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-[#17102A] text-purple-300 border border-purple-500/30 rounded-full flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-purple-300 animate-pulse" />
-            لوحة تحكم المدربين
-          </span>
+
+          {/* Clean Segment Tabs */}
+          <nav className="hidden md:flex items-center bg-[#10091E] border border-white/[0.06] rounded-2xl p-1 text-xs font-medium">
+            <button
+              onClick={() => setActiveTab("cycles")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "cycles" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              دورة اللاعبين والتمارين
+            </button>
+            <button
+              onClick={() => setActiveTab("meals")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "meals" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              جدول الوجبات والتنبيهات
+            </button>
+            <button
+              onClick={() => setActiveTab("water")}
+              className={`px-3.5 py-1.5 rounded-xl transition ${
+                activeTab === "water" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              متابعة شرب الماء
+            </button>
+            <button
+              onClick={() => setActiveTab("notifications")}
+              className={`px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 ${
+                activeTab === "notifications" ? "bg-[#1E1238] text-white shadow-sm border border-purple-500/20 font-bold" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>مركز الإشعارات</span>
+              {notifications.some(n => !n.isRead) && (
+                <span className="w-2 h-2 rounded-full bg-[#A78BFA] animate-pulse" />
+              )}
+            </button>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-left hidden sm:block">
-            <div className="text-xs font-bold text-white">كابتن عمر مصطفى</div>
-            <div className="text-[11px] text-purple-400">باقة Pro · 50 عميل</div>
-          </div>
+        {/* Coach & Admin Quick Status */}
+        <div className="flex items-center gap-3 text-xs">
           <Link 
-            href="/dashboard/ranks"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-yellow-300 border border-yellow-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+            href="/dashboard/builder"
+            className="px-3 py-1.5 rounded-xl bg-[#10091E] hover:bg-[#160D2A] border border-white/[0.08] text-slate-300 hover:text-white transition"
           >
-            <Trophy className="w-3.5 h-3.5 text-yellow-400" />
-            <span className="hidden sm:inline">الرانكات والشهادات</span>
-          </Link>
-          <Link 
-            href="/dashboard/elite"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-orange-300 border border-orange-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
-          >
-            <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <span className="hidden sm:inline">هاني رامبود &amp; المكملات</span>
-          </Link>
-          <Link 
-            href="/dashboard/anatomy"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
-          >
-            <Activity className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">تشريح العضلات (Anatomy)</span>
+            بيلدر التمارين
           </Link>
           <Link 
             href="/dashboard/formcheck"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
+            className="px-3 py-1.5 rounded-xl bg-[#10091E] hover:bg-[#160D2A] border border-white/[0.08] text-slate-300 hover:text-white transition"
           >
-            <Video className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">فورم تشيك و AI</span>
-          </Link>
-          <Link 
-            href="/dashboard/business"
-            className="text-xs bg-[#17102A] hover:bg-[#6D28D9]/40 text-purple-200 border border-purple-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold"
-          >
-            <CreditCard className="w-3.5 h-3.5 text-purple-300" />
-            <span className="hidden sm:inline">الاشتراكات والجدولة</span>
+            فورمتشيك (12h)
           </Link>
           <Link 
             href="/app"
-            className="text-xs bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-bold shadow-md shadow-purple-900/40"
+            className="px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold transition shadow-md shadow-purple-950/50"
           >
-            <span>تطبيق المتدرب PWA</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            تجربة المتدرب (PWA)
           </Link>
         </div>
       </header>
 
-      {/* Main Workspace Layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left Column (Stats & Clients List) - 5 Cols */}
-        <div className="lg:col-span-5 space-y-4 flex flex-col">
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#140C24] p-3.5 rounded-2xl border border-purple-900/30 text-center">
-              <div className="text-[11px] text-slate-400 mb-1">العملاء النشطين</div>
-              <div className="text-2xl font-black text-white">{clients.length}</div>
-            </div>
-            <div className="bg-[#140C24] p-3.5 rounded-2xl border border-purple-900/30 text-center">
-              <div className="text-[11px] text-slate-400 mb-1">متوسط الالتزام</div>
-              <div className="text-2xl font-black text-[#A78BFA]">84%</div>
-            </div>
-            <div className="bg-[#140C24] p-3.5 rounded-2xl border border-rose-900/30 text-center">
-              <div className="text-[11px] text-rose-300 mb-1">بحاجة لمتابعة</div>
-              <div className="text-2xl font-black text-rose-400">
-                {clients.filter(c => c.atRisk).length}
-              </div>
-            </div>
+      {/* 2. Workspace Viewport */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* Left Column: Client Selector & Overall Cycle (4 cols) */}
+        <div className="lg:col-span-4 space-y-4">
+          
+          <div className="flex items-center justify-between pb-1">
+            <h2 className="text-sm font-bold text-white tracking-wide">قائمة المتدربين النشطين</h2>
+            <span className="text-[11px] text-slate-400 font-mono">{clients.length} لاعبين</span>
           </div>
 
-          {/* Search & Add Action */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
-              <input
-                type="text"
-                placeholder="ابحث بالاسم أو رقم الهاتف..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-[#140C24] border border-purple-900/30 rounded-xl pr-9 pl-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#7C3AED]"
-              />
-            </div>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg shadow-purple-900/40"
-            >
-              <Plus className="w-4 h-4" />
-              <span>عميل جديد</span>
-            </button>
-          </div>
+          <div className="space-y-2.5">
+            {clients.map(client => {
+              const isSelected = selectedClient.id === client.id;
+              const hasDelayedMeal = client.meals.some(m => m.status === "delayed");
 
-          {/* Clients Scrollable List */}
-          <div className="bg-[#110A1E] border border-purple-900/30 rounded-2xl p-2 space-y-2 flex-1 overflow-y-auto max-h-[600px]">
-            {filteredClients.map((client) => {
-              const isSelected = selectedClient?.id === client.id;
               return (
                 <div
                   key={client.id}
                   onClick={() => setSelectedClient(client)}
-                  className={`p-3.5 rounded-xl cursor-pointer transition border flex items-center justify-between ${
+                  className={`p-4 rounded-2xl border transition cursor-pointer text-xs ${
                     isSelected
-                      ? "bg-[#1C1133] border-[#7C3AED] shadow-md shadow-purple-900/30"
-                      : "bg-[#140C24] border-purple-900/20 hover:border-purple-600/40"
+                      ? "bg-[#120A22] border-[#7C3AED] shadow-lg shadow-purple-950/40"
+                      : "bg-[#0B0616] border-white/[0.04] hover:border-white/[0.1] hover:bg-[#0F081C]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-800 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-                      {client.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white flex items-center gap-2">
-                        <span>{client.name}</span>
-                        {client.atRisk && (
-                          <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/30 flex items-center gap-1 font-bold">
-                            <AlertTriangle className="w-2.5 h-2.5" /> تنبيه
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                        <span>{client.goal}</span>
-                        <span>•</span>
-                        <span>{client.currentWeight} كجم</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-white text-sm">{client.name}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-lg border font-medium ${
+                      hasDelayedMeal 
+                        ? "bg-purple-950/80 border-purple-500/40 text-purple-200" 
+                        : "bg-[#180E2E] border-white/[0.08] text-slate-300"
+                    }`}>
+                      {hasDelayedMeal ? "وجبة متأخرة" : "ملتزم بالجدول"}
+                    </span>
                   </div>
 
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-purple-300">{client.adherence}% التزام</div>
-                    <div className="text-[10px] text-slate-500">{client.lastActive}</div>
+                  <p className="text-[11px] text-slate-400 mb-3">{client.plan}</p>
+
+                  {/* Progress indicators: Water & Meals */}
+                  <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300 border-t border-white/[0.04] pt-2.5">
+                    <div>
+                      <span className="text-slate-500 block">شرب الماء</span>
+                      <span className="font-mono font-bold text-white">{client.waterDrankLiters} / {client.waterGoalLiters} L</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">نسبة الالتزام</span>
+                      <span className="font-mono font-bold text-[#A78BFA]">{client.adherenceRate}%</span>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {/* Quick WhatsApp Alert for Coach to Client */}
+          <div className="p-4 rounded-2xl bg-[#0B0616] border border-white/[0.05] space-y-3">
+            <div className="text-xs font-bold text-white">تنبيه فوري عبر واتساب للعميل</div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              إرسال إشعار فوري للاعب {selectedClient.name} لتذكيره بشرب الماء أو موعد الوجبة القادمة.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => sendWhatsAppReminder(
+                  selectedClient, 
+                  `يا بطل، كابتنك بيفكرك تشرب مية دلوقتي، باقيلك ${(selectedClient.waterGoalLiters - selectedClient.waterDrankLiters).toFixed(1)} لتر على هدف النهاردة 💪`
+                )}
+                className="py-2.5 px-3 bg-[#120A22] hover:bg-[#1C0F35] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+              >
+                تذكير شرب المية
+              </button>
+              <button
+                type="button"
+                onClick={() => sendWhatsAppReminder(
+                  selectedClient, 
+                  `يا بطل، متنساش تسجل وجبتك في معادها على المنصة عشان نحافظ على معدل حرق عالي والتزامك التدريبي 💪`
+                )}
+                className="py-2.5 px-3 bg-[#120A22] hover:bg-[#1C0F35] border border-white/[0.08] text-slate-200 rounded-xl font-medium transition text-center"
+              >
+                تذكير الوجبة
+              </button>
+            </div>
+          </div>
+
         </div>
 
-        {/* Right Column (Client Profile & Real Actions) - 7 Cols */}
-        <div className="lg:col-span-7">
-          {selectedClient ? (
-            <div className="bg-[#140C24] border border-purple-900/30 rounded-2xl p-6 space-y-6">
-              {/* Header profile info */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-purple-900/30 gap-4">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-black font-heading text-white">{selectedClient.name}</h2>
-                    <span className="text-xs bg-purple-600/10 text-purple-300 border border-purple-600/20 px-2 py-0.5 rounded-full font-bold">
-                      مشترك نشط
+        {/* Right Column: Detailed Cycle, Meals, Water & Notification Systems (8 cols) */}
+        <div className="lg:col-span-8 space-y-6">
+
+          {/* Tab 1: Cycles & Overview */}
+          {activeTab === "cycles" && (
+            <div className="space-y-6">
+              
+              {/* Client Hero Banner */}
+              <div className="p-6 rounded-3xl bg-[#0E071A] border border-purple-500/20 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-block px-2.5 py-1 rounded-lg bg-[#1D1136] border border-purple-500/30 text-[10px] text-[#A78BFA] font-mono mb-2">
+                      {selectedClient.currentDay}
+                    </div>
+                    <h1 className="text-2xl font-black text-white">{selectedClient.name}</h1>
+                    <p className="text-xs text-slate-400 mt-1">{selectedClient.plan} · هاتف: {selectedClient.phone}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => sendWhatsAppReminder(selectedClient, "مساء الخير يا بطل، بتابع معاك الدورة التدريبية ومواعيد وجباتك اليوم.")}
+                      className="px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition shadow-lg shadow-purple-950/60"
+                    >
+                      مراسلة المتدرب مباشرة
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3 Metric Cards with Unified Purple/White Palette */}
+                <div className="grid grid-cols-3 gap-3 mt-6">
+                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
+                    <span className="text-[11px] text-slate-400 block mb-1">الالتزام العام</span>
+                    <span className="text-xl font-mono font-black text-[#A78BFA]">{selectedClient.adherenceRate}%</span>
+                  </div>
+                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
+                    <span className="text-[11px] text-slate-400 block mb-1">لترات الماء اليوم</span>
+                    <span className="text-xl font-mono font-black text-white">{selectedClient.waterDrankLiters} L</span>
+                  </div>
+                  <div className="bg-[#120A22] p-3.5 rounded-2xl border border-white/[0.05]">
+                    <span className="text-[11px] text-slate-400 block mb-1">الوجبات المكتملة</span>
+                    <span className="text-xl font-mono font-black text-white">
+                      {selectedClient.meals.filter(m => m.status === "done").length} / {selectedClient.meals.length}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                    <span>الهاتف: {selectedClient.phone}</span>
-                    <span>الهدف: {selectedClient.goal}</span>
+                </div>
+              </div>
+
+              {/* Meals Schedule inside Cycle */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white">جدول ومواعيد وجبات اليوم</h3>
+                  <button
+                    onClick={() => setActiveTab("meals")}
+                    className="text-xs text-[#A78BFA] hover:underline"
+                  >
+                    تعديل خطة التغذية
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedClient.meals.map(meal => (
+                    <div 
+                      key={meal.id} 
+                      className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition ${
+                        meal.status === "done" 
+                          ? "bg-[#0D0717] border-white/[0.05] opacity-80" 
+                          : meal.status === "delayed" 
+                          ? "bg-[#180E2B] border-[#7C3AED]/50" 
+                          : "bg-[#0F081C] border-white/[0.06]"
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{meal.name}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">({meal.time})</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {meal.calories} سعرة حرارية · {meal.protein}g بروتين · هدف ماء: {meal.waterTargetMl} مل
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] px-2 py-1 rounded-lg border font-medium ${
+                          meal.status === "done"
+                            ? "bg-[#160E2A] text-slate-300 border-white/[0.08]"
+                            : meal.status === "delayed"
+                            ? "bg-[#251245] text-purple-200 border-[#7C3AED]"
+                            : "bg-[#110A1E] text-slate-400 border-white/[0.05]"
+                        }`}>
+                          {meal.status === "done" ? "تم تناولها" : meal.status === "delayed" ? "متأخرة عن الموعد" : "قادمة"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleMeal(meal.id)}
+                          className="px-3 py-1.5 rounded-xl bg-[#1A1030] hover:bg-[#251445] text-white border border-white/[0.08] text-[11px] transition"
+                        >
+                          {meal.status === "done" ? "إلغاء التأكيد" : "تأكيد التناول"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* Tab 2: Meals Manager (Coach adds/sets meals) */}
+          {activeTab === "meals" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-2 border-b border-white/[0.04]">
+                <div>
+                  <h2 className="text-base font-bold text-white">خطة وجبات المتدرب ({selectedClient.name})</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    النظام يرسل تنبيهاً تلقائياً للمتدرب والكوتش والأدمن إذا تأخرت الوجبة أكثر من 30 دقيقة عن موعدها.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddMealModal(true)}
+                  className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-xl transition"
+                >
+                  + إضافة وجبة جديدة
+                </button>
+              </div>
+
+              {/* Meals List */}
+              <div className="space-y-3">
+                {selectedClient.meals.map((meal, index) => (
+                  <div key={meal.id} className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] flex items-center justify-between text-xs">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="w-5 h-5 rounded-full bg-[#1A1030] border border-purple-500/30 text-[10px] text-[#A78BFA] flex items-center justify-center font-mono">
+                          {index + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">{meal.name}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 space-x-3 space-x-reverse font-mono">
+                        <span>الموعد: {meal.time}</span>
+                        <span>·</span>
+                        <span>السعرات: {meal.calories} kcal</span>
+                        <span>·</span>
+                        <span>البروتين: {meal.protein}g</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleMeal(meal.id)}
+                        className="px-3.5 py-2 rounded-xl bg-[#1A1030] hover:bg-[#251445] border border-white/[0.08] text-white text-xs font-medium transition"
+                      >
+                        {meal.status === "done" ? "إلغاء المكتمل" : "تحديد كمكتمل"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Meal Simple Inline Modal */}
+              {showAddMealModal && (
+                <div className="p-5 rounded-2xl bg-[#120A24] border border-[#7C3AED] space-y-4">
+                  <h3 className="text-xs font-bold text-white">إضافة وجبة وتوقيتها لنظام التنبيه</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="text-slate-400 block mb-1">اسم ومحتوى الوجبة</label>
+                      <input
+                        type="text"
+                        placeholder="مثال: 200 جرام صدور مشوية + 150 جرام أرز"
+                        value={newMealName}
+                        onChange={(e) => setNewMealName(e.target.value)}
+                        className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white outline-none focus:border-[#7C3AED]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">الموعد المحدد للتذكير</label>
+                      <input
+                        type="text"
+                        placeholder="مثال: 07:00 م"
+                        value={newMealTime}
+                        onChange={(e) => setNewMealTime(e.target.value)}
+                        className="w-full bg-[#0A0514] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white outline-none focus:border-[#7C3AED]"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMealModal(false)}
+                      className="px-3 py-2 bg-[#1A1030] text-slate-300 rounded-xl"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newMealName) return;
+                        const newMeal: ClientMeal = {
+                          id: String(Date.now()),
+                          name: newMealName,
+                          time: newMealTime,
+                          calories: parseInt(newMealCal) || 400,
+                          protein: parseInt(newMealProt) || 35,
+                          waterTargetMl: 500,
+                          waterCurrentMl: 0,
+                          status: "pending",
+                        };
+                        const updated = { ...selectedClient, meals: [...selectedClient.meals, newMeal] };
+                        setSelectedClient(updated);
+                        setClients(clients.map(c => c.id === updated.id ? updated : c));
+                        setShowAddMealModal(false);
+                        setNewMealName("");
+                      }}
+                      className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold"
+                    >
+                      حفظ وتفعيل التنبيه
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* Tab 3: Water Tracker & Hydration Cycle */}
+          {activeTab === "water" && (
+            <div className="space-y-6">
+              
+              <div className="p-6 rounded-3xl bg-[#0D0717] border border-white/[0.06] text-center space-y-4">
+                <div className="inline-block p-3 rounded-2xl bg-[#1A1030] border border-purple-500/20 text-[#A78BFA] text-2xl font-mono">
+                  {selectedClient.waterDrankLiters} / {selectedClient.waterGoalLiters} L
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">متابعة شرب الماء لـ {selectedClient.name}</h3>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
+                    ترطيب الجسم أساس تخليق البروتين العضلي ومنع التقلصات. يتم إرسال تنبيهات تلقائية كل ساعتين حتى يكتمل الهدف.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`https://wa.me/2${selectedClient.phone}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>مراسلة واتساب</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* Stats Bar */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-[#110A1E] p-3.5 rounded-xl border border-purple-900/20">
-                  <div className="text-[11px] text-slate-400 mb-1">الوزن الحالي</div>
-                  <div className="text-xl font-bold text-white">{selectedClient.currentWeight} كجم</div>
-                  <div className="text-[10px] text-purple-300 mt-0.5">
-                    {selectedClient.currentWeight < selectedClient.startWeight 
-                      ? `نزول ${Math.abs(selectedClient.startWeight - selectedClient.currentWeight).toFixed(1)} كجم` 
-                      : "بداية الرحلة"}
-                  </div>
+                {/* Visual Water Fill Bar */}
+                <div className="w-full bg-[#140B24] h-4 rounded-full border border-white/[0.05] overflow-hidden max-w-md mx-auto">
+                  <div 
+                    className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] h-full transition-all duration-500" 
+                    style={{ width: `${Math.min(100, (selectedClient.waterDrankLiters / selectedClient.waterGoalLiters) * 100)}%` }}
+                  />
                 </div>
 
-                <div className="bg-[#110A1E] p-3.5 rounded-xl border border-purple-900/20">
-                  <div className="text-[11px] text-slate-400 mb-1">سلسلة الـ 10/10</div>
-                  <div className="text-xl font-bold text-[#A78BFA] flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
-                    <span>{selectedClient.dailyStreak} يوم متتالي</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">درجة اليوم: 10/10</div>
-                </div>
-
-                <div className="bg-[#110A1E] p-3.5 rounded-xl border border-purple-900/20">
-                  <div className="text-[11px] text-slate-400 mb-1">الرقم القياسي (PR)</div>
-                  <div className="text-xl font-bold text-amber-300 flex items-center gap-1">
-                    <Award className="w-4 h-4 text-amber-400" />
-                    <span>140 kg</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">Deadlift</div>
-                </div>
-              </div>
-
-              {/* Coach Confirmation Action: Confirm & Activate Client Registration */}
-              <div className="bg-gradient-to-r from-purple-950/40 to-[#140C24] p-4 rounded-2xl border border-purple-700/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="space-y-0.5 text-right w-full sm:w-auto">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="w-4 h-4 text-emerald-400" />
-                    <span className="text-xs font-black text-white">تأكيد واعتماد تسجيل المتدرب (Confirm Client)</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400">فحص تفاصيل اللاعب، تفعيل صلاحيات الدخول للتطبيق، وتعيين الكابتن المباشر</p>
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                {/* Add Quick Intake Buttons */}
+                <div className="flex items-center justify-center gap-3 pt-2">
                   <button
-                    onClick={() => {
-                      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-                      alert(`تم اعتماد وتأكيد تسجيل اللاعب (${selectedClient.name}) بنجاح! تم إرسال إشعار الترحيب وربط حسابه.`);
-                    }}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-950 cursor-pointer"
+                    type="button"
+                    onClick={() => { setWaterAmountInput(250); handleAddWater(); }}
+                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>تأكيد تسجيل اللاعب ✓</span>
+                    + 250 مل (كوب)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setWaterAmountInput(500); handleAddWater(); }}
+                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
+                  >
+                    + 500 مل (زجاجة صغيرة)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setWaterAmountInput(1000); handleAddWater(); }}
+                    className="px-4 py-2 bg-[#170E2C] hover:bg-[#241344] border border-white/[0.08] text-white text-xs rounded-xl transition font-mono"
+                  >
+                    + 1000 مل (1 لتر)
                   </button>
                 </div>
               </div>
 
-              {/* AI Assistant Insight */}
-              <div className="bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-transparent p-4 rounded-xl border border-purple-500/30">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#A78BFA] mb-1.5">
-                  <Sparkles className="w-4 h-4" />
-                  <span>توصية CoachPR الذكية:</span>
-                </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {selectedClient.atRisk 
-                    ? "العميل لم يسجل وجباته أو تمارينه منذ 4 أيام وهناك احتمالية 75% لتسربه. ننصح بإرسال رسالة تحفيزية عبر واتساب فوراً." 
-                    : `العميل ملتزم بمعدل ${selectedClient.adherence}% وحقق زيادة ملحوظة في أوزان تمارين الدفع. يمكنك رفع أوزان الأسبوع القادم بنسبة 5%.`}
-                </p>
-              </div>
-
-              {/* Action Tabs (Workout / Diet / Form Check) */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                    <Dumbbell className="w-4 h-4 text-[#A78BFA]" />
-                    <span>جدول تمارين العميل النشط</span>
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <Link 
-                      href="/dashboard/nutrition"
-                      className="text-xs text-purple-300 hover:text-white bg-purple-950/40 border border-purple-600/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
-                    >
-                      <Apple className="w-3.5 h-3.5" />
-                      <span>خطة الدايت والماكروز</span>
-                    </Link>
-                    <Link 
-                      href="/dashboard/builder"
-                      className="text-xs text-[#A78BFA] hover:text-white bg-purple-900/30 border border-purple-500/30 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition"
-                    >
-                      <span>فتح بيلدر التمارين</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div className="bg-[#110A1E] p-3 rounded-xl border border-purple-900/20 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-white">Barbell Bench Press (صدر مستوي بالبار)</span>
-                      <div className="text-slate-400 text-[11px]">4 مجموعات × 8-10 عدات | الراحة: 90 ثانية</div>
-                    </div>
-                    <span className="bg-purple-900/30 text-purple-300 px-2.5 py-1 rounded-lg font-mono font-bold">85 kg</span>
-                  </div>
-
-                  <div className="bg-[#110A1E] p-3 rounded-xl border border-purple-900/20 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-white">Incline Dumbbell Press (تجميع دمبلز عالي)</span>
-                      <div className="text-slate-400 text-[11px]">3 مجموعات × 10-12 عدة | الراحة: 60 ثانية</div>
-                    </div>
-                    <span className="bg-purple-900/30 text-purple-300 px-2.5 py-1 rounded-lg font-mono font-bold">30 kg</span>
-                  </div>
-
-                  <div className="bg-[#110A1E] p-3 rounded-xl border border-purple-900/20 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-white">Cable Triceps Pushdown (ترايسبس كابل مسطرة)</span>
-                      <div className="text-slate-400 text-[11px]">4 مجموعات × 12-15 عدة | تمبو: 2-0-1</div>
-                    </div>
-                    <span className="bg-purple-900/30 text-purple-300 px-2.5 py-1 rounded-lg font-mono font-bold">35 kg</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center p-12 text-slate-500 border border-dashed border-purple-900/30 rounded-2xl">
-              اختر عميلاً من القائمة لعرض تفاصيله ومتابعته
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Add Client Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#140C24] border border-purple-900/50 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">إضافة متدرب جديد</h3>
-            <form onSubmit={handleAddClient} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-400 mb-1">اسم المتدرب</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: أحمد محمد"
-                  value={newClientName}
-                  onChange={(e) => setNewClientName(e.target.value)}
-                  className="w-full bg-[#110A1E] border border-purple-900/40 rounded-xl p-3 text-white focus:outline-none focus:border-[#7C3AED]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 mb-1">رقم الواتساب</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: 01144826641"
-                  value={newClientPhone}
-                  onChange={(e) => setNewClientPhone(e.target.value)}
-                  className="w-full bg-[#110A1E] border border-purple-900/40 rounded-xl p-3 text-white focus:outline-none focus:border-[#7C3AED]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+          {/* Tab 4: 360 Notifications Center (Athlete + Coach + Admin Cycles) */}
+          {activeTab === "notifications" && (
+            <div className="space-y-4">
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.04]">
                 <div>
-                  <label className="block text-slate-400 mb-1">الوزن الحالي (كجم)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={newClientWeight}
-                    onChange={(e) => setNewClientWeight(e.target.value)}
-                    className="w-full bg-[#110A1E] border border-purple-900/40 rounded-xl p-3 text-white focus:outline-none focus:border-[#7C3AED]"
-                  />
+                  <h2 className="text-base font-bold text-white">مركز الإشعارات والتحكم الشامل (Cycle Monitor)</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    تتبع كل ما يدور بين اللاعب والمدرب والنظام لضمان أعلى انضباط.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-slate-400 mb-1">الهدف التدريبي</label>
-                  <select
-                    value={newClientGoal}
-                    onChange={(e) => setNewClientGoal(e.target.value)}
-                    className="w-full bg-[#110A1E] border border-purple-900/40 rounded-xl p-3 text-white focus:outline-none focus:border-[#7C3AED]"
+
+                {/* Audience Filter Pills */}
+                <div className="inline-flex items-center bg-[#10091E] border border-white/[0.06] rounded-xl p-1 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => setNotifRole("all")}
+                    className={`px-3 py-1 rounded-lg transition ${notifRole === "all" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
                   >
-                    <option value="تنشيف وخسارة دهون">تنشيف وخسارة دهون</option>
-                    <option value="تضخيم وبناء عضلات">تضخيم وبناء عضلات</option>
-                    <option value="تحسين القوة واللياقة">تحسين القوة واللياقة</option>
-                  </select>
+                    الكل
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotifRole("athlete")}
+                    className={`px-3 py-1 rounded-lg transition ${notifRole === "athlete" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
+                  >
+                    إشعارات المتدربين
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotifRole("coach")}
+                    className={`px-3 py-1 rounded-lg transition ${notifRole === "coach" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
+                  >
+                    إشعارات المدرب
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotifRole("admin")}
+                    className={`px-3 py-1 rounded-lg transition ${notifRole === "admin" ? "bg-[#1E1238] text-white font-bold" : "text-slate-400 hover:text-white"}`}
+                  >
+                    تقارير الأدمن
+                  </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/40"
-                >
-                  حفظ وإضافة العميل
-                </button>
+              {/* Notification Cards */}
+              <div className="space-y-2.5">
+                {filteredNotifications.map(item => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl bg-[#0D0717] border border-white/[0.05] hover:border-[#7C3AED]/30 transition space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-lg border font-mono ${
+                          item.audience === "admin" 
+                            ? "bg-purple-950/70 border-purple-500/40 text-purple-200" 
+                            : item.audience === "coach"
+                            ? "bg-[#170E2C] border-white/[0.08] text-slate-300"
+                            : "bg-[#140B24] border-[#7C3AED]/40 text-[#A78BFA]"
+                        }`}>
+                          {item.audience === "admin" ? "أدمن" : item.audience === "coach" ? "المدرب" : "المتدرب"}
+                        </span>
+                        <span className="font-bold text-white text-sm">{item.title}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono">{item.time}</span>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {item.message}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </form>
-          </div>
+
+            </div>
+          )}
+
         </div>
-      )}
+
+      </main>
+
+      {/* Subtle Minimal Footer */}
+      <footer className="py-4 text-center text-[10px] text-slate-600 border-t border-white/[0.03]">
+        CoachPR Platform · لوحة تحكم وإدارة موحدة · 2026
+      </footer>
+
     </div>
   );
 }
