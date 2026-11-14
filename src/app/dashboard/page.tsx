@@ -145,8 +145,8 @@ export default function DashboardPage() {
       <header className="bg-[#110A1E] border-b border-purple-900/30 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/pr-logo.png" alt="Coach PR Logo" className="h-9 w-auto object-contain" />
-            <span className="font-heading font-black text-xl text-white">Coach <span className="text-[#A78BFA]">PR</span></span>
+            <img src="/pr-logo.png" alt="CoachPRB Logo" className="h-9 w-auto object-contain" />
+            <span className="font-heading font-black text-xl text-white">Coach<span className="text-[#A78BFA]">PRB</span></span>
           </Link>
           <span className="text-xs font-semibold px-2.5 py-1 bg-[#17102A] text-purple-300 border border-purple-500/30 rounded-full flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -325,7 +325,7 @@ export default function DashboardPage() {
               <div className="bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-transparent p-4 rounded-xl border border-purple-500/30">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#A78BFA] mb-1.5">
                   <Sparkles className="w-4 h-4" />
-                  <span>توصية Coach PR الذكية:</span>
+                  <span>توصية CoachPRB الذكية:</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {selectedClient.atRisk 

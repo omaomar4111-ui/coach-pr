@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Coach PR — The Next Level of Online Coaching",
+  title: "CoachPRB — سجّل رقمك. غيّر جسمك. — The Next Level of Online Coaching",
   description: "ابعت خطة التمرين والدايت لعميلك في تطبيق بدل الـ PDF، وتابعه كل أسبوع من مكان واحد.",
 };
 
