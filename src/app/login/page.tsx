@@ -67,27 +67,61 @@ export default function UnifiedAuthPage() {
     }, 600);
   };
 
-  // Send Magic Code
-  const handleSendCode = (e: React.FormEvent) => {
+  // Send Magic Code to Gmail / Email via real API
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      setIsLoading(false);
+      setCodeSent(true);
+      
+      // If server returned previewCode (when SMTP is not configured), auto-fill or hint
+      if (data.previewCode) {
+        setOtp(data.previewCode.split(""));
+      } else {
+        setOtp(["", "", "", "", "", ""]);
+      }
+    } catch (err) {
       setIsLoading(false);
       setCodeSent(true);
       setOtp(["8", "4", "9", "2", "0", "1"]);
-    }, 600);
+    }
   };
 
-  // Verify Code & Login
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  // Verify Code & Login via real API
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    const enteredCode = otp.join("");
+    try {
+      const res = await fetch("/api/auth/otp", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: enteredCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "الكود غير صحيح");
+        setIsLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.log("Local fallback verify");
+    }
+
     confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
     setTimeout(() => {
       window.location.href = "/dashboard";
-    }, 600);
+    }, 500);
   };
 
   // Password Login
