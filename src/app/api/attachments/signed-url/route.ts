@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { logAudit } from "@/lib/audit";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/attachments/signed-url?path=client-1/mri.pdf&clientId=client-1
  * Generates a strictly time-limited (15-minute max = 900s) Signed URL for medical attachments
