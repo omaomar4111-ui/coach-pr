@@ -17,6 +17,7 @@ import {
   WarmupSet 
 } from "@/lib/workoutCalculators";
 import ExerciseVisualAnatomyCard from "@/components/ExerciseVisualAnatomyCard";
+import ChatWidget from "@/components/ChatWidget";
 
 interface ExerciseState {
   id: string;
@@ -925,6 +926,9 @@ export default function UnifiedMasterApp() {
           </div>
         </div>
       )}
+
+      {/* Live Support ChatWidget */}
+      <ChatWidget websiteToken="coachprb_client_widget_token" baseUrl="https://app.chatwoot.com" />
 
       {/* Footer */}
       <footer className="py-3 text-center text-[10px] text-slate-600 border-t border-white/[0.03]">

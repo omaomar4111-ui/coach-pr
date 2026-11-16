@@ -1,61 +1,55 @@
 /**
- * AI Content Moderation & Abuse Guard
- * Inspired by ai-moderator-support-agent skill
- * Filters hate speech, vulgarity, spam attacks, and SQL/Prompt Injection
+ * AI Moderator - Filters spam, offensive content, and prompt injection
+ * before reaching the main LLM
  */
+
+const BANNED_PATTERNS = [
+  // Prompt injection attempts
+  /ignore\s+(previous|all)\s+instructions/i,
+  /forget\s+(everything|your\s+rules)/i,
+  /you\s+are\s+now\s+(?!سارة|عمر|مروة)/i,
+  /system\s*:\s*/i,
+
+  // Spam patterns
+  /(https?:\/\/[^\s]+){3,}/i, // 3+ links
+  /(.)\1{10,}/i, // 10+ repeated chars
+
+  // Offensive (basic Arabic + English)
+  /(كلب|حمار|غبي|تافه)/i,
+  /\b(stupid|idiot|dumb|f+u+c+k)\b/i,
+];
 
 export interface ModerationResult {
   allowed: boolean;
   reason?: string;
+  autoReply?: string;
   category?: 'toxic' | 'spam' | 'injection' | 'clean';
-  flaggedWord?: string;
 }
 
-const FORBIDDEN_WORDS = [
-  'شتم', 'سب', 'قذر', 'احتيال', 'نصاب', 'نصب',
-  'hack', 'exploit', 'drop database', 'delete from', '<script>', 'system prompt'
-];
-
-export function moderateMessage(text: string): ModerationResult {
-  if (!text || typeof text !== 'string') {
-    return { allowed: true, category: 'clean' };
+export function moderateMessage(content: string): ModerationResult {
+  if (!content || content.trim().length === 0) {
+    return { allowed: false, reason: "empty_message", category: 'clean' };
   }
 
-  const normalized = text.toLowerCase().trim();
-
-  // 1. Check for prompt injection patterns
-  if (
-    normalized.includes('ignore previous instructions') ||
-    normalized.includes('تجاهل التعليمات السابقة') ||
-    normalized.includes('you are now in developer mode') ||
-    normalized.includes('reveal system prompt')
-  ) {
+  if (content.length > 4000) {
     return {
       allowed: false,
-      category: 'injection',
-      reason: 'محاولة اختراق تعليمات النظام (Prompt Injection Detected)'
+      reason: "too_long",
+      category: 'spam',
+      autoReply: "رسالتك طويلة جداً، ممكن تختصرها؟ 🙏",
     };
   }
 
-  // 2. Check for severe vulgarity & blacklisted words
-  for (const word of FORBIDDEN_WORDS) {
-    if (normalized.includes(word)) {
+  for (const pattern of BANNED_PATTERNS) {
+    if (pattern.test(content)) {
       return {
         allowed: false,
+        reason: "flagged_content",
         category: 'toxic',
-        reason: 'تحتوي الرسالة على عبارات غير لائقة أو محظورة',
-        flaggedWord: word
+        autoReply:
+          "عذراً، لا يمكنني الرد على هذه الرسالة. يرجى الالتزام بآداب الحوار. 🙏",
       };
     }
-  }
-
-  // 3. Check for repetitive spam
-  if (text.length > 2000) {
-    return {
-      allowed: false,
-      category: 'spam',
-      reason: 'الرسالة تتجاوز الحد الأقصى المسموح به (Anti-Spam Flooding)'
-    };
   }
 
   return { allowed: true, category: 'clean' };

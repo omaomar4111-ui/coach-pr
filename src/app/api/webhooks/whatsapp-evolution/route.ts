@@ -1,200 +1,207 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseClient";
-import { routeLLMCompletion } from "@/lib/llmRouter";
+import { LLMRouter } from "@/lib/llmRouter";
+import { moderateMessage } from "@/lib/aiModerator";
+import { AGENTS } from "@/data/agents";
 
 /**
- * Evolution API / WAHA WhatsApp Open-Source Webhook Handler
- * Bypasses Meta Cloud API business verification bottlenecks.
- * Direct QR-code session binding with local WhatsApp numbers.
+ * Evolution API Webhook Handler
+ * Receives messages from self-hosted Evolution API (WhatsApp via QR)
  */
 
+// GET: Health check
+export async function GET() {
+  return NextResponse.json({ status: "evolution_webhook_active" });
+}
+
+// POST: Receive Evolution API events
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Evolution API payload format
-    // event: "messages.upsert" or "message"
-    const event = body.event || body.type;
-    const data = body.data || body;
+    // Evolution API event structure
+    const { event, data } = body;
 
-    // Check if incoming text message
-    const messageInfo = data.message || data;
-    const isFromMe = data.key?.fromMe || messageInfo.fromMe || false;
-
-    if (isFromMe) {
-      return NextResponse.json({ status: "IGNORED_OUTBOUND" }, { status: 200 });
+    if (event && event !== "messages.upsert" && event !== "messages.update") {
+      return NextResponse.json({ status: "ignored", event });
     }
 
-    // Extract sender phone & content
-    const remoteJid = data.key?.remoteJid || data.from || "";
-    const fromNumber = remoteJid.replace("@s.whatsapp.net", "").replace(/\D/g, "");
-    
-    // Support text, conversation, and extendedTextMessage
-    const messageText = 
-      messageInfo.conversation ||
-      messageInfo.extendedTextMessage?.text ||
-      data.body ||
+    const message = data?.messages?.[0] || data?.message || data;
+    if (!message) return NextResponse.json({ status: "no_message" });
+
+    // Skip if from self (bot)
+    if (message.key?.fromMe) {
+      return NextResponse.json({ status: "from_bot" });
+    }
+
+    const from = message.key?.remoteJid?.split("@")[0] || message.from?.split("@")[0] || "";
+    const messageId = message.key?.id || message.id || `evo_${Date.now()}`;
+    const text =
+      message.message?.conversation ||
+      message.message?.extendedTextMessage?.text ||
+      message.body ||
       "";
 
-    const providerMessageId = data.key?.id || `evo_${Date.now()}`;
-
-    if (!fromNumber || !messageText) {
-      return NextResponse.json({ status: "NO_MESSAGE_TEXT" }, { status: 200 });
+    if (!from || !text) {
+      return NextResponse.json({ status: "missing_fields" });
     }
 
-    console.log(`[Evolution API] Incoming message from +${fromNumber}: "${messageText}"`);
-
-    // 1. Idempotency Check
-    const { data: existingMsg } = await supabaseAdmin
-      .from("messages")
-      .select("id")
-      .eq("provider_message_id", providerMessageId)
-      .maybeSingle();
-
-    if (existingMsg) {
-      return NextResponse.json({ status: "ALREADY_EXISTS" }, { status: 200 });
+    // 1. Moderate the message
+    const moderation = moderateMessage(text);
+    if (!moderation.allowed) {
+      return NextResponse.json({
+        status: "blocked",
+        reason: moderation.reason,
+      });
     }
 
-    // 2. Resolve Tenant
-    let tenantId: string | null = null;
-    const { data: tenant } = await supabaseAdmin
-      .from("tenants")
-      .select("id")
-      .limit(1)
-      .maybeSingle();
-
-    if (tenant) tenantId = tenant.id;
-
-    // 3. Find or Create Customer
-    let customerId: string | null = null;
-    const { data: existingCustomer } = await supabaseAdmin
+    // 2. Find or create customer
+    let { data: customer } = await supabaseAdmin
       .from("customers")
       .select("id")
-      .eq("phone", fromNumber)
+      .eq("phone", from)
       .maybeSingle();
 
-    if (existingCustomer) {
-      customerId = existingCustomer.id;
-    } else if (tenantId) {
-      const { data: newCustomer } = await supabaseAdmin
+    if (!customer) {
+      const { data: newCust, error } = await supabaseAdmin
         .from("customers")
-        .insert({
-          tenant_id: tenantId,
-          phone: fromNumber,
-          name: `عميل واتساب (${fromNumber.slice(-4)})`,
-          channel: "whatsapp_evolution"
-        })
+        .insert({ phone: from, name: `Customer ${from}`, channel: 'whatsapp_evolution' })
         .select("id")
-        .maybeSingle();
-
-      customerId = newCustomer?.id || null;
+        .single();
+      if (error) throw error;
+      customer = newCust;
     }
 
-    // 4. Find or Create Conversation
-    let conversationId: string | null = null;
-    if (customerId && tenantId) {
-      const { data: existingConv } = await supabaseAdmin
-        .from("conversations")
-        .select("id")
-        .eq("customer_id", customerId)
-        .eq("status", "open")
-        .maybeSingle();
+    if (!customer?.id) {
+      return NextResponse.json({ status: "customer_creation_failed" }, { status: 500 });
+    }
 
-      if (existingConv) {
-        conversationId = existingConv.id;
-        await supabaseAdmin
-          .from("conversations")
-          .update({ last_message_at: new Date().toISOString() })
-          .eq("id", conversationId);
-      } else {
-        const { data: newConv } = await supabaseAdmin
-          .from("conversations")
-          .insert({
-            tenant_id: tenantId,
-            customer_id: customerId,
-            status: "open",
-            ai_enabled: true,
-            active_agent: "sara_tarek"
-          })
-          .select("id")
-          .maybeSingle();
+    // 3. Find or create conversation
+    let { data: conversation } = await supabaseAdmin
+      .from("conversations")
+      .select("id, active_agent, ai_enabled")
+      .eq("customer_id", customer.id)
+      .eq("status", "open")
+      .maybeSingle();
 
-        conversationId = newConv?.id || null;
+    if (!conversation) {
+      let tenantId: string | null = process.env.DEMO_TENANT_ID || null;
+      if (!tenantId) {
+        const { data: t } = await supabaseAdmin.from("tenants").select("id").limit(1).maybeSingle();
+        tenantId = t?.id || null;
       }
+
+      const { data: newConv, error } = await supabaseAdmin
+        .from("conversations")
+        .insert({
+          customer_id: customer.id,
+          tenant_id: tenantId,
+          active_agent: "sara_tarek",
+          status: "open",
+          ai_enabled: true,
+        })
+        .select("id, active_agent, ai_enabled")
+        .single();
+      if (error) throw error;
+      conversation = newConv;
     }
 
-    // 5. Store Inbound Message
-    if (conversationId) {
+    if (!conversation?.id) {
+      return NextResponse.json({ status: "conversation_creation_failed" }, { status: 500 });
+    }
+
+    // 4. Save inbound message (with idempotency)
+    const { error: msgErr } = await supabaseAdmin.from("messages").insert({
+      conversation_id: conversation.id,
+      provider_message_id: messageId,
+      direction: "inbound",
+      sender_type: "customer",
+      content: text,
+      metadata: message,
+    });
+
+    // Skip duplicate
+    if (msgErr?.code === "23505") {
+      return NextResponse.json({ status: "duplicate" });
+    }
+
+    // 5. Generate AI reply if enabled
+    if (conversation.ai_enabled) {
+      const agent = AGENTS.find((a) => a.id === conversation!.active_agent);
+      const systemPrompt =
+        agent?.system_prompt ||
+        "أنت مساعد خدمة عملاء ودود لمتجر إلكتروني.";
+
+      const { data: history } = await supabaseAdmin
+        .from("messages")
+        .select("direction, content, sender_type")
+        .eq("conversation_id", conversation.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      const formattedHistory = (history || [])
+        .reverse()
+        .map((m) => ({
+          role: (m.direction === "inbound" ? "user" : "model") as
+            | "user"
+            | "model",
+          parts: m.content,
+        }));
+
+      const { text: replyText } = await LLMRouter.withText(
+        systemPrompt,
+        formattedHistory,
+        text
+      );
+
+      // Save AI reply
       await supabaseAdmin.from("messages").insert({
-        conversation_id: conversationId,
-        provider_message_id: providerMessageId,
-        direction: "inbound",
-        sender_type: "customer",
-        sender_id: fromNumber,
-        content: messageText,
-        metadata: { raw: body, source: "evolution_api" }
-      });
-
-      // 6. Generate AI response using Smart LLM Router
-      const aiPrompt = [
-        {
-          role: "system" as const,
-          content: "أنتِ سارة طارق، خبيرة المبيعات وخدمة العملاء في متجر إلكتروني مصري راقٍ. أجيبي بترحيب فوري باللهجة المصرية المهذبة والمختصرة، وقدمي العروض وأكدي إمكانية الدفع عبر إنستاباي أو عند الاستلام."
-        },
-        {
-          role: "user" as const,
-          content: messageText
-        }
-      ];
-
-      const llmResult = await routeLLMCompletion(aiPrompt);
-
-      // Store outbound message
-      await supabaseAdmin.from("messages").insert({
-        conversation_id: conversationId,
-        provider_message_id: `evo_reply_${Date.now()}`,
+        conversation_id: conversation.id,
         direction: "outbound",
         sender_type: "agent",
-        sender_id: "sara_tarek",
-        content: llmResult.text,
-        metadata: {
-          provider: llmResult.provider,
-          model: llmResult.model,
-          source: "evolution_api_reply"
-        }
+        content: replyText,
       });
 
-      // 7. Send message back to WhatsApp via Evolution API endpoint if configured
-      const evoApiUrl = process.env.EVOLUTION_API_URL;
-      const evoApiKey = process.env.EVOLUTION_API_KEY;
-      const evoInstance = process.env.EVOLUTION_INSTANCE || "pr_agent_main";
-
-      if (evoApiUrl && evoApiKey) {
-        try {
-          await fetch(`${evoApiUrl}/message/sendText/${evoInstance}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey: evoApiKey
-            },
-            body: JSON.stringify({
-              number: fromNumber,
-              text: llmResult.text
-            })
-          });
-        } catch (evoErr) {
-          console.error("[Evolution API Send Error]:", evoErr);
-        }
-      }
+      // Send via Evolution API
+      await sendEvolutionMessage(from, replyText);
     }
 
-    return NextResponse.json({
-      status: "SUCCESS",
-      from: fromNumber,
-      handledBy: "sara_tarek"
+    // Update conversation
+    await supabaseAdmin
+      .from("conversations")
+      .update({ last_message_at: new Date().toISOString() })
+      .eq("id", conversation.id);
+
+    return NextResponse.json({ status: "processed" });
+  } catch (error) {
+    console.error("Evolution webhook error:", error);
+    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+  }
+}
+
+async function sendEvolutionMessage(to: string, text: string) {
+  const apiUrl = process.env.EVOLUTION_API_URL;
+  const apiKey = process.env.EVOLUTION_API_KEY;
+  const instance = process.env.EVOLUTION_INSTANCE_NAME || process.env.EVOLUTION_INSTANCE;
+
+  if (!apiUrl || !apiKey || !instance) {
+    console.warn("Evolution API not configured");
+    return;
+  }
+
+  try {
+    await fetch(`${apiUrl}/message/sendText/${instance}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: apiKey,
+      },
+      body: JSON.stringify({
+        number: to,
+        text,
+      }),
     });
-  } catch (error: any) {
-    console.error("[Evolution Webhook Error]:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error("Send Evolution message failed:", error);
   }
 }
