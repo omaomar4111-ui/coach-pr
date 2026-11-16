@@ -14,12 +14,18 @@ export interface AiChatMessage {
   content: string;
 }
 
+export interface AiImagePart {
+  mimeType: string;
+  data: string; // base64 string
+}
+
 export interface AiGenerationOptions {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: "json" | "text";
   systemInstruction?: string;
   preferredModel?: string;
+  image?: AiImagePart;
 }
 
 export interface AiGenerationResult {
@@ -63,9 +69,19 @@ async function callGemini(
           parts: [{ text: `[System Instruction: ${options.systemInstruction}]` }],
         });
       }
+      const userParts: any[] = [{ text: prompt }];
+      if (options.image) {
+        userParts.push({
+          inlineData: {
+            mimeType: options.image.mimeType,
+            data: options.image.data,
+          },
+        });
+      }
+
       contents.push({
         role: "user",
-        parts: [{ text: prompt }],
+        parts: userParts,
       });
 
       const res = await fetch(url, {
