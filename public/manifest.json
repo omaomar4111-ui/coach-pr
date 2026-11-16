@@ -1,11 +1,11 @@
 {
-  "name": "PR Agent — منصة خدمة العملاء الذكية",
-  "short_name": "PR Agent",
-  "description": "منصة متكاملة لخدمة العملاء والتجارة الذكية بالذكاء الاصطناعي",
-  "start_url": "/inbox",
+  "name": "CoachPRB — سجّل رقمك. غيّر جسمك",
+  "short_name": "CoachPRB",
+  "description": "المنصة المتكاملة للمدربين والرياضيين. تصميم برامج التمارين والتغذية وفحص التكنيك وحماية المفاصل",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0e0918",
-  "theme_color": "#0e0918",
+  "background_color": "#07040D",
+  "theme_color": "#7C3AED",
   "orientation": "portrait-primary",
   "lang": "ar",
   "dir": "rtl",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "categories": ["business", "productivity"]
+  "categories": ["fitness", "health", "sports"]
 }
