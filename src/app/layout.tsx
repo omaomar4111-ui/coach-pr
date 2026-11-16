@@ -3,14 +3,14 @@ import "./globals.css";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "CoachPRB - سجّل رقمك. غيّر جسمك",
-  description: "المنصة الذكية لإدارة وتدريب الأبطال ومتابعة كمال الأجسام واللياقة البدنية في الشرق الأوسط",
+  title: "PR Agent - أسطول الذكاء الاصطناعي للتجارة الإلكترونية وخدمة العملاء",
+  description: "المنصة الرائدة لأتمتة خدمة العملاء، تحويل تعليقات إنستجرام لمبيعات بالرسائل المباشرة، وتدقيق تحويلات إنستاباي بالرؤية البصرية",
   manifest: "/manifest.json",
-  themeColor: "#7C3AED",
+  themeColor: "#8052ff",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CoachPRB"
+    title: "PR Agent"
   },
   icons: {
     icon: "/pr-logo.png",
