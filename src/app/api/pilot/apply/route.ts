@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { executeWithRetry } from "@/lib/db";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { logAudit } from "@/lib/audit";
 
 interface PilotApplicationPayload {
@@ -67,19 +67,19 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString(),
     };
 
-    // 2. Persist to Supabase if configured, guarded with circuit breaker retry
-    if (supabase) {
+    // 2. Persist to Supabase if fully configured
+    if (isSupabaseConfigured() && supabase) {
       try {
         await executeWithRetry(async () => {
           const { error } = await supabase
             .from("pilot_applications")
             .insert([applicationRecord]);
           if (error) {
-            console.warn("pilot_applications table insert warning:", error.message);
+            console.warn("pilot_applications insert notice:", error.message);
           }
         }, false, applicationId);
       } catch (dbErr) {
-        console.warn("pilot_applications fallback logging:", dbErr);
+        console.warn("DB insert deferred, fallback to audit logging:", dbErr);
       }
     }
 
