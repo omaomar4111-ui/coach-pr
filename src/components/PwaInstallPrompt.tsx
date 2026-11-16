@@ -29,7 +29,7 @@ export function PwaInstallPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 rounded-2xl bg-[#1a1624] border border-purple-500/40 p-4 shadow-2xl shadow-purple-900/50">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 rounded-2xl bg-[#07040D] border border-[#7C3AED]/40 p-4 shadow-2xl shadow-purple-950/60 font-sans" dir="rtl">
       <button
         onClick={() => setShow(false)}
         className="absolute top-2 left-2 text-gray-400 hover:text-white"
@@ -38,16 +38,16 @@ export function PwaInstallPrompt() {
         <X className="w-4 h-4" />
       </button>
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-purple-500/20">
-          <Download className="w-5 h-5 text-purple-400" />
+        <div className="p-2.5 rounded-xl bg-[#7C3AED]/20">
+          <Download className="w-5 h-5 text-[#a78bfa]" />
         </div>
         <div className="flex-1">
-          <p className="text-white text-sm font-semibold">ثبّت PR Agent</p>
-          <p className="text-gray-400 text-xs">استخدم المنصة كتطبيق مباشر بدون متصفح</p>
+          <p className="text-white text-sm font-bold">تثبيت تطبيق CoachPRB</p>
+          <p className="text-gray-400 text-xs">سجّل أوزانك وتابع جدولك بدون متصفح</p>
         </div>
         <button
           onClick={handleInstall}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-orange-500 text-white text-sm font-semibold hover:scale-105 transition-all"
+          className="px-4 py-2 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition-all shadow-md shadow-purple-900/40"
         >
           تثبيت
         </button>
