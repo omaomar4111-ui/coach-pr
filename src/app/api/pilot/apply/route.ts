@@ -109,7 +109,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("Error in pilot application submission:", err);
     return NextResponse.json(
-      { error: "حدث خطأ أثناء تسجيل طلب الانضمام" },
+      { error: "حدث خطأ أثناء تسجيل طلب الانضمام", details: err?.message || String(err) },
       { status: 500 }
     );
   }
