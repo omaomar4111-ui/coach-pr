@@ -66,12 +66,31 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PR Agent",
+    "url": "https://pr-agent-ai.vercel.app",
+    "logo": "https://pr-agent-ai.vercel.app/pr-logo.png",
+    "description": "منصة خدمة العملاء والتجارة الذكية بالذكاء الاصطناعي في الشرق الأوسط ومصر.",
+    "sameAs": [
+      "https://www.facebook.com",
+      "https://www.instagram.com"
+    ]
+  };
+
   return (
     <html
       lang="ar"
       dir="rtl"
       className={`${inter.variable} ${tajawal.variable}`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body className="font-tajawal bg-[#0e0918] text-white antialiased">
         {children}
         <PwaInstallPrompt />
