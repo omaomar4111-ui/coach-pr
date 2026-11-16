@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
 import { AGENTS } from '@/data/agents';
+import { moderateMessage } from '@/lib/aiModerator';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +19,16 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanMsg = message.trim();
+
+    // 0. AI Moderation Check (ai-moderator-support-agent)
+    const moderation = moderateMessage(cleanMsg);
+    if (!moderation.allowed) {
+      return NextResponse.json({
+        reply: `⚠️ نعتذر منك، لم نتمكن من معالجة الرسالة: ${moderation.reason}. يرجى الالتزام بمعايير الاستخدام المهذب.`,
+        moderated: true,
+        category: moderation.category
+      }, { status: 200 });
+    }
     let currentAgentId = requestedAgentId;
 
     // 1. Resolve Active Agent from Supabase if conversationId is provided

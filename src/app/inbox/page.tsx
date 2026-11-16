@@ -1,499 +1,285 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { 
-  Send, 
-  Sparkles, 
-  ShoppingBag, 
-  ShieldCheck, 
-  CheckCheck, 
-  Users, 
-  CheckCircle, 
-  ArrowUpRight,
-  Truck,
-  MapPin,
-  Phone,
-  CreditCard,
-  FileCheck,
-  Upload,
-  AlertCircle
-} from 'lucide-react';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 
-export default function InboxPage() {
-  const [messages, setMessages] = useState<any[]>([
-    { id: '1', sender: 'customer', text: 'مساء الخير، الهودي الأوفرسايز الأسود متوفر مقاس L؟', time: '17:01' },
-    { id: '2', sender: 'bot', text: 'مساء النور يا فندم! نعم متوفر مقاس L قطن ميلتون 380 جرام تقيل، وعليه خصم خاص بـ 650ج بدلاً من 850ج ومعاك معاينة مجانية عند الاستلام 🚚 تحب نحجز لحضرتك؟', time: '17:02' },
-    { id: '3', sender: 'customer', text: 'تمام ابعتلي مقاس L في المعادي شارع 9 عمارة 14 الدور التاني ورقمي 01012345678 والدفع عند الاستلام', time: '17:04' },
-    { id: '4', sender: 'bot', text: 'يا هلا بيك يا فندم! تم تسجيل بيانات الشحن بنجاح في المعادي، ورقمك المعتمد 01012345678. جاري تجهيز بوليصة الشحن مع مندوب بوسطة فوراً ✨', time: '17:05' },
+interface ConversationItem {
+  id: string;
+  customerName: string;
+  phone: string;
+  channel: "instagram" | "whatsapp" | "web";
+  lastMessage: string;
+  time: string;
+  unread: boolean;
+  activeAgent: string;
+}
+
+interface MessageItem {
+  id: string;
+  senderType: "customer" | "agent" | "system";
+  content: string;
+  time: string;
+  status?: string;
+  mediaUrl?: string;
+}
+
+export default function OmnichannelInboxPage() {
+  const [conversations, setConversations] = useState<ConversationItem[]>([
+    {
+      id: "conv-1",
+      customerName: "@salma_style",
+      phone: "ig:ig_user_777",
+      channel: "instagram",
+      lastMessage: "بكام وسعر الشحن كام؟",
+      time: "15:42",
+      unread: false,
+      activeAgent: "منى زاهر (Instagram Comment-to-DM)"
+    },
+    {
+      id: "conv-2",
+      customerName: "عميل واتساب (5678)",
+      phone: "+20 101 234 5678",
+      channel: "whatsapp",
+      lastMessage: "تم تحويل 1,450 ج.م على إنستاباي ومرفق الإيصال",
+      time: "15:30",
+      unread: true,
+      activeAgent: "كريم ممدوح (Vision Auditor)"
+    },
+    {
+      id: "conv-3",
+      customerName: "محمد طارق",
+      phone: "+20 119 876 5432",
+      channel: "whatsapp",
+      lastMessage: "عايز كود خصم للطلب الجديد",
+      time: "14:15",
+      unread: false,
+      activeAgent: "سارة طارق (Sales Lead)"
+    }
   ]);
 
-  const [inputVal, setInputVal] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [orderConfirmed, setOrderConfirmed] = useState(false);
-  const [waybill, setWaybill] = useState('');
-  const [activeModel, setActiveModel] = useState<'4-argon' | 'fast-flash'>('4-argon');
-
-  // Dynamic Fleet Agents State
-  const [agentsList, setAgentsList] = useState<any[]>([]);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>('sara_tarek');
-  const [isSwitchingAgent, setIsSwitchingAgent] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/agents')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.agents) {
-          setAgentsList(data.agents);
-        }
-      })
-      .catch(err => console.warn('Could not fetch agents:', err));
-  }, []);
-
-  const handleSelectAgent = async (agentId: string) => {
-    setSelectedAgentId(agentId);
-    setIsSwitchingAgent(true);
-    const target = agentsList.find(a => a.id === agentId);
-
-    try {
-      await fetch('/api/conversations/demo-conv-1/agent', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agent_id: agentId })
-      });
-    } catch (e) {
-      console.warn('Agent switch patch error:', e);
+  const [activeConvId, setActiveConvId] = useState<string>("conv-1");
+  const [messages, setMessages] = useState<MessageItem[]>([
+    {
+      id: "m-1",
+      senderType: "customer",
+      content: "[تعليق إنستجرام على ريلز #102]: بكام وسعر الشحن كام؟",
+      time: "15:42"
+    },
+    {
+      id: "m-2",
+      senderType: "agent",
+      content: "أهلاً بيك يا فندم! 🌸 بخصوص الأسعار، كل المنتجات وتفاصيلها وخصومات النهاردة موجودة في الكتالوج هنا، والتوصيل متاح لجميع المحافظات خلال 24 لـ 48 ساعة. تقدري تطلبي فوراً مع كود خصم PR10.",
+      time: "15:42",
+      status: "تم الإرسال عبر الـ DM"
     }
+  ]);
 
-    setIsSwitchingAgent(false);
-    setMessages(prev => [...prev, {
-      id: String(Date.now()),
-      sender: 'bot',
-      text: `🔄 تم تحويل المحادثة إلى: ${target?.name || agentId} (${target?.role || 'مساعد'}) - جاهز للرد بأسلوبه فوراً!`,
-      time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-    }]);
+  const [inputText, setInputText] = useState("");
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  const activeConv = conversations.find(c => c.id === activeConvId);
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+
+    const newMsg: MessageItem = {
+      id: `m-${Date.now()}`,
+      senderType: "agent",
+      content: inputText,
+      time: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
+      status: "مرسل يدوي"
+    };
+
+    setMessages(prev => [...prev, newMsg]);
+    setInputText("");
   };
 
-  // 4 Argon Extracted State
-  const [extractedData, setExtractedData] = useState({
-    customerName: 'أحمد محمود (عميل محادثة)',
-    phone: '01012345678',
-    governorate: 'القاهرة',
-    cityArea: 'المعادي',
-    detailedAddress: 'شارع 9، عمارة 14، الدور التاني',
-    itemName: 'هودي أوفرسايز قطن ميلتون (Black)',
-    size: 'L',
-    price: 650,
-    paymentMethod: 'COD',
-    isReady: true
-  });
-
-  const [verifyingPayment, setVerifyingPayment] = useState(false);
-  const [paymentVerified, setPaymentVerified] = useState(false);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  const handleSend = async () => {
-    const text = inputVal.trim();
-    if (!text) return;
-
-    const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    
-    setMessages(prev => [...prev, { id: String(Date.now()), sender: 'customer', text, time }]);
-    setInputVal('');
-    setIsTyping(true);
-
-    try {
-      // 1. Call Backend Chat with Selected Agent & 4 Argon Support
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          agentId: selectedAgentId,
-          modelPreference: activeModel
-        })
-      });
-      const data = await res.json();
-
-      setIsTyping(false);
-      setMessages(prev => [...prev, {
-        id: String(Date.now() + 1),
-        sender: 'bot',
-        text: data.reply || 'تم استلام طلبك وجاري تأكيده مع إيجنت المبيعات فوراً.',
-        time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-      }]);
-
-      // 2. Automatically Run 4 Argon Entity Extraction if address/phone is mentioned
-      if (text.includes('01') || text.includes('شارع') || text.includes('مقاس') || text.includes('ابعت')) {
-        const extractRes = await fetch('/api/orders/extract', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatTranscript: text })
-        });
-        const ext = await extractRes.json();
-        if (ext.success && ext.data) {
-          setExtractedData(prev => ({
-            ...prev,
-            phone: ext.data.phone || prev.phone,
-            governorate: ext.data.governorate || prev.governorate,
-            cityArea: ext.data.cityArea || prev.cityArea,
-            detailedAddress: ext.data.detailedAddress || prev.detailedAddress,
-            size: ext.data.items?.[0]?.size || prev.size,
-            itemName: ext.data.items?.[0]?.name || prev.itemName,
-            price: ext.data.totalAmount || prev.price,
-            paymentMethod: ext.data.paymentMethod || prev.paymentMethod,
-            isReady: ext.data.isReadyForDispatch
-          }));
-        }
-      }
-
-    } catch (e) {
-      setIsTyping(false);
-      setMessages(prev => [...prev, {
-        id: String(Date.now() + 1),
-        sender: 'bot',
-        text: 'أهلاً بك يا فندم! تم استلام رسالتك وجاري المتابعة معك لحظياً.',
-        time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-      }]);
-    }
-  };
-
-  const handleSimulatePaymentScan = async () => {
-    setVerifyingPayment(true);
-    try {
-      const res = await fetch('/api/payments/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64: 'fake_base64_screenshot',
-          expectedAmount: extractedData.price
-        })
-      });
-      const data = await res.json();
-      setVerifyingPayment(false);
-      if (data.success && data.verification.isValid) {
-        setPaymentVerified(true);
-        setExtractedData(prev => ({ ...prev, paymentMethod: 'INSTAPAY' }));
-        setMessages(prev => [...prev, {
-          id: String(Date.now() + 2),
-          sender: 'bot',
-          text: `🎉 تم فحص سكرين التحويل عبر 4 Argon بنجاح! تم استلام ${extractedData.price}ج برقم مرجعي معتمد (${data.verification.transactionReference})، والأوردر الآن مدفوع ومؤكد للشحن فوراً 🚀`,
-          time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-        }]);
-      }
-    } catch (e) {
-      setVerifyingPayment(false);
-    }
-  };
-
-  const handleIssueWaybill = () => {
-    const generatedWaybill = `BST-EG-${Math.floor(100000 + Math.random() * 900000)}`;
-    setWaybill(generatedWaybill);
-    setOrderConfirmed(true);
-
-    // Notify Customer in Chat
-    setMessages(prev => [...prev, {
-      id: String(Date.now() + 3),
-      sender: 'bot',
-      text: `📦 تم إصدار بوليصة الشحن الرسمية بنجاح عبر بوسطة إكسبريس!\nرقم التتبع: ${generatedWaybill}\nالمندوب هيتواصل معاك خلال 24 ساعة، ومعاك حق المعاينة المجانية قبل الدفع 🚚`,
-      time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-    }]);
+  const handleSimulateInstapayVerify = () => {
+    const systemAuditMsg: MessageItem = {
+      id: `m-${Date.now()}`,
+      senderType: "system",
+      content: "🔍 [كريم ممدوح - فحص الرؤية البصرية]: تم تدقيق إيصال إنستاباي بنجاح!\n- رقم العملية: 981244012\n- المبلغ: 1,450.00 ج.م\n- الحالة: معتمد ومطابق للحساب البنكي والرقم المرجعي.",
+      time: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })
+    };
+    setMessages(prev => [...prev, systemAuditMsg]);
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white" dir="rtl">
+    <div dir="rtl" className="h-screen bg-[#000000] text-white flex flex-col font-sans selection:bg-[#8052ff] selection:text-white overflow-hidden">
       
-      {/* Column 1: Channels & Active Chats */}
-      <div className="w-72 border-l border-slate-800 bg-slate-900/40 flex flex-col hidden md:flex flex-shrink-0">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 border border-emerald-500/30 flex items-center justify-center p-1 shadow-md shadow-emerald-500/10">
-              <img src="/pr-logo.png" alt="PR Agent" className="w-full h-full object-contain" />
+      {/* Top Header */}
+      <header className="border-b border-[#171717] px-6 py-4 flex items-center justify-between shrink-0 bg-[#000000]">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-5 h-5">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <polygon points="12 2 22 22 2 22" fill="#8052ff" />
+              </svg>
             </div>
-            <div>
-              <h2 className="text-sm font-black text-white">PR Agent &bull; الإنبوكس الموحد</h2>
-              <span className="text-[10px] text-emerald-400 font-bold block">65 إيجنت نشط</span>
-            </div>
-          </div>
-          <Link href="/settings" className="text-slate-400 hover:text-emerald-400 text-xs transition-colors" title="إعدادات الربط">
-            ⚙️
+            <span className="text-[16px] font-normal tracking-tight text-white">PR Agent</span>
+          </Link>
+          <span className="text-[#333333]">/</span>
+          <h1 className="text-[14px] font-normal text-[#9a9a9a]">صندوق المحادثات الموحد (Omnichannel Live Inbox)</h1>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Link href="/pipeline" className="text-[13px] text-[#9a9a9a] hover:text-white transition-colors">إدارة المبيعات</Link>
+          <Link href="/fleet" className="text-[13px] text-[#9a9a9a] hover:text-white transition-colors">أسطول الإيجنتس</Link>
+          <Link href="/settings" className="bg-[#8052ff] hover:bg-[#7042f0] text-white text-[13px] px-5 py-2 rounded-[24px] transition-all">
+            إعدادات الـ Webhooks
           </Link>
         </div>
+      </header>
 
-        <div className="p-2 border-b border-slate-800/60 bg-slate-900/60">
-          <div className="flex items-center justify-between text-[11px] px-2 py-1 bg-slate-950 rounded-lg border border-slate-800">
-            <span className="text-slate-400">محرك الذكاء الاصطناعي:</span>
-            <span className="text-emerald-400 font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              4 Argon Active
+      {/* Main Inbox Two-Pane Body */}
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* Right Conversations Sidebar */}
+        <aside className="w-80 md:w-96 border-l border-[#171717] flex flex-col bg-[#050505] shrink-0">
+          <div className="p-4 border-b border-[#171717] flex items-center justify-between">
+            <span className="text-[13px] font-normal text-white">كل المحادثات</span>
+            <span className="text-[11px] text-[#8052ff] bg-[#8052ff]/10 px-2 py-0.5 rounded-full">
+              متصل لحظياً (Supabase Realtime)
             </span>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
-          <div className="p-3 rounded-xl bg-slate-800/80 border border-emerald-500/30 text-white space-y-1 cursor-pointer">
-            <div className="flex items-center justify-between">
-              <span className="font-bold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                أحمد محمود (واتساب)
-              </span>
-              <span className="text-[10px] text-slate-400">17:05</span>
-            </div>
-            <p className="text-[11px] text-slate-400 truncate">تمام ابعتلي مقاس L في المعادي شارع 9...</p>
-            <div className="flex items-center gap-1 mt-1">
-              <span className="bg-emerald-950 text-emerald-300 border border-emerald-800 text-[9px] px-1.5 py-0.5 rounded">
-                جاهز للبوليصة
-              </span>
-              <span className="bg-slate-900 text-slate-400 text-[9px] px-1.5 py-0.5 rounded">
-                WhatsApp Cloud
-              </span>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl hover:bg-slate-900/50 text-slate-400 space-y-1 cursor-pointer opacity-70">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-slate-200">مريم كمال (إنستجرام)</span>
-              <span className="text-[10px]">16:45</span>
-            </div>
-            <p className="text-[11px] truncate">هو الجاكيت الجلد عليه شحن مجاني؟</p>
-          </div>
-
-          <div className="p-3 rounded-xl hover:bg-slate-900/50 text-slate-400 space-y-1 cursor-pointer opacity-70">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-slate-200">كريم سامي (تليجرام)</span>
-              <span className="text-[10px]">16:20</span>
-            </div>
-            <p className="text-[11px] truncate">بعتلك سكرين التحويل على إنستاباي</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Column 2: Live Chat Thread */}
-      <div className="flex-1 flex flex-col bg-slate-950">
-        
-        {/* Chat Header */}
-        <div className="h-16 border-b border-slate-800 bg-slate-900/60 backdrop-blur px-6 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-950 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400 text-sm">
-              أح
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white">أحمد محمود</h3>
-                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
-                  متصل الآن (WhatsApp)
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                المودريتور المسؤول: <strong className="text-emerald-400">
-                  {agentsList.find(a => a.id === selectedAgentId)?.name || 'سارة طارق'} ({agentsList.find(a => a.id === selectedAgentId)?.role || 'Sales Lead'})
-                </strong>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Dynamic Fleet Agents Switcher Dropdown */}
-            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-xl px-2 py-1 text-xs">
-              <Users className="w-3.5 h-3.5 text-emerald-400" />
-              <select
-                value={selectedAgentId}
-                onChange={e => handleSelectAgent(e.target.value)}
-                disabled={isSwitchingAgent}
-                className="bg-transparent text-slate-200 font-bold focus:outline-none cursor-pointer text-xs"
-              >
-                {agentsList.length > 0 ? (
-                  agentsList.map(a => (
-                    <option key={a.id} value={a.id} className="bg-slate-900 text-white">
-                      {a.name} — {a.role}
-                    </option>
-                  ))
-                ) : (
-                  <option value="sara_tarek">سارة طارق — Sales Lead</option>
-                )}
-              </select>
-            </div>
-            <button
-              onClick={() => setActiveModel(prev => prev === '4-argon' ? 'fast-flash' : '4-argon')}
-              className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 ${
-                activeModel === '4-argon'
-                  ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/50 shadow-lg shadow-emerald-950'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>الموديل: {activeModel === '4-argon' ? '4 Argon (Reasoning)' : 'Fast Flash'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Messages Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map(msg => (
-            <div 
-              key={msg.id} 
-              className={`flex flex-col ${msg.sender === 'customer' ? 'items-start' : 'items-end'}`}
-            >
-              <div 
-                className={`max-w-[75%] rounded-2xl p-4 text-xs leading-relaxed whitespace-pre-line shadow-md ${
-                  msg.sender === 'customer' 
-                    ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tr-none' 
-                    : 'bg-emerald-600 text-white rounded-tl-none font-medium'
+          <div className="flex-1 overflow-y-auto divide-y divide-[#141414]">
+            {conversations.map(conv => (
+              <div
+                key={conv.id}
+                onClick={() => setActiveConvId(conv.id)}
+                className={`p-4 cursor-pointer transition-all ${
+                  activeConvId === conv.id ? "bg-[#111111] border-r-2 border-[#8052ff]" : "hover:bg-[#0a0a0a]"
                 }`}
               >
-                {msg.text}
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-normal text-white">{conv.customerName}</span>
+                    <span
+                      className={`text-[9px] px-2 py-0.5 rounded-full uppercase ${
+                        conv.channel === "instagram"
+                          ? "bg-[#8052ff]/20 text-[#8052ff]"
+                          : "bg-[#15846e]/20 text-[#15846e]"
+                      }`}
+                    >
+                      {conv.channel}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-[#666666] font-mono">{conv.time}</span>
+                </div>
+
+                <p className="text-[12px] text-[#9a9a9a] font-extralight truncate">
+                  {conv.lastMessage}
+                </p>
+
+                <div className="mt-2 text-[10px] text-[#ffb829] font-extralight flex items-center gap-1">
+                  <span>🤖</span>
+                  <span>{conv.activeAgent.split(" ")[0]} {conv.activeAgent.split(" ")[1]}</span>
+                </div>
               </div>
-              <span className="text-[10px] text-slate-500 mt-1 px-1">
-                {msg.time}
-              </span>
-            </div>
-          ))}
-
-          {isTyping && (
-            <div className="flex items-center gap-2 text-xs text-slate-400 p-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>سارة طارق (4 Argon) بتكتب الرد فوراً...</span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center gap-3 flex-shrink-0">
-          <input
-            type="text"
-            placeholder="اكتب ردك أو سؤال العميل واضغط Enter (يدعم 4 Argon)..."
-            value={inputVal}
-            onChange={e => setInputVal(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
-          <button
-            type="button"
-            onClick={handleSend}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-600/30 cursor-pointer active:scale-95"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>إرسال</span>
-          </button>
-        </div>
-
-      </div>
-
-      {/* Column 3: 4 Argon Live Dispatch & Payment Drawer */}
-      <div className="w-84 border-r border-slate-800 bg-slate-900/40 flex flex-col p-4 overflow-y-auto space-y-4 flex-shrink-0">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-xs font-black text-white">كارت الأوردر الذكي (4 Argon)</h3>
+            ))}
           </div>
-          <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-            مستخرج آلياً
-          </span>
-        </div>
+        </aside>
 
-        {/* Product Details */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400">المنتج:</span>
-            <span className="text-white font-bold">{extractedData.itemName}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400">المقاس:</span>
-            <span className="text-emerald-400 font-bold">{extractedData.size} (أوفرسايز)</span>
-          </div>
-          <div className="flex items-center justify-between border-t border-slate-900 pt-1.5">
-            <span className="text-slate-400">إجمالي المبلغ:</span>
-            <span className="text-emerald-400 font-extrabold text-sm">{extractedData.price} ج.م</span>
-          </div>
-        </div>
-
-        {/* Extracted Shipping Data */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2.5 text-xs">
-          <div className="flex items-center gap-2 text-slate-300 font-bold border-b border-slate-900 pb-1.5">
-            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-            <span>بيانات الشحن والعنوان</span>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-400 text-[11px]">
-              <Phone className="w-3 h-3 text-slate-500" />
-              <span>الموبايل: <strong className="text-slate-200">{extractedData.phone}</strong></span>
-            </div>
-            <div className="flex items-start gap-1.5 text-slate-400 text-[11px]">
-              <MapPin className="w-3 h-3 text-slate-500 mt-0.5" />
-              <span>العنوان: <strong className="text-slate-200">{extractedData.detailedAddress} - {extractedData.cityArea}</strong></span>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Verification Card */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2 text-xs">
-          <div className="flex items-center justify-between border-b border-slate-900 pb-1.5">
-            <span className="text-slate-300 font-bold flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5 text-teal-400" />
-              طريقة الدفع
-            </span>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-              paymentVerified 
-                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
-                : 'bg-amber-950 text-amber-400 border border-amber-800'
-            }`}>
-              {paymentVerified ? 'تم الدفع (PAID)' : 'الدفع عند الاستلام (COD)'}
-            </span>
-          </div>
-
-          {!paymentVerified ? (
-            <button
-              onClick={handleSimulatePaymentScan}
-              disabled={verifyingPayment}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-teal-400 border border-teal-500/30 rounded-lg py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <Upload className="w-3 h-3" />
-              <span>{verifyingPayment ? 'جاري فحص الإيصال عبر 4 Argon...' : 'فحص سكرين إنستاباي / كاش'}</span>
-            </button>
-          ) : (
-            <div className="text-[10px] text-emerald-400 bg-emerald-950/40 p-1.5 rounded border border-emerald-900 text-center">
-              ✓ تم مطابقة سكرين إنستاباي بالكامل
-            </div>
-          )}
-        </div>
-
-        {/* One-Click Dispatch Action */}
-        <div className="pt-2">
-          {orderConfirmed ? (
-            <div className="bg-emerald-950 border border-emerald-500/50 p-4 rounded-xl text-center space-y-2 shadow-xl shadow-emerald-950">
-              <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto" />
-              <p className="text-xs font-bold text-white">تم إصدار بوليصة الشحن بنجاح!</p>
-              <div className="bg-slate-950 p-2 rounded-lg border border-emerald-900 font-mono text-emerald-300 font-bold text-xs">
-                {waybill}
+        {/* Left Active Chat Thread */}
+        <main className="flex-1 flex flex-col bg-[#000000]">
+          
+          {/* Chat Header */}
+          <div className="p-4 border-b border-[#171717] flex items-center justify-between shrink-0 bg-[#050505]">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#8052ff]/20 flex items-center justify-center text-white text-[14px]">
+                {activeConv?.customerName[0]}
               </div>
-              <p className="text-[10px] text-slate-400">Carrier: Bosta Express (معاينة مجانية)</p>
+              <div>
+                <h2 className="text-[15px] font-normal text-white">{activeConv?.customerName}</h2>
+                <span className="text-[11px] text-[#9a9a9a] font-extralight">{activeConv?.phone}</span>
+              </div>
             </div>
-          ) : (
+
+            <div className="flex items-center gap-4">
+              {/* Human Takeover / AI Toggle */}
+              <div className="flex items-center gap-2 bg-[#111111] px-3 py-1.5 rounded-[20px] border border-[#222222]">
+                <span className="text-[11px] text-[#9a9a9a]">الرد الآلي بالذكاء الاصطناعي</span>
+                <button
+                  onClick={() => setAiEnabled(!aiEnabled)}
+                  className={`w-7 h-4 rounded-full p-0.5 transition-colors ${
+                    aiEnabled ? "bg-[#15846e]" : "bg-[#333333]"
+                  }`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white transition-transform ${
+                      aiEnabled ? "translate-x-0" : "-translate-x-3"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* InstaPay Vision Quick Action */}
+              <button
+                onClick={handleSimulateInstapayVerify}
+                className="text-[12px] bg-[#ffb829]/10 hover:bg-[#ffb829]/20 text-[#ffb829] border border-[#ffb829]/30 px-3 py-1.5 rounded-[20px] transition-all"
+              >
+                🔍 فحص إيصال إنستاباي
+              </button>
+            </div>
+          </div>
+
+          {/* Messages Flow Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {messages.map(msg => (
+              <div
+                key={msg.id}
+                className={`flex flex-col ${
+                  msg.senderType === "customer"
+                    ? "items-start"
+                    : msg.senderType === "system"
+                    ? "items-center"
+                    : "items-end"
+                }`}
+              >
+                {msg.senderType === "system" ? (
+                  <div className="max-w-[500px] w-full p-4 rounded-[20px] bg-[#111111] border border-[#ffb829]/40 text-right text-[13px] text-[#ffb829] whitespace-pre-line leading-relaxed">
+                    {msg.content}
+                  </div>
+                ) : (
+                  <div
+                    className={`max-w-[550px] p-4 rounded-[22px] text-right text-[14px] leading-relaxed ${
+                      msg.senderType === "customer"
+                        ? "bg-[#141414] text-[#ffffff] border border-[#222222]"
+                        : "bg-[#8052ff] text-white"
+                    }`}
+                  >
+                    <p className="font-extralight">{msg.content}</p>
+                    <div className="mt-1 flex items-center justify-between gap-4 text-[10px] opacity-70">
+                      <span>{msg.time}</span>
+                      {msg.status && <span>{msg.status}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Message Input Bar */}
+          <form onSubmit={handleSendMessage} className="p-4 border-t border-[#171717] bg-[#050505] flex items-center gap-3">
+            <input
+              type="text"
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              placeholder="اكتب رداً يدوياً أو دع الإيجنت يرد تلقائياً..."
+              className="flex-1 bg-[#111111] border border-[#222222] rounded-[24px] px-5 py-3 text-[14px] text-white placeholder-[#666666] focus:outline-none focus:border-[#8052ff]"
+            />
             <button
-              type="button"
-              onClick={handleIssueWaybill}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer active:scale-95"
+              type="submit"
+              className="bg-[#8052ff] hover:bg-[#7042f0] text-white text-[14px] px-6 py-3 rounded-[24px] transition-all"
             >
-              <Truck className="w-4 h-4" />
-              <span>إصدار بوليصة بوسطة بضغطة زر 🚚</span>
+              إرسال
             </button>
-          )}
-        </div>
+          </form>
+
+        </main>
 
       </div>
 
