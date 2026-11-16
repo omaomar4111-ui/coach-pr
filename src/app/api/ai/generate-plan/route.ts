@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { executeAiWithFailover } from "@/lib/ai-router";
 
-// Autonomous Plan Periodization & Generator Engine Powered by Gemini 4 Argon
+/**
+ * Autonomous Plan Periodization & Generator Engine Powered by Smart AI Router
+ * Uses Gemini 4 Argon with automatic failover (FreeLLMAPI architecture)
+ */
 export async function POST(req: Request) {
   try {
     const { 
@@ -17,19 +20,8 @@ export async function POST(req: Request) {
       heightCm 
     } = await req.json();
 
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      return NextResponse.json({
-        success: false,
-        error: "GEMINI_API_KEY is not configured",
-      }, { status: 500 });
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
-
     const systemInstruction = `
-أنت "كبير مدربي كمال الأجسام والفسيولوجيا الرياضية" في منصة CoachPR، مدعوم بأحدث أبحاث التحمل العضلي وتفادي الإصابات (Hypertrophy, RIR/RPE, Periodization).
+أنت "كبير مدربي كمال الأجسام والفسيولوجيا الرياضية" في منصة CoachPRB، مدعوم بأحدث أبحاث التحمل العضلي وتفادي الإصابات (Hypertrophy, RIR/RPE, Periodization).
 مهمتك تصميم جدول تدريبي وتغذوي متكامل للاعب بناءً على أهدافه وحالته الصحية.
 
 قواعد صارمة:
@@ -78,7 +70,7 @@ export async function POST(req: Request) {
           "rpe": "8.5",
           "restSec": 90,
           "tempo": "3-0-1-0",
-          "safetyReason": "آمن على الكتف مع زاوية 30 درجة ومسار حر"
+          "injuryRisk": "آمن لمفاصل الكتف مع تثبيت لوحي الكتف"
         }
       ]
     }
@@ -86,66 +78,36 @@ export async function POST(req: Request) {
 }
     `.trim();
 
+    const aiResult = await executeAiWithFailover(prompt, {
+      systemInstruction,
+      responseFormat: "json",
+      preferredModel: "gemini-2.5-flash",
+    });
+
+    let planData: any = {};
     try {
-      // 1. Primary Engine: Gemini 4 Argon
-      const response = await ai.models.generateContent({
-        model: "gemini-4-argon",
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: `${systemInstruction}\n\n${prompt}` }],
-          },
-        ],
-        config: {
-          thinkingConfig: {
-            thinkingBudget: 2048,
-          },
-        },
-      });
-
-      const replyText = response.text || "";
-      const jsonMatch = replyText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return NextResponse.json({
-          success: true,
-          model: "gemini-4-argon",
-          plan: JSON.parse(jsonMatch[0]),
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        model: "gemini-4-argon",
-        plan: { raw: replyText },
-      });
-    } catch (argonErr: any) {
-      console.warn("Gemini 4 Argon busy, switching to 3.5 Flash-Lite for plan generation:", argonErr?.message);
-
-      // 2. High-Speed Fallback: Gemini 3.5 Flash-Lite
-      const fallbackResponse = await ai.models.generateContent({
-        model: "gemini-3.5-flash-lite",
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: `${systemInstruction}\n\n${prompt}` }],
-          },
-        ],
-      });
-
-      const replyText = fallbackResponse.text || "";
-      const jsonMatch = replyText.match(/\{[\s\S]*\}/);
-      return NextResponse.json({
-        success: true,
-        model: "gemini-3.5-flash-lite (fallback)",
-        plan: jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: replyText },
-      });
+      planData = JSON.parse(aiResult.text);
+    } catch {
+      // Clean markdown code blocks if wrapped
+      const cleanJson = aiResult.text.replace(/```json/g, "").replace(/```/g, "").trim();
+      planData = JSON.parse(cleanJson);
     }
 
+    return NextResponse.json({
+      success: true,
+      meta: {
+        provider: aiResult.provider,
+        model: aiResult.model,
+        latencyMs: aiResult.latencyMs,
+        failoverTriggered: aiResult.failoverTriggered,
+      },
+      plan: planData,
+    });
   } catch (error: any) {
-    console.error("Plan Generator API Error:", error);
+    console.error("Plan generator route error:", error);
     return NextResponse.json({
       success: false,
-      error: error?.message || "Internal plan generation error",
+      error: error.message || "Failed to generate autonomous plan",
     }, { status: 500 });
   }
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
+import { handleInstagramComment } from '@/lib/instagramAutomation';
+import { routeLLMCompletion } from '@/lib/llmRouter';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -21,7 +23,38 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Support WhatsApp Cloud API Payload
+    // ==========================================
+    // 1. INSTAGRAM WEBHOOKS (dmland pattern: Comment-to-DM & Mentions)
+    // ==========================================
+    if (body.object === 'instagram') {
+      const entry = body.entry?.[0];
+      const changes = entry?.changes;
+
+      if (changes && Array.isArray(changes)) {
+        for (const change of changes) {
+          // Instagram Comments event
+          if (change.field === 'comments') {
+            const commentValue = change.value;
+            if (commentValue && commentValue.id && commentValue.from) {
+              const res = await handleInstagramComment({
+                comment_id: commentValue.id,
+                from: commentValue.from,
+                post_id: commentValue.media?.id || 'unknown_media',
+                text: commentValue.text || '',
+                created_time: commentValue.created_time || Date.now()
+              });
+              console.log('[Instagram Webhook Processed]:', res);
+            }
+          }
+        }
+      }
+
+      return NextResponse.json({ status: 'INSTAGRAM_EVENT_PROCESSED' }, { status: 200 });
+    }
+
+    // ==========================================
+    // 2. WHATSAPP CLOUD API PAYLOAD
+    // ==========================================
     if (body.object === 'whatsapp_business_account') {
       const entry = body.entry?.[0];
       const change = entry?.changes?.[0]?.value;
@@ -126,6 +159,33 @@ export async function POST(req: NextRequest) {
               sender_id: fromNumber,
               content: messageText,
               metadata: { raw: message }
+            });
+
+          // 6. Generate AI response using Smart LLM Router
+          const aiPrompt = [
+            {
+              role: 'system' as const,
+              content: 'أنتِ سارة طارق، ممثلة المبيعات وخدمة العملاء الذكية في متجر إلكتروني مصري. أجيبي باحترافية، ود ولهجة مصرية مهذبة ومختصرة، وساعدي العميل في اختيار المنتج والدفع بإنستاباي أو كاش.'
+            },
+            {
+              role: 'user' as const,
+              content: messageText
+            }
+          ];
+
+          const llmReply = await routeLLMCompletion(aiPrompt);
+
+          // Store AI Reply in database
+          await supabaseAdmin
+            .from('messages')
+            .insert({
+              conversation_id: conversationId,
+              provider_message_id: `wa_reply_${Date.now()}`,
+              direction: 'outbound',
+              sender_type: 'agent',
+              sender_id: 'sara_tarek',
+              content: llmReply.text,
+              metadata: { provider: llmReply.provider, model: llmReply.model }
             });
         }
       }
