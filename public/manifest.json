@@ -1,26 +1,21 @@
 {
-  "name": "CoachPRB - سجّل رقمك. غيّر جسمك",
-  "short_name": "CoachPRB",
-  "description": "المنصة الذكية لإدارة وتدريب الأبطال ومتابعة كمال الأجسام واللياقة البدنية في الشرق الأوسط",
-  "start_url": "/dashboard",
+  "name": "PR Agent — منصة خدمة العملاء الذكية",
+  "short_name": "PR Agent",
+  "description": "منصة متكاملة لخدمة العملاء والتجارة الذكية بالذكاء الاصطناعي",
+  "start_url": "/inbox",
   "display": "standalone",
-  "background_color": "#07040D",
-  "theme_color": "#7C3AED",
-  "orientation": "portrait",
+  "background_color": "#0e0918",
+  "theme_color": "#0e0918",
+  "orientation": "portrait-primary",
   "lang": "ar",
   "dir": "rtl",
+  "scope": "/",
   "icons": [
     {
       "src": "/pr-logo.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/pr-logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
-  ]
+  ],
+  "categories": ["business", "productivity"]
 }

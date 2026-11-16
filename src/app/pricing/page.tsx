@@ -2,262 +2,188 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, ArrowLeft, ShieldCheck, Zap, Dumbbell, Star, MessageSquare } from "lucide-react";
+import { Check, MessageSquare, Zap, ShieldCheck } from "lucide-react";
 
 export default function PricingPage() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly">("monthly");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
 
   const plans = [
     {
-      name: "باقة الانطلاق (Starter Athlete)",
-      price: billingCycle === "monthly" ? "650" : "1,650",
-      cycleLabel: billingCycle === "monthly" ? "/ شهرياً" : "/ 3 شهور",
-      description: "برنامج تدريبي وتغذوي مخصص بالكامل مع متابعة أسبوعية مباشرة من الكابتن.",
+      id: "starter",
+      name: "باقة البداية (Starter)",
+      priceMonthly: 650,
+      priceYearly: 6500,
+      desc: "مثالية للمتاجر الناشئة والصفحات التي تستقبل حتى 1,000 محادثة شهرياً.",
       features: [
-        "جدول تمارين مخصص حسب هدفك وأيام تفرغك",
-        "نظام غذائي محسوب السعرات والماكروز بدقة",
-        "متابعة أسبوعية (Check-in) وتعديل الخطة",
-        "فحص تكنيك التمارين (Form Check) بالفيديو",
-        "تطبيق PWA مثبت على هاتفك لتسجيل أوزانك",
+        "إيجنت مبيعات وواتساب (سارة طارق)",
+        "أتمتة تعليقات إنستجرام (Comment-to-DM)",
+        "لوحة CRM كانبان لإدارة الأوردرات",
+        "تكامل واتساب عبر QR (Evolution API)",
+        "دعم فني سريع عبر واتساب"
       ],
-      cta: "احجز مكانك في الباقة",
       popular: false,
-      href: "/quiz?plan=starter",
+      ctaText: "ابدأ التجربة المجانية"
     },
     {
-      name: "باقة النخبة (VIP 1-on-1 Coaching)",
-      price: billingCycle === "monthly" ? "1,200" : "2,990",
-      cycleLabel: billingCycle === "monthly" ? "/ شهرياً" : "/ 3 شهور",
-      description: "المتابعة الاحترافية المتكاملة مع شات مباشر واستجابة سريعة وتأهيل الإصابات.",
+      id: "growth",
+      name: "باقة النمو السريع (Growth)",
+      priceMonthly: 1450,
+      priceYearly: 14500,
+      desc: "للمتاجر المتوسعة التي تبحث عن أتمتة كاملة للمبيعات وتدقيق المدفوعات.",
       features: [
-        "كل مزايا باقة Starter بالكامل",
-        "دعم وشات مباشر يومي مع الكابتن للرد على استفساراتك",
-        "نظام حماية وتأهيل آلام أسفل الظهر والمفاصل",
-        "مكالمة استشارية نصف شهرية لتقييم التطور",
-        "تحليل صور الوجبات بالذكاء الاصطناعي (Food Vision)",
-        "أولوية المتابعة وتعديل الجدول في أي وقت",
+        "كل ميزات Starter",
+        "تدقيق إيصالات إنستاباي بالرؤية البصرية (Vision AI)",
+        "أسطول 10 إيجنتس مستقلين بكافة التخصصات",
+        "مسارات Typebot تفاعلية لاختيار المقاسات",
+        "نظام الـ Multi-LLM Router الذكي (0$ تكلفة تشغيل)",
+        "أولوية في معالجة الشات والطلبات"
       ],
-      cta: "ابدأ تدريب الـ VIP الآن",
       popular: true,
-      href: "/quiz?plan=vip",
+      ctaText: "اشترك الآن وضاعف مبيعاتك"
     },
     {
-      name: "باقة البطولات وتجهيز الستيج (Contest Prep)",
-      price: billingCycle === "monthly" ? "2,500" : "6,200",
-      cycleLabel: billingCycle === "monthly" ? "/ شهرياً" : "/ 3 شهور",
-      description: "بروتوكول احترافي للاعبي بطولات كمال الأجسام والفيتنس والـ Powerlifting.",
+      id: "enterprise",
+      name: "باقة الشركات (Enterprise)",
+      priceMonthly: 2900,
+      priceYearly: 29000,
+      desc: "حل مخصص للبراندات الكبرى والمتاجر ذات الحجم الضخم لعدد محادثات غير محدود.",
       features: [
-        "خطة Peak Week مفصلة ساعة بساعة قبل البطولة",
-        "إدارة المياه والصوديوم والكارب ديلود ولود",
-        "تعديل يومي للأحمال والكارديو ونسب الدهون",
-        "توجيه وضعيات البوزينج (Posing Coaching) أسبوعياً",
-        "خط اتصال مباشر مفتوح على مدار 24 ساعة",
+        "كل ميزات Growth",
+        "عدد غير محدود من الإيجنتس والمحادثات",
+        "ربط مخصص مع ERP وأنظمة الشحن السريع",
+        "مدير حساب مخصص (Account Manager)",
+        "تدريب مخصص للذكاء الاصطناعي على نبرة علامتك التجارية",
+        "اتفاقية مستوى الخدمة SLA 99.9%"
       ],
-      cta: "تقديم طلب تجهيز بطولة",
       popular: false,
-      href: "/quiz?plan=contest",
-    },
+      ctaText: "تواصل مع المبيعات"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-[#07040D] text-white flex flex-col justify-between font-sans selection:bg-purple-900 selection:text-white" dir="rtl">
-      {/* Header */}
-      <header className="px-6 py-5 flex items-center justify-between border-b border-white/[0.06] bg-[#0A0514]/80 backdrop-blur-md sticky top-0 z-50">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#7C3AED] to-[#9333EA] flex items-center justify-center shadow-lg shadow-purple-900/30">
-            <Dumbbell className="w-5 h-5 text-white" />
+    <div dir="rtl" className="min-h-screen bg-[#0e0918] text-white font-sans selection:bg-[#8052ff] selection:text-white pb-24">
+      {/* Top Header */}
+      <header className="border-b border-[#251f33] px-6 py-6 max-w-[1280px] mx-auto flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-5 h-5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 22 22 2 22" fill="#8052ff" />
+            </svg>
           </div>
-          <div>
-            <span className="font-heading font-black text-lg tracking-wider text-white">
-              COACH<span className="text-[#A78BFA]">PRB</span>
-            </span>
-            <span className="text-[10px] text-purple-300 block -mt-1 font-medium">باقات التدريب والمتابعة الأونلاين</span>
-          </div>
+          <span className="text-[18px] font-normal tracking-tight text-white">PR Agent</span>
         </Link>
-        <Link
-          href="/quiz"
-          className="text-xs text-purple-400 hover:text-white transition px-3.5 py-1.5 rounded-lg border border-purple-500/30 hover:border-purple-500/60 flex items-center gap-1.5"
-        >
-          <span>استبيان التقييم</span>
-          <ArrowLeft className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-6 text-[14px]">
+          <Link href="/flows" className="text-[#9a9a9a] hover:text-white transition-colors">المسارات</Link>
+          <Link href="/pipeline" className="text-[#9a9a9a] hover:text-white transition-colors">إدارة المبيعات</Link>
+          <Link href="/inbox" className="bg-[#8052ff] text-white px-5 py-2 rounded-[24px]">دخول المنصة</Link>
+        </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-12 space-y-12">
-        {/* Title & Billing Toggle */}
-        <div className="text-center space-y-4 max-w-xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-800/40 text-purple-300 text-xs font-semibold">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            استثمارك في صحتك وقوتك وجسمك المثالي
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            اختر الباقة الأنسب لمرحلتك التدريبية
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            جميع الباقات تشمل برامج علمية مخصصة، متابعة دورية مستمرة، وحماية كاملة للمفاصل بدون أي نسخ ولصق.
-          </p>
+      {/* Main Pricing Header */}
+      <main className="max-w-[1280px] mx-auto px-6 pt-16 text-center">
+        <span className="text-purple-400 text-sm font-semibold tracking-wider uppercase inline-block mb-3">
+          ✦ باقات وأسعار شفافة
+        </span>
+        <h1 className="text-4xl md:text-6xl font-light text-white mb-6">
+          استثمر في أسطول يوفر لك راتب 3 موظفين
+        </h1>
+        <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10">
+          وفر أكثر من 85% من تكاليف خدمة العملاء وتجنب خسائر الإيصالات المزيفة مع PR Agent.
+        </p>
 
-          {/* Switcher */}
-          <div className="inline-flex items-center p-1 bg-[#150D2A] border border-white/10 rounded-xl text-xs">
-            <button
-              onClick={() => setBillingCycle("monthly")}
-              className={`px-4 py-2 rounded-lg font-bold transition ${
-                billingCycle === "monthly"
-                  ? "bg-purple-600 text-white shadow-md shadow-purple-900/40"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              اشتراك شهري
-            </button>
-            <button
-              onClick={() => setBillingCycle("quarterly")}
-              className={`px-4 py-2 rounded-lg font-bold transition flex items-center gap-1.5 ${
-                billingCycle === "quarterly"
-                  ? "bg-purple-600 text-white shadow-md shadow-purple-900/40"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <span>3 شهور (خصم 20%)</span>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full font-black">وفر</span>
-            </button>
-          </div>
+        {/* Billing Toggle */}
+        <div className="inline-flex items-center gap-3 p-1.5 rounded-full bg-[#1a1624] border border-[#3e3a46] mb-16">
+          <button
+            onClick={() => setBillingPeriod("monthly")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              billingPeriod === "monthly" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+            }`}
+          >
+            دفع شهري
+          </button>
+          <button
+            onClick={() => setBillingPeriod("yearly")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              billingPeriod === "yearly" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+            }`}
+          >
+            دفع سنوي (وفر شهرين مجاناً 🎁)
+          </button>
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan, idx) => (
-            <div
-              key={idx}
-              className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
-                plan.popular
-                  ? "bg-[#110A24] border-2 border-purple-500 shadow-2xl shadow-purple-950/60 scale-[1.02]"
-                  : "bg-[#0E081D] border border-white/[0.08] hover:border-white/20"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[11px] font-black px-3.5 py-1 rounded-full shadow-lg flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                  الأكثر طلباً واختياراً
-                </div>
-              )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-right">
+          {plans.map(plan => {
+            const price = billingPeriod === "monthly" ? plan.priceMonthly : Math.round(plan.priceYearly / 12);
+            return (
+              <div
+                key={plan.id}
+                className={`p-8 rounded-3xl bg-[#1a1624] border transition-all flex flex-col justify-between ${
+                  plan.popular
+                    ? "border-purple-500 shadow-2xl shadow-purple-900/30 scale-105"
+                    : "border-[#3e3a46] hover:border-purple-500/50"
+                }`}
+              >
+                <div>
+                  {plan.popular && (
+                    <span className="inline-block bg-gradient-to-r from-purple-500 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-semibold mb-4">
+                      الأكثر اختياراً من المتاجر
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-light text-white mb-2">{plan.name}</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed mb-6">{plan.desc}</p>
+                  
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-white">{price} ج.م</span>
+                    <span className="text-gray-400 text-sm"> / شهرياً</span>
+                  </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-black text-white">{plan.name}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed min-h-[36px]">{plan.description}</p>
-                </div>
-
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl sm:text-4xl font-black text-white">{plan.price}</span>
-                  <span className="text-xs text-slate-400 font-bold">جنيه مصري</span>
-                  <span className="text-xs text-purple-300 font-medium">{plan.cycleLabel}</span>
-                </div>
-
-                <div className="w-full h-px bg-white/[0.06]" />
-
-                <ul className="space-y-3 text-xs text-slate-300">
-                  {plan.features.map((feat, fIdx) => (
-                    <li key={fIdx} className="flex items-start gap-2.5">
-                      <div className="mt-0.5 w-4 h-4 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
-                        <Check className="w-2.5 h-2.5" />
+                  <div className="border-t border-white/10 pt-6 space-y-3 mb-8">
+                    {plan.features.map((feat, i) => (
+                      <div key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                        <Check className="w-4 h-4 text-purple-400 shrink-0" />
+                        <span>{feat}</span>
                       </div>
-                      <span className="leading-relaxed">{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="pt-8">
-                <Link
-                  href={plan.href}
-                  className={`w-full py-3.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg ${
-                    plan.popular
-                      ? "bg-gradient-to-r from-[#7C3AED] to-[#9333EA] hover:from-[#6D28D9] hover:to-[#7E22CE] text-white shadow-purple-900/40"
-                      : "bg-[#150D2A] hover:bg-[#1E133D] text-white border border-white/10 hover:border-white/20"
-                  }`}
-                >
-                  <span>{plan.cta}</span>
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Testimonials / Social Proof Section */}
-        <div className="space-y-6 pt-6">
-          <div className="text-center space-y-1">
-            <h2 className="text-xl font-black text-white">آراء أبطال ورياضيي CoachPRB</h2>
-            <p className="text-xs text-slate-400">تجارب حقيقية لمتدربين تخلصوا من عشوائية الجداول ووصلوا لأفضل فورمة في حياتهم.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                name: "كريم م. (مهندس برمجيات)",
-                loss: "خسارة 12 كجم دهون وزيادة عضلات صافية",
-                quote: "أكبر ميزة في CoachPRB هي الالتزام. الكابتن كان بيعدلي أوزان التمرين وبيفحص فيديوهات التكنيك أول بأول، وعرفت أتمرن بدون أي وجع في الركبة.",
-                rating: 5,
-              },
-              {
-                name: "عمر ف. (لاعب فيتنس)",
-                loss: "تنشيف وخصر -8 سم في 90 يوم",
-                quote: "كنت دايماً بقع في شيتات الإكسيل والواتساب بيبقى تايه، تطبيق PWA على الآيفون مخليني أسجل وجباتي وأوزاني في الجيم بضغطة واحدة.",
-                rating: 5,
-              },
-              {
-                name: "د. طارق ح. (طبيب أسنان)",
-                loss: "تحسن آلام أسفل الظهر وزيادة أوزان السكوات",
-                quote: "نظام استبعاد التمارين اللي بتضغط على الفقرات خلاني أرجع للحديد بأمان بعد انقطاع سنتين بسبب الانزلاق الغضروفي. كوتشينج احترافي ومحترم جداً.",
-                rating: 5,
-              },
-            ].map((t, idx) => (
-              <div key={idx} className="bg-[#0E081D] border border-white/[0.06] p-5 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-1 text-amber-400">
-                    {[...Array(t.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
                     ))}
                   </div>
-                  <span className="text-[10px] text-purple-400 font-semibold bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-800/40">
-                    مشترك معتمد
-                  </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
-                <div className="pt-2 border-t border-white/[0.04]">
-                  <p className="text-xs font-bold text-white">{t.name}</p>
-                  <p className="text-[10px] text-emerald-400 font-medium">{t.loss}</p>
-                </div>
+
+                <Link
+                  href="/contact"
+                  className={`w-full py-4 rounded-xl text-center text-sm font-semibold transition-all ${
+                    plan.popular
+                      ? "text-white shadow-lg"
+                      : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                  }`}
+                  style={
+                    plan.popular
+                      ? { background: "linear-gradient(30deg, #fd8925, #ff0c00)" }
+                      : {}
+                  }
+                >
+                  {plan.ctaText}
+                </Link>
               </div>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* Guarantee Banner */}
+        <div className="mt-20 p-8 rounded-2xl bg-[#140f20] border border-purple-500/30 max-w-3xl mx-auto flex items-center gap-6 text-right">
+          <ShieldCheck className="w-12 h-12 text-purple-400 shrink-0" />
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-1">ضمان استرجاع الأموال بنسبة 100%</h4>
+            <p className="text-sm text-gray-400">
+              جرب PR Agent لمدة 14 يوماً كاملة، وإذا لم تضاعف سرعة ردودك أو تزيد مبيعاتك، سنعيد لك كامل المبلغ فوراً دون أي شروط.
+            </p>
           </div>
         </div>
 
-        {/* Instant WhatsApp Support Bar (Chatwoot & Evolution API Ready) */}
-        <div className="bg-[#110A24] border border-purple-900/40 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-right">
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-white flex items-center justify-center sm:justify-start gap-2">
-              <MessageSquare className="w-4 h-4 text-purple-400" />
-              محتار بين الباقات أو عندك استفسار خاص بإصابتك؟
-            </h3>
-            <p className="text-xs text-slate-400">تحدث مع فريق الاستشارات مباشرة على الواتساب وسنساعدك في اختيار الخطة الأنسب.</p>
-          </div>
-          <a
-            href="https://wa.me/201012345678?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20CoachPRB%D8%8C%20%D9%85%D8%AD%D8%AA%D8%A7%D8%AC%20%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A9%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B3%D8%A8%D8%A9%20%D9%84%D9%8A%D8%A7"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs transition shadow-md shadow-emerald-950 flex items-center gap-2 shrink-0"
-          >
-            <span>استشارة سريعة عبر الواتساب</span>
-            <ArrowLeft className="w-3.5 h-3.5" />
-          </a>
-        </div>
       </main>
 
       {/* Footer */}
-      <footer className="px-6 py-4 border-t border-white/[0.04] text-center text-[11px] text-slate-500">
-        CoachPRB — سجّل رقمك. غيّر جسمك. © 2026 جميع الحقوق محفوظة.
+      <footer className="border-t border-white/10 mt-24 py-8 text-center text-gray-500 text-sm">
+        <p>© 2026 PR Agent — جميع الحقوق محفوظة.</p>
       </footer>
     </div>
   );

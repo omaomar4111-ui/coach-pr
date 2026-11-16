@@ -24,7 +24,7 @@ const ipSendTracker = new Map<string, number[]>(); // ip -> timestamps[]
  * attacks on 6-digit combinations if the database is compromised.
  */
 function hashOtp(code: string): string {
-  const pepper = process.env.OTP_PEPPER_SECRET || "coachprb_dev_secret_pepper_2026";
+  const pepper = process.env.OTP_PEPPER_SECRET || "pragent_dev_secret_pepper_2026";
   return createHmac("sha256", pepper).update(code.trim()).digest("hex");
 }
 
@@ -41,7 +41,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
  */
 async function sendSmsViaUnifonic(phone: string, code: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const appSid = process.env.UNIFONIC_APPSID;
-  const senderId = process.env.UNIFONIC_SENDER_ID || "CoachPRB";
+  const senderId = process.env.UNIFONIC_SENDER_ID || "PR Agent";
 
   if (!appSid) {
     // Mock simulation for sandbox/dev mode
@@ -58,7 +58,7 @@ async function sendSmsViaUnifonic(phone: string, code: string): Promise<{ succes
         AppSid: appSid,
         SenderID: senderId,
         Recipient: phone,
-        Body: `رمز التحقق لمنصة CoachPRB هو: ${code}. صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
+        Body: `رمز التحقق لمنصة PR Agent هو: ${code}. صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
       }),
     });
 
@@ -162,13 +162,13 @@ export async function POST(req: Request) {
         try {
           const resend = new Resend(resendKey);
           const data = await resend.emails.send({
-            from: "CoachPRB <onboarding@resend.dev>",
+            from: "PR Agent <onboarding@resend.dev>",
             to: identifier,
-            subject: `${code} هو كود تسجيل الدخول لمنصة CoachPRB`,
+            subject: `${code} هو كود تسجيل الدخول لمنصة PR Agent`,
             html: `
               <div dir="rtl" style="font-family: Arial, sans-serif; background-color: #07040D; color: #FFFFFF; padding: 32px; border-radius: 16px; max-width: 480px; margin: auto; border: 1px solid #2B184F;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                  <h1 style="color: #A78BFA; margin: 0; font-size: 26px; letter-spacing: 2px;">COACH<span style="color: #FFFFFF;">PRB</span></h1>
+                  <h1 style="color: #8052FF; margin: 0; font-size: 26px; letter-spacing: 2px;">PR <span style="color: #FFFFFF;">AGENT</span></h1>
                   <p style="color: #94A3B8; font-size: 13px; margin-top: 6px;">كود تسجيل الدخول السريع</p>
                 </div>
                 <div style="background-color: #120A21; border: 1px dashed #7C3AED; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
@@ -196,10 +196,10 @@ export async function POST(req: Request) {
               auth: { user: smtpUser, pass: smtpPass },
             });
             await transporter.sendMail({
-              from: `"CoachPRB Security" <${smtpUser}>`,
+              from: `"PR Agent Security" <${smtpUser}>`,
               to: identifier,
-              subject: `${code} هو كود تسجيل الدخول لمنصة CoachPRB`,
-              text: `كود الدخول الخاص بك في CoachPRB هو: ${code}`,
+              subject: `${code} هو كود تسجيل الدخول لمنصة PR Agent`,
+              text: `كود الدخول الخاص بك في PR Agent هو: ${code}`,
             });
             deliverySuccess = true;
           } catch (e) {}

@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 export interface AuditLogInput {
   actorId?: string;
-  actorRole?: "coach" | "client" | "system";
+  actorRole?: "agent" | "client" | "system";
   action: string;
   resourceType?: "client" | "attachment" | "session" | "plan" | "system";
   resourceId?: string;

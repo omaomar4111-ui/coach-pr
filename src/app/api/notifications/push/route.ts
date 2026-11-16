@@ -9,7 +9,7 @@ const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || 'UUxI28smgPz9pm9nwTf-vJ
 
 try {
   webpush.setVapidDetails(
-    'mailto:support@coachprb.com',
+    'mailto:support@pragent.com',
     vapidPublicKey,
     vapidPrivateKey
   );
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
     // 2. Dispatch Web Push notification
     const payload = JSON.stringify({
-      title: title || 'CoachPRB - تنبيه التدريب',
+      title: title || 'PR Agent - تنبيه التدريب',
       body: body || 'لديك تحديث جديد في خطتك التدريبية اليوم.',
       url: url || '/app',
       icon: '/pr-logo.png',
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     // 3. Log Audit
     await logAudit({
       actorId: clientId,
-      actorRole: 'coach',
+      actorRole: 'agent',
       action: 'push_notification.dispatched',
       resourceType: 'client',
       resourceId: clientId,

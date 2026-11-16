@@ -1,43 +1,78 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter, Tajawal } from "next/font/google";
 import "./globals.css";
-import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["300", "400", "500", "700", "800"],
+  variable: "--font-tajawal",
+});
 
 export const metadata: Metadata = {
-  title: "PR Agent - أسطول الذكاء الاصطناعي للتجارة الإلكترونية وخدمة العملاء",
-  description: "المنصة الرائدة لأتمتة خدمة العملاء، تحويل تعليقات إنستجرام لمبيعات بالرسائل المباشرة، وتدقيق تحويلات إنستاباي بالرؤية البصرية",
-  manifest: "/manifest.json",
-  themeColor: "#8052ff",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "PR Agent"
+  title: {
+    default: "PR Agent — منصة خدمة العملاء والتجارة الذكية بالذكاء الاصطناعي",
+    template: "%s | PR Agent",
   },
+  description:
+    "PR Agent: منصة متكاملة لخدمة العملاء بالذكاء الاصطناعي، فحص المدفوعات البصرية، إدارة الأوردرات عبر CRM Pipeline، وأتمتة الردود عبر WhatsApp و Instagram.",
+  applicationName: "PR Agent",
+  keywords: [
+    "PR Agent",
+    "خدمة العملاء",
+    "الذكاء الاصطناعي",
+    "واتساب",
+    "إنستجرام",
+    "التجارة الإلكترونية",
+    "CRM",
+    "Egypt E-commerce",
+  ],
+  authors: [{ name: "PR Agent Team" }],
+  creator: "PR Agent",
+  publisher: "PR Agent",
+  metadataBase: new URL("https://pr-agent-ai.vercel.app"),
+  openGraph: {
+    title: "PR Agent — منصة خدمة العملاء الذكية",
+    description:
+      "أتمتة خدمة العملاء، فحص مدفوعات إنستاباي، وإدارة الأوردرات بضغطة زر.",
+    url: "https://pr-agent-ai.vercel.app",
+    siteName: "PR Agent",
+    locale: "ar_EG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PR Agent — منصة خدمة العملاء الذكية",
+    description:
+      "أتمتة خدمة العملاء، فحص مدفوعات إنستاباي، وإدارة الأوردرات بضغطة زر.",
+  },
+  manifest: "/manifest.json",
   icons: {
-    icon: "/pr-logo.png",
-    shortcut: "/pr-logo.png",
-    apple: "/pr-logo.png"
-  }
+    icon: "/favicon.ico",
+    apple: "/pr-logo.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0e0918",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="ar" dir="rtl" className="changa_4c9d147c-module__hpPt_W__variable barlow_condensed_1cab9ff4-module__V-zrxq__variable inter_8a594245-module__h1XLeG__variable">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Changa:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
+    <html
+      lang="ar"
+      dir="rtl"
+      className={`${inter.variable} ${tajawal.variable}`}
+    >
+      <body className="font-tajawal bg-[#0e0918] text-white antialiased">
         {children}
         <PwaInstallPrompt />
       </body>

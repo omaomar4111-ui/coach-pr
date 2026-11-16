@@ -41,13 +41,13 @@ export async function GET(request: Request) {
       signedUrl = data.signedUrl;
     } else {
       // Non-production simulated signed url
-      signedUrl = `https://mock-storage.coachprb.internal/medical-vault/${storagePath}?token=mock_signed_15m_${Date.now()}`;
+      signedUrl = `https://mock-storage.pragent.internal/medical-vault/${storagePath}?token=mock_signed_15m_${Date.now()}`;
     }
 
     // Mandatory Audit Log: Who viewed which medical file at what time
     await logAudit({
-      actorId: "coach-demo",
-      actorRole: "coach",
+      actorId: "agent-demo",
+      actorRole: "agent",
       action: "medical.view_attachment",
       resourceType: "attachment",
       resourceId: attachmentId,

@@ -140,7 +140,7 @@ export async function executeWithRetry<T>(
   throw lastError;
 }
 
-export interface CoachRecord {
+export interface AgentRecord {
   id: string;
   fullName: string;
   email: string;
@@ -151,7 +151,7 @@ export interface CoachRecord {
 
 export interface ClientRecord {
   id: string;
-  coachId: string;
+  agentId: string;
   name: string;
   phone: string;
   email: string;
@@ -195,7 +195,7 @@ export interface WorkoutDayRecord {
 
 export interface WorkoutPlanRecord {
   id: string;
-  coachId: string;
+  agentId: string;
   clientId: string;
   title: string;
   days: WorkoutDayRecord[];
@@ -211,7 +211,7 @@ export interface FormCheckVideoRecord {
   status: "pending" | "approved" | "needs_fix";
   createdAt: string;
   expiresAt: string; // ISO timestamp 12h later
-  coachFeedback?: string;
+  agentFeedback?: string;
   videoDataUrl?: string;
   storagePath?: string;
   notesAtSeconds: {
@@ -222,13 +222,13 @@ export interface FormCheckVideoRecord {
 }
 
 // Development / Non-Production In-Memory Fallback
-class CoachStore {
-  private static instance: CoachStore;
+class AgentStore {
+  private static instance: AgentStore;
 
   public clients: ClientRecord[] = [
     {
       id: "client-1",
-      coachId: "coach-demo",
+      agentId: "agent-demo",
       name: "كريم أحمد مصطفى",
       phone: "01144826641",
       email: "kareem@example.com",
@@ -246,7 +246,7 @@ class CoachStore {
     },
     {
       id: "client-2",
-      coachId: "coach-demo",
+      agentId: "agent-demo",
       name: "عمر فاروق عبد الله",
       phone: "01099887766",
       email: "omar.f@example.com",
@@ -264,7 +264,7 @@ class CoachStore {
   public plans: Record<string, WorkoutPlanRecord> = {
     "client-1": {
       id: "plan-kareem",
-      coachId: "coach-demo",
+      agentId: "agent-demo",
       clientId: "client-1",
       title: "برنامج كابتن كريم أحمد (تضخيم وقوة مع حماية الظهر)",
       updatedAt: new Date().toISOString(),
@@ -343,18 +343,18 @@ class CoachStore {
       status: "approved",
       createdAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
       expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
-      coachFeedback: "تكنيك معتمد وممتاز! استمر بنفس الزوايا.",
+      agentFeedback: "تكنيك معتمد وممتاز! استمر بنفس الزوايا.",
       notesAtSeconds: [
         { second: 6, text: "تكنيك ممتاز ومستقيم، بس حافظ على رقبتك في خط مستقيم مع عمودك الفقري.", hasVoiceNote: false }
       ]
     }
   ];
 
-  public static getInstance(): CoachStore {
-    if (!CoachStore.instance) {
-      CoachStore.instance = new CoachStore();
+  public static getInstance(): AgentStore {
+    if (!AgentStore.instance) {
+      AgentStore.instance = new AgentStore();
     }
-    return CoachStore.instance;
+    return AgentStore.instance;
   }
 
   public purgeExpiredVideos(): number {
@@ -369,14 +369,14 @@ class CoachStore {
  * Proxy for globalStore to guard against memory persistence in production.
  * In production: accessing globalStore throws DatabaseUnavailableError to prevent silent data loss.
  */
-export const globalStore = new Proxy({} as CoachStore, {
+export const globalStore = new Proxy({} as AgentStore, {
   get(_target, prop) {
     if (process.env.NODE_ENV === "production") {
       throw new DatabaseUnavailableError(
-        "In-Memory CoachStore fallback is strictly prohibited in production. Configure Supabase credentials."
+        "In-Memory AgentStore fallback is strictly prohibited in production. Configure Supabase credentials."
       );
     }
-    const store = CoachStore.getInstance();
+    const store = AgentStore.getInstance();
     const val = (store as any)[prop];
     if (typeof val === "function") {
       return val.bind(store);
@@ -386,10 +386,10 @@ export const globalStore = new Proxy({} as CoachStore, {
   set(_target, prop, value) {
     if (process.env.NODE_ENV === "production") {
       throw new DatabaseUnavailableError(
-        "In-Memory CoachStore fallback is strictly prohibited in production. Configure Supabase credentials."
+        "In-Memory AgentStore fallback is strictly prohibited in production. Configure Supabase credentials."
       );
     }
-    const store = CoachStore.getInstance();
+    const store = AgentStore.getInstance();
     (store as any)[prop] = value;
     return true;
   }

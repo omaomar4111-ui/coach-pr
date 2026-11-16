@@ -9,7 +9,7 @@ interface ChatWidgetProps {
 }
 
 export default function ChatWidget({
-  websiteToken = 'coachprb_client_widget_token',
+  websiteToken = 'pragent_client_widget_token',
   baseUrl = 'https://app.chatwoot.com',
 }: ChatWidgetProps) {
   return (
