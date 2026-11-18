@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>PR Agent — Interactive Architecture Map</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0e0918;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #251f33;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #140f20;
+    }
+    .title { font-size: 18px; font-weight: 600; color: #b88cff; }
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(128, 82, 255, 0.15);
+      border: 1px solid rgba(128, 82, 255, 0.4);
+      color: #d1b8ff;
+    }
+    #network {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(20, 15, 32, 0.9);
+      border: 1px solid #2b2538;
+      border-radius: 16px;
+      padding: 12px 18px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .color-box { width: 12px; height: 12px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">🕸️ PR Agent — Interactive Node-Graph Architecture Map</div>
+    <div class="badge">Floorplan Engine Live • 24 Nodes Mapped</div>
+  </header>
+
+  <div id="network"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="color-box" style="background: #38bdf8;"></div><span>Frontend Pages (Blue)</span></div>
+    <div class="legend-item"><div class="color-box" style="background: #10b981;"></div><span>Backend APIs & Webhooks (Green)</span></div>
+    <div class="legend-item"><div class="color-box" style="background: #a855f7;"></div><span>AI Intelligence Layer (Purple)</span></div>
+    <div class="legend-item"><div class="color-box" style="background: #f59e0b;"></div><span>Databases & Storage (Amber)</span></div>
+    <div class="legend-item"><div class="color-box" style="background: #f43f5e;"></div><span>External Services & Channels (Rose)</span></div>
+  </div>
+
+  <script type="text/javascript">
+    const nodes = new vis.DataSet([
+      // Frontend
+      { id: 1, label: "Landing Page\nsrc/app/page.tsx", group: "frontend" },
+      { id: 2, label: "Omnichannel Inbox\nsrc/app/inbox/page.tsx", group: "frontend" },
+      { id: 3, label: "Sales Pipeline CRM\nsrc/app/pipeline/page.tsx", group: "frontend" },
+      { id: 4, label: "Agents Fleet\nsrc/app/fleet/page.tsx", group: "frontend" },
+      { id: 5, label: "Enterprise Settings\nsrc/app/settings/page.tsx", group: "frontend" },
+      { id: 6, label: "Pricing & ROI\nsrc/app/pricing/page.tsx", group: "frontend" },
+
+      // Backend APIs
+      { id: 7, label: "Meta Webhook\n/api/webhooks/meta", group: "backend" },
+      { id: 8, label: "Evolution API Webhook\n/api/webhooks/whatsapp-evolution", group: "backend" },
+      { id: 9, label: "Chat API\n/api/chat", group: "backend" },
+      { id: 10, label: "Settings API\n/api/settings/config", group: "backend" },
+      { id: 11, label: "Payments Verify API\n/api/payments/verify", group: "backend" },
+
+      // AI Layer
+      { id: 12, label: "Smart Multi-LLM Router\nsrc/lib/llmRouter.ts", group: "ai" },
+      { id: 13, label: "AI Moderator Guard\nsrc/lib/aiModerator.ts", group: "ai" },
+      { id: 14, label: "10 Autonomous Agents\nsrc/data/agents.ts", group: "ai" },
+      { id: 15, label: "Instagram Automation\nsrc/lib/instagramAutomation.ts", group: "ai" },
+      { id: 16, label: "InstaPay Vision Engine\nReceipt OCR & Audit", group: "ai" },
+
+      // Database
+      { id: 17, label: "Supabase DB\ncustomers (Leads)", group: "db" },
+      { id: 18, label: "Supabase DB\nconversations", group: "db" },
+      { id: 19, label: "Supabase DB\nmessages (History)", group: "db" },
+      { id: 20, label: "Supabase DB\ntenants (Config)", group: "db" },
+
+      // External
+      { id: 21, label: "Meta Graph API\n(Instagram & WhatsApp)", group: "external" },
+      { id: 22, label: "Evolution API\n(QR WhatsApp Server)", group: "external" },
+      { id: 23, label: "Google Gemini 1.5\n(Vision & Reasoning)", group: "external" },
+      { id: 24, label: "Groq Llama 3.1\n(Fast 0$ Fallback)", group: "external" }
+    ]);
+
+    const edges = new vis.DataSet([
+      { from: 21, to: 7, label: "Inbound Hook" },
+      { from: 22, to: 8, label: "QR Message" },
+      { from: 7, to: 15, label: "Comments" },
+      { from: 7, to: 13, label: "Filter" },
+      { from: 8, to: 13, label: "Filter" },
+      { from: 13, to: 12, label: "Clean Prompt" },
+      { from: 12, to: 23, label: "Vision/Complex" },
+      { from: 12, to: 24, label: "Fast Chat" },
+      { from: 12, to: 14, label: "Agent Identity" },
+      { from: 7, to: 17, label: "Save Lead" },
+      { from: 8, to: 17, label: "Save Lead" },
+      { from: 14, to: 18, label: "Assign Conv" },
+      { from: 14, to: 19, label: "Persist Reply" },
+      { from: 2, to: 18, label: "Realtime View" },
+      { from: 2, to: 19, label: "Message History" },
+      { from: 3, to: 17, label: "Kanban Pipeline" },
+      { from: 5, to: 20, label: "Save Keys" },
+      { from: 11, to: 16, label: "Receipt Check" },
+      { from: 16, to: 23, label: "OCR Audit" }
+    ]);
+
+    const container = document.getElementById("network");
+    const data = { nodes: nodes, edges: edges };
+    const options = {
+      groups: {
+        frontend: { color: { background: "#0284c7", border: "#38bdf8" }, font: { color: "#ffffff" } },
+        backend: { color: { background: "#059669", border: "#10b981" }, font: { color: "#ffffff" } },
+        ai: { color: { background: "#7c3aed", border: "#a855f7" }, font: { color: "#ffffff" } },
+        db: { color: { background: "#d97706", border: "#f59e0b" }, font: { color: "#ffffff" } },
+        external: { color: { background: "#e11d48", border: "#f43f5e" }, font: { color: "#ffffff" } }
+      },
+      nodes: {
+        shape: "box",
+        margin: 12,
+        shadow: true,
+        font: { size: 13, face: "sans-serif" }
+      },
+      edges: {
+        arrows: "to",
+        color: { color: "#4c3e66", highlight: "#8052ff" },
+        smooth: { type: "cubicBezier" }
+      },
+      physics: {
+        stabilization: true,
+        barnesHut: { gravitationalConstant: -3500, springLength: 120 }
+      }
+    };
+
+    const network = new vis.Network(container, data, options);
+  </script>
+</body>
+</html>
