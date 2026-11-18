@@ -1,6 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /settings/
-
 Sitemap: https://pr-agent-ai.vercel.app/sitemap.xml

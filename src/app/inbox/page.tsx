@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { supabase } from "@/lib/supabaseClient";
 
 interface ConversationItem {
@@ -112,14 +113,7 @@ export default function OmnichannelInboxPage() {
       {/* Top Header */}
       <header className="border-b border-[#171717] px-6 py-4 flex items-center justify-between shrink-0 bg-[#000000]">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-5 h-5">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <polygon points="12 2 22 22 2 22" fill="#8052ff" />
-              </svg>
-            </div>
-            <span className="text-[16px] font-normal tracking-tight text-white">PR Agent</span>
-          </Link>
+          <Logo size="sm" />
           <span className="text-[#333333]">/</span>
           <h1 className="text-[14px] font-normal text-[#9a9a9a]">صندوق المحادثات الموحد (Omnichannel Live Inbox)</h1>
         </div>

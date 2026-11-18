@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { Check, MessageSquare, Zap, ShieldCheck } from "lucide-react";
 
 export default function PricingPage() {
@@ -64,14 +65,7 @@ export default function PricingPage() {
     <div dir="rtl" className="min-h-screen bg-[#0e0918] text-white font-sans selection:bg-[#8052ff] selection:text-white pb-24">
       {/* Top Header */}
       <header className="border-b border-[#251f33] px-6 py-6 max-w-[1280px] mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-5 h-5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <polygon points="12 2 22 22 2 22" fill="#8052ff" />
-            </svg>
-          </div>
-          <span className="text-[18px] font-normal tracking-tight text-white">PR Agent</span>
-        </Link>
+        <Logo size="md" />
         <div className="flex items-center gap-6 text-[14px]">
           <Link href="/flows" className="text-[#9a9a9a] hover:text-white transition-colors">المسارات</Link>
           <Link href="/pipeline" className="text-[#9a9a9a] hover:text-white transition-colors">إدارة المبيعات</Link>
