@@ -33,17 +33,21 @@ export default function CoachDashboard() {
           <p className="text-xs text-slate-400 mt-1">CoachPRB — متابعة نشاط الأبطال ومعدلات الالتزام</p>
         </div>
         <div className="flex flex-wrap gap-2.5">
+          <Link href="/captain/pending" className="bg-rose-500/15 border border-rose-500/40 text-rose-300 px-3.5 py-2 rounded-lg hover:bg-rose-500/25 transition text-sm font-bold flex items-center gap-1.5 shadow-md shadow-rose-950/40">
+            <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+            من يحتاجك اليوم (Pending)
+          </Link>
           <Link href="/app" className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3.5 py-2 rounded-lg hover:bg-emerald-500/20 transition text-sm font-bold flex items-center gap-1.5">
-            📱 وضع الصالة للمتدرب (/app)
+            📱 وضع الصالة (/app)
           </Link>
           <Link href="/dashboard/formcheck" className="bg-purple-950/40 border border-purple-500/30 text-purple-300 px-3.5 py-2 rounded-lg hover:bg-purple-900/40 transition text-sm font-bold flex items-center gap-1.5">
-            🎥 مختبر التكنيك (Form Check)
+            🎥 مختبر التكنيك
           </Link>
           <Link href="/dashboard/builder" className="bg-[#150D2A] border border-white/10 px-4 py-2 rounded-lg hover:border-white/20 transition text-sm">
             مُنشئ الجداول
           </Link>
           <Link href="/dashboard/clients" className="bg-[#7C3AED] px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-bold">
-            + إدارة المشتركين
+            + المشتركين
           </Link>
         </div>
       </div>
