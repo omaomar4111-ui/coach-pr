@@ -18,7 +18,10 @@ import {
   ArrowUp,
   ArrowDown,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  FileSpreadsheet,
+  ClipboardPaste,
+  HelpCircle
 } from 'lucide-react';
 
 // Curated Exercise Library with Muscle Groups & Equipment (Inspired by Workout.cool)
@@ -98,27 +101,29 @@ export default function WorkoutBuilder() {
       name: 'اليوم الثاني - سحب وضهر ولاتس (Pull A)',
       focus: 'عضلات الظهر ولاتس وبايسبس',
       exercises: [
-        { id: '4', name: 'سحب عالي واسع (Wide Lat Pulldown)', sets: 4, reps: '10-12', weightKg: '65', rir: 1, restSec: 90 },
-        { id: '5', name: 'سحب أرضي كابل (Seated Cable Row)', sets: 3, reps: '10-12', weightKg: '60', rir: 2, restSec: 75 },
+        { id: '4', name: 'سحب عالي واسع (Wide Lat Pulldown)', sets: 4, reps: '10-12', weightKg: '60', rir: 1, restSec: 90 },
+        { id: '5', name: 'سحب أرضي كابل (Seated Cable Row)', sets: 3, reps: '10-12', weightKg: '55', rir: 2, restSec: 75 },
         { id: '6', name: 'بايسبس بالبار الزجزاج (EZ-Bar Biceps Curl)', sets: 3, reps: '10-12', weightKg: '30', rir: 1, restSec: 60 },
       ]
     }
   ]);
 
-  // Exercise Library Modal Search & Filter States
   const [activeDayIdForPicker, setActiveDayIdForPicker] = useState<string | null>(null);
+  const [activeDayIdForExcel, setActiveDayIdForExcel] = useState<string | null>(null);
+  const [excelRawInput, setExcelRawInput] = useState<string>('');
+  const [excelParsedPreview, setExcelParsedPreview] = useState<WorkoutPlanExercise[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMuscle, setSelectedMuscle] = useState<string>('all');
   const [selectedEquipment, setSelectedEquipment] = useState<string>('all');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Day Operations
+  // Day Handlers
   const addDay = () => {
     const newDayId = `day-${Date.now()}`;
     setDays([...days, {
       id: newDayId,
-      name: `اليوم ${days.length + 1} - تمرين مخصص`,
-      focus: 'توزيع العضلات المستهدفة',
+      name: `اليوم التدريبي رقم ${days.length + 1}`,
+      focus: 'تركيز عام',
       exercises: []
     }]);
   };
@@ -127,23 +132,30 @@ export default function WorkoutBuilder() {
     setDays(days.filter(d => d.id !== dayId));
   };
 
-  // Exercise Reorder (Move Up / Down)
-  const moveExercise = (dayId: string, exIndex: number, direction: 'up' | 'down') => {
+  // Exercise Handlers
+  const updateExercise = (dayId: string, exId: string, field: keyof WorkoutPlanExercise, val: any) => {
     setDays(days.map(d => {
       if (d.id !== dayId) return d;
-      const newExercises = [...d.exercises];
-      const targetIndex = direction === 'up' ? exIndex - 1 : exIndex + 1;
-      if (targetIndex < 0 || targetIndex >= newExercises.length) return d;
-      
-      const temp = newExercises[exIndex];
-      newExercises[exIndex] = newExercises[targetIndex];
-      newExercises[targetIndex] = temp;
+      return {
+        ...d,
+        exercises: d.exercises.map(ex => ex.id === exId ? { ...ex, [field]: val } : ex)
+      };
+    }));
+  };
 
+  const moveExercise = (dayId: string, index: number, direction: 'up' | 'down') => {
+    setDays(days.map(d => {
+      if (d.id !== dayId) return d;
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= d.exercises.length) return d;
+      const newExercises = [...d.exercises];
+      const temp = newExercises[index];
+      newExercises[index] = newExercises[targetIndex];
+      newExercises[targetIndex] = temp;
       return { ...d, exercises: newExercises };
     }));
   };
 
-  // Add Exercise from Library to Day
   const handleSelectFromLibrary = (ex: ExerciseDefinition) => {
     if (!activeDayIdForPicker) return;
 
@@ -168,6 +180,70 @@ export default function WorkoutBuilder() {
     }));
 
     setActiveDayIdForPicker(null);
+  };
+
+  // Excel / CSV Parser
+  const parseExcelText = (text: string) => {
+    setExcelRawInput(text);
+    if (!text.trim()) {
+      setExcelParsedPreview([]);
+      return;
+    }
+
+    const lines = text.trim().split(/\r?\n/);
+    const parsed: WorkoutPlanExercise[] = [];
+
+    lines.forEach((line, index) => {
+      // Split by tab (Excel copy) or comma or semicolon
+      const parts = line.includes('\t') 
+        ? line.split('\t') 
+        : line.includes(';') 
+          ? line.split(';') 
+          : line.split(',');
+
+      const cleanParts = parts.map(p => p.trim()).filter(Boolean);
+      if (cleanParts.length === 0) return;
+
+      // Skip header lines if user pasted them
+      if (index === 0 && (cleanParts[0].toLowerCase().includes('exercise') || cleanParts[0].includes('تمرين'))) {
+        return;
+      }
+
+      const name = cleanParts[0] || `تمرين مستورد ${index + 1}`;
+      const sets = parseInt(cleanParts[1] || '3', 10) || 3;
+      const reps = cleanParts[2] || '10-12';
+      const weightKg = cleanParts[3] || '20';
+      const rir = parseInt(cleanParts[4] || '2', 10) || 2;
+      const restSec = parseInt(cleanParts[5] || '75', 10) || 75;
+
+      parsed.push({
+        id: `excel-${Date.now()}-${index}`,
+        name,
+        sets,
+        reps,
+        weightKg,
+        rir,
+        restSec
+      });
+    });
+
+    setExcelParsedPreview(parsed);
+  };
+
+  const applyExcelImport = () => {
+    if (!activeDayIdForExcel || excelParsedPreview.length === 0) return;
+
+    setDays(days.map(d => {
+      if (d.id !== activeDayIdForExcel) return d;
+      return {
+        ...d,
+        exercises: [...d.exercises, ...excelParsedPreview]
+      };
+    }));
+
+    setActiveDayIdForExcel(null);
+    setExcelRawInput('');
+    setExcelParsedPreview([]);
   };
 
   const removeExercise = (dayId: string, exId: string) => {
@@ -196,7 +272,7 @@ export default function WorkoutBuilder() {
             <ChevronLeft size={16} /> العودة للوحة التحكم
           </Link>
           <h1 className="text-3xl font-black tracking-tight">محرر التمارين (Workout Builder Pro)</h1>
-          <p className="text-xs text-slate-400 mt-1">تصميم وتخصيص الجداول التدريبية بمكتبة تمارين ذكية وحسابات RIR والأوزان</p>
+          <p className="text-xs text-slate-400 mt-1">تصميم وتخصيص الجداول التدريبية بمكتبة تمارين ذكية ودعم استيراد Excel وحسابات RIR والأوزان</p>
         </div>
         <div className="flex items-center gap-3">
           {saveSuccess && (
@@ -215,7 +291,7 @@ export default function WorkoutBuilder() {
         {days.map((day) => (
           <div key={day.id} className="bg-[#0E081D] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl">
             {/* Day Header */}
-            <div className="p-4 bg-[#140C2A] border-b border-white/[0.06] flex justify-between items-center">
+            <div className="p-4 bg-[#140C2A] border-b border-white/[0.06] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex-1 max-w-md">
                 <input 
                   type="text" 
@@ -237,146 +313,138 @@ export default function WorkoutBuilder() {
                   className="bg-transparent text-xs text-slate-400 focus:outline-none w-full mt-0.5"
                 />
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    setActiveDayIdForExcel(day.id);
+                    setExcelRawInput('');
+                    setExcelParsedPreview([]);
+                  }}
+                  className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
+                  title="لصق سريع من إكسيل"
+                >
+                  <FileSpreadsheet size={14} /> لصق من Excel
+                </button>
                 <button 
                   onClick={() => setActiveDayIdForPicker(day.id)}
                   className="bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#a78bfa] border border-[#7C3AED]/30 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
                 >
-                  <Plus size={14} /> إضافة من المكتبة
+                  <Plus size={14} /> من المكتبة
                 </button>
-                <button onClick={() => removeDay(day.id)} className="text-slate-500 hover:text-rose-400 transition" title="حذف اليوم">
+                <button onClick={() => removeDay(day.id)} className="text-slate-500 hover:text-rose-400 p-1.5 transition" title="حذف اليوم">
                   <Trash2 size={16} />
                 </button>
               </div>
             </div>
 
-            {/* Exercises Table in Day */}
+            {/* Exercises Table / List */}
             <div className="p-4 space-y-2.5">
               {day.exercises.length === 0 ? (
-                <div className="text-center py-6 text-xs text-slate-500 border border-dashed border-white/5 rounded-xl">
-                  لا توجد تمارين مضافة في هذا اليوم بعد. اضغط على &quot;إضافة من المكتبة&quot; لتسريع البناء.
+                <div className="text-center py-8 border border-dashed border-white/5 rounded-xl text-slate-500 text-xs">
+                  لا توجد تمارين مضافة في هذا اليوم التدريبي بعد. اضغط "من المكتبة" أو "لصق من Excel".
                 </div>
               ) : (
                 day.exercises.map((ex, index) => (
-                  <div key={ex.id} className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 items-start sm:items-center bg-[#150D2A] p-3.5 rounded-xl border border-white/5 hover:border-white/15 transition">
-                    {/* Index & Reorder Handles */}
-                    <div className="flex items-center gap-2">
+                  <div key={ex.id} className="bg-[#150D2A] border border-white/5 rounded-xl p-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:border-white/10 transition">
+                    {/* Move Handle & Name */}
+                    <div className="flex items-center gap-2 w-full md:w-5/12">
                       <div className="flex flex-col text-slate-500">
                         <button 
                           onClick={() => moveExercise(day.id, index, 'up')}
                           disabled={index === 0}
-                          className="hover:text-purple-400 disabled:opacity-20"
-                          title="تحريك لأعلى"
+                          className="hover:text-purple-400 disabled:opacity-20 p-0.5"
                         >
                           <ArrowUp size={12} />
                         </button>
                         <button 
                           onClick={() => moveExercise(day.id, index, 'down')}
                           disabled={index === day.exercises.length - 1}
-                          className="hover:text-purple-400 disabled:opacity-20"
-                          title="تحريك لأسفل"
+                          className="hover:text-purple-400 disabled:opacity-20 p-0.5"
                         >
                           <ArrowDown size={12} />
                         </button>
                       </div>
-                      <span className="text-xs font-mono font-bold text-purple-400 w-5">{index + 1}</span>
+                      <span className="text-slate-600 font-mono text-xs w-5">{index + 1}.</span>
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={ex.name}
+                          onChange={e => updateExercise(day.id, ex.id, 'name', e.target.value)}
+                          className="bg-transparent text-sm font-semibold text-white focus:outline-none w-full"
+                        />
+                        {ex.injuryNotice && (
+                          <span className="text-[10px] text-amber-400 flex items-center gap-1 mt-0.5">
+                            <AlertTriangle size={10} /> {ex.injuryNotice}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Exercise Name */}
-                    <div className="flex-1 w-full">
-                      <input 
-                        type="text" 
-                        value={ex.name} 
-                        onChange={e => {
-                          const val = e.target.value;
-                          setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, name: val } : item) } : d));
-                        }}
-                        className="bg-transparent font-medium text-xs sm:text-sm text-white focus:outline-none w-full" 
-                      />
-                      {ex.injuryNotice && (
-                        <span className="text-[10px] text-amber-400 flex items-center gap-1 mt-0.5">
-                          <AlertTriangle size={11} /> {ex.injuryNotice}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Sets, Reps, Weight, RIR Metrics */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {/* Prescription Metrics (Sets, Reps, Weight, RIR, Rest) */}
+                    <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto text-xs">
                       {/* Sets */}
-                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                        <span className="text-[10px] text-slate-400">مجموعات:</span>
+                      <div className="flex items-center gap-1 bg-[#0A0514] px-2 py-1 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-slate-500">مجموعات:</span>
                         <input 
                           type="number" 
                           value={ex.sets} 
-                          onChange={e => {
-                            const val = Number(e.target.value);
-                            setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, sets: val } : item) } : d));
-                          }}
-                          className="w-8 bg-transparent text-center font-bold text-white focus:outline-none" 
+                          onChange={e => updateExercise(day.id, ex.id, 'sets', parseInt(e.target.value) || 1)}
+                          className="w-8 bg-transparent text-center font-bold text-[#a78bfa] focus:outline-none"
                         />
                       </div>
 
                       {/* Reps */}
-                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                        <span className="text-[10px] text-slate-400">تكرار:</span>
+                      <div className="flex items-center gap-1 bg-[#0A0514] px-2 py-1 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-slate-500">عدات:</span>
                         <input 
                           type="text" 
                           value={ex.reps} 
-                          onChange={e => {
-                            const val = e.target.value;
-                            setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, reps: val } : item) } : d));
-                          }}
-                          className="w-12 bg-transparent text-center font-bold text-white focus:outline-none" 
+                          onChange={e => updateExercise(day.id, ex.id, 'reps', e.target.value)}
+                          className="w-12 bg-transparent text-center font-bold text-white focus:outline-none"
                         />
                       </div>
 
-                      {/* Weight Kg */}
-                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                        <span className="text-[10px] text-slate-400">كجم:</span>
+                      {/* Target Weight */}
+                      <div className="flex items-center gap-1 bg-[#0A0514] px-2 py-1 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-slate-500">وزن:</span>
                         <input 
                           type="text" 
                           value={ex.weightKg} 
-                          onChange={e => {
-                            const val = e.target.value;
-                            setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, weightKg: val } : item) } : d));
-                          }}
-                          className="w-10 bg-transparent text-center font-bold text-white focus:outline-none" 
+                          onChange={e => updateExercise(day.id, ex.id, 'weightKg', e.target.value)}
+                          className="w-10 bg-transparent text-center font-bold text-emerald-400 focus:outline-none"
                         />
+                        <span className="text-[9px] text-slate-500">كج</span>
                       </div>
 
-                      {/* RIR (Reps in Reserve - inspired by Gymcoach) */}
-                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/5" title="الشدة المتبقية RIR">
-                        <span className="text-[10px] text-purple-300">RIR:</span>
-                        <input 
-                          type="number" 
-                          min={0}
-                          max={4}
-                          value={ex.rir} 
-                          onChange={e => {
-                            const val = Number(e.target.value);
-                            setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, rir: val } : item) } : d));
-                          }}
-                          className="w-7 bg-transparent text-center font-bold text-purple-400 focus:outline-none" 
-                        />
+                      {/* RIR (Reps In Reserve) */}
+                      <div className="flex items-center gap-1 bg-[#0A0514] px-2 py-1 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-purple-400 font-bold">RIR:</span>
+                        <select
+                          value={ex.rir}
+                          onChange={e => updateExercise(day.id, ex.id, 'rir', parseInt(e.target.value))}
+                          className="bg-transparent text-center font-bold text-purple-300 focus:outline-none cursor-pointer"
+                        >
+                          <option value={0} className="bg-[#140C2A] text-rose-400">0 (فشل تام)</option>
+                          <option value={1} className="bg-[#140C2A] text-amber-400">1</option>
+                          <option value={2} className="bg-[#140C2A] text-emerald-400">2 (مثالي)</option>
+                          <option value={3} className="bg-[#140C2A] text-slate-300">3</option>
+                          <option value={4} className="bg-[#140C2A] text-slate-400">4</option>
+                        </select>
                       </div>
 
-                      {/* Rest Seconds */}
-                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                        <Clock size={11} className="text-slate-400" />
+                      {/* Rest Timer */}
+                      <div className="flex items-center gap-1 bg-[#0A0514] px-2 py-1 rounded-lg border border-white/5">
+                        <Clock size={11} className="text-slate-500" />
                         <input 
                           type="number" 
-                          step={15}
                           value={ex.restSec} 
-                          onChange={e => {
-                            const val = Number(e.target.value);
-                            setDays(days.map(d => d.id === day.id ? { ...d, exercises: d.exercises.map(item => item.id === ex.id ? { ...item, restSec: val } : item) } : d));
-                          }}
-                          className="w-9 bg-transparent text-center text-slate-300 focus:outline-none" 
+                          onChange={e => updateExercise(day.id, ex.id, 'restSec', parseInt(e.target.value) || 30)}
+                          className="w-8 bg-transparent text-center font-mono text-slate-300 focus:outline-none"
                         />
-                        <span className="text-[10px] text-slate-500">ث</span>
+                        <span className="text-[9px] text-slate-500">ثانية</span>
                       </div>
 
-                      {/* Delete Exercise */}
+                      {/* Delete */}
                       <button 
                         onClick={() => removeExercise(day.id, ex.id)} 
                         className="text-slate-500 hover:text-rose-400 p-1 transition"
@@ -400,6 +468,87 @@ export default function WorkoutBuilder() {
       >
         <Plus size={20} /> إضافة يوم تدريبي جديد للخطة
       </button>
+
+      {/* Excel / Google Sheets Import Modal */}
+      {activeDayIdForExcel && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0E081D] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-[#140C2A]">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="text-emerald-400" size={20} />
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-white">استيراد مباشر من Excel أو Google Sheets</h3>
+                  <p className="text-[11px] text-slate-400">انسخ أعمدة جدولك والصقها هنا، وسيقوم النظام بفرز الحركات والعدات تلقائياً</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setActiveDayIdForExcel(null)}
+                className="text-xs px-2.5 py-1 rounded-lg bg-white/10 text-slate-400 hover:text-white"
+              >
+                إغلاق ✕
+              </button>
+            </div>
+
+            {/* Input & Guide */}
+            <div className="p-4 space-y-3 bg-[#0A0514]">
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-[11px] text-slate-400 flex items-start gap-2">
+                <HelpCircle size={15} className="text-purple-400 mt-0.5 shrink-0" />
+                <p>
+                  <strong>ترتيب الأعمدة المتوقع (مفصول بـ Tab أو Comma):</strong><br />
+                  <code className="text-purple-300">اسم التمرين | المجموعات | العدات | الوزن (كج) | الـ RIR | وقت الراحة (ثانية)</code>
+                </p>
+              </div>
+
+              <textarea
+                value={excelRawInput}
+                onChange={e => parseExcelText(e.target.value)}
+                placeholder={`الصق النص المنسوخ من Excel هنا مباشرة...\nمثال:\nBarbell Bench Press\t4\t8-10\t80\t2\t90\nIncline DB Press\t3\t10-12\t30\t1\t75`}
+                rows={6}
+                className="w-full bg-[#150D2A] border border-white/10 rounded-xl p-3 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+              />
+
+              {/* Preview */}
+              {excelParsedPreview.length > 0 && (
+                <div className="mt-3">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-xs font-bold text-emerald-400">
+                      معاينة التمارين المكتشفة ({excelParsedPreview.length} تمرين):
+                    </span>
+                  </div>
+                  <div className="max-h-36 overflow-y-auto space-y-1 bg-[#140C2A] p-2 rounded-xl border border-white/5 text-[11px]">
+                    {excelParsedPreview.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center py-1 border-b border-white/5 last:border-none text-slate-300">
+                        <span className="font-semibold text-white truncate max-w-xs">{item.name}</span>
+                        <span className="text-slate-400 font-mono">
+                          {item.sets} مجموعات × {item.reps} | {item.weightKg} كج | RIR {item.rir}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-4 bg-[#140C2A] border-t border-white/[0.08] flex justify-end gap-3">
+              <button 
+                onClick={() => setActiveDayIdForExcel(null)}
+                className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              >
+                إلغاء
+              </button>
+              <button 
+                onClick={applyExcelImport}
+                disabled={excelParsedPreview.length === 0}
+                className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold text-xs px-5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-emerald-950"
+              >
+                <ClipboardPaste size={14} /> تأكيد الإضافة للخطة التدريبية
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Exercise Library Modal Picker (Workout.cool Architecture) */}
       {activeDayIdForPicker && (

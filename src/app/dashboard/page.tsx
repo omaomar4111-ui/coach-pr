@@ -32,12 +32,18 @@ export default function CoachDashboard() {
           <h1 className="text-3xl font-bold">لوحة تحكم الكوتش</h1>
           <p className="text-xs text-slate-400 mt-1">CoachPRB — متابعة نشاط الأبطال ومعدلات الالتزام</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2.5">
+          <Link href="/app" className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3.5 py-2 rounded-lg hover:bg-emerald-500/20 transition text-sm font-bold flex items-center gap-1.5">
+            📱 وضع الصالة للمتدرب (/app)
+          </Link>
+          <Link href="/dashboard/formcheck" className="bg-purple-950/40 border border-purple-500/30 text-purple-300 px-3.5 py-2 rounded-lg hover:bg-purple-900/40 transition text-sm font-bold flex items-center gap-1.5">
+            🎥 مختبر التكنيك (Form Check)
+          </Link>
           <Link href="/dashboard/builder" className="bg-[#150D2A] border border-white/10 px-4 py-2 rounded-lg hover:border-white/20 transition text-sm">
             مُنشئ الجداول
           </Link>
-          <Link href="/start/coach/register" className="bg-[#7C3AED] px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-bold">
-            + إضافة عميل جديد
+          <Link href="/dashboard/clients" className="bg-[#7C3AED] px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-bold">
+            + إدارة المشتركين
           </Link>
         </div>
       </div>
