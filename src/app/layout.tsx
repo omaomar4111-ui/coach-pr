@@ -12,29 +12,24 @@ const tajawal = Tajawal({
 
 export const metadata: Metadata = {
   title: {
-    default: "CoachPRB — سجّل رقمك. غيّر جسمك",
+    default: "CoachPRB",
     template: "%s | CoachPRB",
   },
-  description:
-    "CoachPRB: المنصة الاحترافية الأولى للمدربين والرياضيين في الشرق الأوسط. إدارة المتدربين، تصميم الخطط التدريبية والغذائية، وفحص التكنيك الرياضي وحماية المفاصل.",
+  description: "CoachPRB",
   applicationName: "CoachPRB",
   keywords: [
     "CoachPRB",
     "تدريب رياضي",
     "كمال أجسام",
-    "كوتش أونلاين",
-    "دايت وجداول تمارين",
-    "Form Check",
-    "سجّل رقمك غيّر جسمك",
+    "كوتش",
   ],
-  authors: [{ name: "CoachPRB Team" }],
+  authors: [{ name: "CoachPRB" }],
   creator: "CoachPRB",
   publisher: "CoachPRB",
   metadataBase: new URL("https://coachprb.vercel.app"),
   openGraph: {
-    title: "CoachPRB — سجّل رقمك. غيّر جسمك",
-    description:
-      "المنصة الاحترافية الأولى للمدربين والرياضيين. جداول تمارين، تغذية دقيقة، وحماية كاملة للمفاصل.",
+    title: "CoachPRB",
+    description: "CoachPRB",
     url: "https://coachprb.vercel.app",
     siteName: "CoachPRB",
     locale: "ar_EG",
@@ -42,14 +37,19 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CoachPRB — سجّل رقمك. غيّر جسمك",
-    description:
-      "المنصة الاحترافية الأولى للمدربين والرياضيين في مصر والشرق الأوسط.",
+    title: "CoachPRB",
+    description: "CoachPRB",
   },
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/pr-logo.png",
+    icon: [
+      { url: "/brand-pr-logo.png", type: "image/png" },
+      { url: "/favicon.ico" }
+    ],
+    apple: [
+      { url: "/brand-pr-logo.png", type: "image/png" }
+    ],
+    shortcut: ["/brand-pr-logo.png"]
   },
 };
 

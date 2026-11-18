@@ -91,20 +91,16 @@ export default function CinemaLandingPage() {
           {/* Badge */}
           <div className="stagger-fade inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/35 text-purple-300 text-xs font-bold mb-6 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
             <Sparkles size={14} className="text-purple-400" />
-            CoachPRB — سجّل رقمك. غيّر جسمك.
+            CoachPRB
           </div>
           
           {/* Hero Headline */}
-          <h1 className="stagger-fade text-4xl sm:text-6xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
+          <h1 className="stagger-fade text-4xl sm:text-6xl md:text-7xl font-black leading-tight mb-8 tracking-tight">
             سجّل رقمك القياسي. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-emerald-400">
               واصنع جسماً يفرض هيبته.
             </span>
           </h1>
-          
-          <p className="stagger-fade text-sm sm:text-base text-slate-300 mb-10 max-w-xl mx-auto">
-            منصة التدريب الاحترافية للمدربين والرياضيين.
-          </p>
 
           {/* CTA Buttons */}
           <div className="stagger-fade flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
