@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
       if (botToken && chatId) {
         const text = `
-🚨 *إشعار جديد من PR Agent*
+🚨 *إشعار جديد من CoachPRB*
 *${title}*
 ------------------------------
 ${message}
@@ -57,7 +57,7 @@ ${orderData?.waybill ? `🚚 *رقم البوليصة:* \`${orderData.waybill}\`
             to: targetPhone,
             type: 'text',
             text: {
-              body: `🔔 *PR Agent:* ${title}\n\n${message}`
+              body: `🔔 *CoachPRB:* ${title}\n\n${message}`
             }
           })
         });

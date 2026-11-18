@@ -85,12 +85,12 @@ export default function LoginPage() {
       {/* Top Header */}
       <header className="max-w-6xl w-full mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 border border-emerald-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-emerald-500/10">
-            <img src="/pr-logo.png" alt="PR Agent" className="w-full h-full object-contain" />
+          <div className="w-10 h-10 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-purple-950/50">
+            <img src="/brand-pr-logo.png" alt="CoachPRB" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
           </div>
           <div>
-            <span className="text-base font-extrabold text-white block">PR Agent</span>
-            <span className="text-[10px] text-emerald-400 font-semibold block -mt-1">منصة التجارة المحادثية</span>
+            <span className="text-base font-extrabold text-white block">CoachPRB</span>
+            <span className="text-[10px] text-purple-400 font-semibold block -mt-1">منصة التدريب الرياضي</span>
           </div>
         </Link>
 
@@ -198,7 +198,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-slate-500">
-        © 2026 PR Agent Platform &bull; نظام توثيق وتسجيل دخول العملاء المشفر.
+        © 2026 CoachPRB &bull; نظام توثيق وتسجيل دخول المدربين والأبطال.
       </footer>
 
     </div>

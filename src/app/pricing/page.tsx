@@ -82,7 +82,7 @@ export default function PricingPage() {
           استثمر في أسطول يوفر لك راتب 3 موظفين
         </h1>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10">
-          وفر أكثر من 85% من تكاليف خدمة العملاء وتجنب خسائر الإيصالات المزيفة مع PR Agent.
+          وفر أكثر من 85% من تكاليف خدمة العملاء وتجنب خسائر الإيصالات المزيفة مع CoachPRB.
         </p>
 
         {/* Billing Toggle */}
@@ -168,7 +168,7 @@ export default function PricingPage() {
           <div>
             <h4 className="text-lg font-semibold text-white mb-1">ضمان استرجاع الأموال بنسبة 100%</h4>
             <p className="text-sm text-gray-400">
-              جرب PR Agent لمدة 14 يوماً كاملة، وإذا لم تضاعف سرعة ردودك أو تزيد مبيعاتك، سنعيد لك كامل المبلغ فوراً دون أي شروط.
+              جرب CoachPRB لمدة 14 يوماً كاملة، وإذا لم تضاعف سرعة ردودك أو تزيد مبيعاتك، سنعيد لك كامل المبلغ فوراً دون أي شروط.
             </p>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function PricingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 mt-24 py-8 text-center text-gray-500 text-sm">
-        <p>© 2026 PR Agent — جميع الحقوق محفوظة.</p>
+        <p>© 2026 CoachPRB — جميع الحقوق محفوظة.</p>
       </footer>
     </div>
   );

@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
           timestamp: new Date().toISOString(),
           tenant_id: tenant.id,
           data: {
-            message: "هذا حدث تجريبي تم إرساله من منصة PR Agent بنجاح 🚀",
+            message: "هذا حدث تجريبي تم إرساله من منصة CoachPRB بنجاح 🚀",
           },
         };
 

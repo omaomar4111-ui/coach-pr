@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, X } from "lucide-react";
+import Image from "next/image";
+import { X } from "lucide-react";
 
 export function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -29,25 +30,31 @@ export function PwaInstallPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 rounded-2xl bg-[#07040D] border border-[#7C3AED]/40 p-4 shadow-2xl shadow-purple-950/60 font-sans" dir="rtl">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 rounded-2xl bg-[#0b0816]/95 backdrop-blur-xl border border-purple-500/30 p-3.5 shadow-2xl shadow-purple-950/80 font-sans" dir="rtl">
       <button
         onClick={() => setShow(false)}
-        className="absolute top-2 left-2 text-gray-400 hover:text-white"
+        className="absolute top-2 left-2 text-slate-500 hover:text-white p-1"
         aria-label="إغلاق"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3.5 h-3.5" />
       </button>
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-[#7C3AED]/20">
-          <Download className="w-5 h-5 text-[#a78bfa]" />
+        {/* Official Pure White PR Logo */}
+        <div className="w-10 h-10 rounded-xl bg-purple-950/50 border border-purple-500/40 flex items-center justify-center p-1 shrink-0 shadow-[0_0_12px_rgba(168,85,247,0.4)]">
+          <Image
+            src="/brand-pr-logo.png"
+            alt="CoachPRB Logo"
+            width={28}
+            height={28}
+            className="object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]"
+          />
         </div>
-        <div className="flex-1">
-          <p className="text-white text-sm font-bold">تثبيت تطبيق CoachPRB</p>
-          <p className="text-gray-400 text-xs">سجّل أوزانك وتابع جدولك بدون متصفح</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-xs font-black truncate">CoachPRB</p>
         </div>
         <button
           onClick={handleInstall}
-          className="px-4 py-2 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition-all shadow-md shadow-purple-900/40"
+          className="px-4 py-2 rounded-xl btn-cyber-glow text-white text-xs font-bold shrink-0"
         >
           تثبيت
         </button>

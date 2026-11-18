@@ -107,7 +107,7 @@ export default function PipelinePage() {
                 <polygon points="12 2 22 22 2 22" fill="#8052ff" />
               </svg>
             </div>
-            <span className="text-[16px] font-normal tracking-tight text-white">PR Agent</span>
+            <span className="text-[16px] font-normal tracking-tight text-white">CoachPRB</span>
           </Link>
           <span className="text-[#333333]">/</span>
           <h1 className="text-[15px] font-normal text-[#9a9a9a]">إدارة المبيعات والطلبات (Pipeline CRM)</h1>

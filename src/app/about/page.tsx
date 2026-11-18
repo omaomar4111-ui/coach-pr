@@ -14,7 +14,7 @@ export default function AboutPage() {
               <polygon points="12 2 22 22 2 22" fill="#8052ff" />
             </svg>
           </div>
-          <span className="text-[16px] font-normal tracking-tight text-white">PR Agent</span>
+          <span className="text-[16px] font-normal tracking-tight text-white">CoachPRB</span>
         </Link>
         <div className="flex items-center gap-6 text-[14px]">
           <Link href="/pricing" className="text-[#9a9a9a] hover:text-white transition-colors">الأسعار</Link>
@@ -36,7 +36,7 @@ export default function AboutPage() {
 
         <div className="space-y-6 text-[17px] font-extralight text-[#bdbdbd] leading-relaxed">
           <p>
-            تأسست <strong>PR Agent</strong> لتغيير قواعد اللعبة في التجارة الاجتماعية (Social Commerce). نعلم حجم المعاناة التي يواجهها أصحاب المتاجر في الرد اليدوي على آلاف تعليقات إنستجرام، وتأخير الرد في واتساب، ومخاطر الاحتيال في إيصالات التحويل البنكي وإنستاباي.
+            تأسست <strong>CoachPRB</strong> لتغيير قواعد اللعبة في التجارة الاجتماعية (Social Commerce). نعلم حجم المعاناة التي يواجهها أصحاب المتاجر في الرد اليدوي على آلاف تعليقات إنستجرام، وتأخير الرد في واتساب، ومخاطر الاحتيال في إيصالات التحويل البنكي وإنستاباي.
           </p>
           <p>
             بدلاً من بناء روبوتات محادثة تقليدية ومملة، ابتكرنا <strong>أسطولاً مستقلاً من 10 إيجنتس أذكياء</strong>، يتحدثون باللهجة المصرية الحية، ويحللون الصور والإيصالات بالرؤية البصرية، ويردون في أجزاء من الثانية لضمان ألا تضيع أي فرصة بيع.

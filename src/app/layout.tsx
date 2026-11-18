@@ -68,12 +68,11 @@ export default function RootLayout({
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "PR Agent",
-    "url": "https://pr-agent-ai.vercel.app",
-    "logo": "https://pr-agent-ai.vercel.app/pr-logo.png",
-    "description": "منصة خدمة العملاء والتجارة الذكية بالذكاء الاصطناعي في الشرق الأوسط ومصر.",
+    "name": "CoachPRB",
+    "url": "https://coachprb.vercel.app",
+    "logo": "https://coachprb.vercel.app/brand-pr-logo.png",
+    "description": "منصة التدريب الرياضي وكمال الأجسام الأولى في مصر والشرق الأوسط.",
     "sameAs": [
-      "https://www.facebook.com",
       "https://www.instagram.com"
     ]
   };

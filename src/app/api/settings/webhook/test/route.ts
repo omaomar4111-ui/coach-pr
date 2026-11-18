@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const testEvent = {
       event: event || 'messages',
       timestamp: new Date().toISOString(),
-      source: 'PR Agent Webhook Simulator',
+      source: 'CoachPRB Webhook Simulator',
       data: payload || {
         sender_id: 'test_user_001',
         sender_name: 'عميل تجريبي',
