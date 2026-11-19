@@ -3,6 +3,8 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { FitnessAnalyticsDashboard } from '@/components/FitnessAnalyticsDashboard';
+import { Dumbbell, ShieldCheck, FileText, ArrowRight, ChevronLeft } from 'lucide-react';
 
 function ClientProfileContent() {
   const params = useParams();
@@ -86,12 +88,17 @@ function ClientProfileContent() {
         </div>
       </div>
 
-      <div className="mt-8 flex gap-4">
-        <Link href="/dashboard/builder" className="bg-[#7C3AED] px-6 py-2.5 rounded-lg font-bold hover:bg-purple-700 transition text-sm">
-          فتح وتعديل خطة التمرين
+      {/* Modern Fitness Analytics Dashboard (Overload & Volume Charts) */}
+      <div className="pt-4">
+        <FitnessAnalyticsDashboard athleteName={client.name} />
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-4">
+        <Link href="/dashboard/builder" className="btn-cyber-glow px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-1.5">
+          <Dumbbell size={15} /> فتح وتعديل خطة التمرين
         </Link>
-        <Link href="/dashboard/nutrition" className="bg-gray-800 px-6 py-2.5 rounded-lg font-bold hover:bg-gray-700 transition text-sm">
-          فتح خطة الدايت والماكروز
+        <Link href="/copilot" className="bg-purple-950/40 border border-purple-500/40 hover:bg-purple-900/40 px-6 py-3 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-purple-300">
+          🤖 مراجعة قرارات الـ Copilot لهذا اللاعب
         </Link>
       </div>
     </div>
