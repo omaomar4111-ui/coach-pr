@@ -52,7 +52,44 @@ export default function FormCheckReviewPage() {
     }
   });
 
+  const [isAnalyzingAI, setIsAnalyzingAI] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  // Trigger Live AI Biomechanics Analysis
+  const handleTriggerLiveAI = async () => {
+    setIsAnalyzingAI(true);
+    try {
+      const res = await fetch('/api/ai/formcheck', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          exerciseName: selectedItem.exercise,
+          weightKg: '120',
+          reps: 8,
+          reportedRir: 1,
+          injuries: ['أسفل الظهر']
+        })
+      });
+      const data = await res.json();
+      if (data?.analysis) {
+        setSelectedItem(prev => ({
+          ...prev,
+          aiPreliminaryCheck: {
+            barPathDeviation: data.analysis.barPathAssessment,
+            lumbarFlexionRisk: data.analysis.jointSafetyVerdict === 'caution' ? 'moderate' : 'low',
+            depthAssessment: data.analysis.lumbarSpineStatus
+          }
+        }));
+        if (data.analysis.suggestedCoachCue) {
+          setWrittenNotes(data.analysis.suggestedCoachCue);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAnalyzingAI(false);
+    }
+  };
   const [isRecordingVoice, setIsRecordingVoice] = useState<boolean>(false);
   const [voiceRecordedDuration, setVoiceRecordedDuration] = useState<number>(0);
   const [writtenNotes, setWrittenNotes] = useState<string>('');
@@ -155,15 +192,25 @@ export default function FormCheckReviewPage() {
               </button>
 
               {/* AI Real-time Trajectory Indicator */}
-              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-md border border-purple-500/40 rounded-xl p-2.5 text-[11px] space-y-1">
-                <div className="flex items-center gap-1 text-purple-400 font-bold">
-                  <Sparkles size={13} /> فحص الذكاء الاصطناعي الأولي
+              <div className="absolute top-4 right-4 bg-black/85 backdrop-blur-md border border-purple-500/40 rounded-xl p-3 text-[11px] space-y-2 max-w-xs shadow-2xl">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-purple-400 font-bold">
+                    <Sparkles size={13} className={isAnalyzingAI ? 'animate-spin' : ''} />
+                    <span>فحص الذكاء الاصطناعي الحي</span>
+                  </div>
+                  <button
+                    onClick={handleTriggerLiveAI}
+                    disabled={isAnalyzingAI}
+                    className="hud-badge-magenta px-2 py-0.5 rounded text-[10px] font-bold hover:scale-105 transition disabled:opacity-50"
+                  >
+                    {isAnalyzingAI ? 'جاري الفحص...' : 'إعادة الفحص بالـ AI'}
+                  </button>
                 </div>
-                <p className="text-slate-300">مسار البار: {selectedItem.aiPreliminaryCheck.barPathDeviation}</p>
+                <p className="text-slate-200 leading-snug">مسار البار: {selectedItem.aiPreliminaryCheck.barPathDeviation}</p>
                 <div className="flex items-center gap-1.5 pt-0.5">
-                  <span className="text-slate-400">إجهاد أسفل الظهر:</span>
-                  <span className="text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded text-[10px]">
-                    متوسط (تحتاج فرد الصدر)
+                  <span className="text-slate-400">حالة الأمان المفصلي:</span>
+                  <span className="text-amber-400 font-bold bg-amber-950/60 px-2 py-0.5 rounded text-[10px]">
+                    {selectedItem.aiPreliminaryCheck.depthAssessment}
                   </span>
                 </div>
               </div>
