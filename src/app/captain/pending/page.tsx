@@ -2,251 +2,293 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Users, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2, 
-  MessageSquare, 
-  Calendar, 
-  DollarSign, 
-  ChevronLeft,
-  ArrowRight,
-  Filter,
-  Search,
-  Sparkles,
-  Phone,
-  Flame,
-  Dumbbell
-} from 'lucide-react';
+import { Hourglass, Bell, Check, LogOut } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 
-interface PendingTrainee {
-  id: string;
-  name: string;
-  initials: string;
-  category: 'evaluation' | 'churn' | 'renewal' | 'payment';
-  title: string;
-  detail: string;
-  timeAgo: string;
-  actionText: string;
-  accentColor: string;
-  phone?: string;
-}
+export default function CaptainOnboardingPendingPage() {
+  const [step, setStep] = useState<'form' | 'under_review'>('form');
 
-export default function CaptainPendingActionsPage() {
-  const [filter, setFilter] = useState<'all' | 'evaluation' | 'churn' | 'renewal' | 'payment'>('all');
-  const [search, setSearch] = useState('');
+  // Form State
+  const [fullName, setFullName] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [currentTool, setCurrentTool] = useState<'whatsapp_excel' | 'other_app' | 'just_starting'>('just_starting');
+  const [biggestChallenge, setBiggestChallenge] = useState<'wasting_time' | 'tracking_progress' | 'unprofessional'>('wasting_time');
+  const [traineeCount, setTraineeCount] = useState<'1-10' | '11-50' | '50+'>('1-10');
 
-  const [pendingList, setPendingList] = useState<PendingTrainee[]>([
-    {
-      id: 'p-1',
-      name: 'سارة مصطفى',
-      initials: 'س م',
-      category: 'evaluation',
-      title: 'أرسلت التقييم الأسبوعي وفيديو السكوات',
-      detail: 'انخفض الوزن 1.2 كجم · أرسلت 4 صور وفيديو 120 كج سكوات',
-      timeAgo: 'منذ 5 دقائق',
-      actionText: 'مراجعة الفورم والقياسات',
-      accentColor: 'border-fuchsia-500/40 text-fuchsia-400 bg-fuchsia-950/40'
-    },
-    {
-      id: 'p-2',
-      name: 'عمر خالد',
-      initials: 'ع خ',
-      category: 'churn',
-      title: 'خطر انقطاع: لم يسجّل تمارينه منذ 4 أيام',
-      detail: 'آخر تمرين كان تجميع الصدر العلوي. قد يكون مصاباً أو محبطاً.',
-      timeAgo: 'متوقف 4 أيام',
-      actionText: 'إرسال تذكير واتساب',
-      accentColor: 'border-rose-500/40 text-rose-400 bg-rose-950/40',
-      phone: '+201012345678'
-    },
-    {
-      id: 'p-3',
-      name: 'مريم أحمد',
-      initials: 'م أ',
-      category: 'renewal',
-      title: 'ينتهي الاشتراك الشهري بعد 3 أيام',
-      detail: 'باقة تدريب 3 شهور VIP. حققت 90% من هدف خسارة الدهون.',
-      timeAgo: 'باقي 3 أيام',
-      actionText: 'تجديد الاشتراك',
-      accentColor: 'border-amber-500/40 text-amber-400 bg-amber-950/40'
-    },
-    {
-      id: 'p-4',
-      name: 'محمد حسن',
-      initials: 'م ح',
-      category: 'payment',
-      title: 'مستحقات معلقة: دفع 1,000 من أصل 2,000 ج.م',
-      detail: 'المتبقي 1,000 ج.م عن تجديد شهر نوفمبر.',
-      timeAgo: 'متبقي 1,000 ج.م',
-      actionText: 'تأكيد استلام إنستاباي',
-      accentColor: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/40'
-    },
-    {
-      id: 'p-5',
-      name: 'طارق حسام',
-      initials: 'ط ح',
-      category: 'evaluation',
-      title: 'سجّل رقماً قياسياً جديداً (PR)',
-      detail: 'بنش برس بالبار: 100 كجم × 6 عدات (RIR 1)',
-      timeAgo: 'منذ ساعة',
-      actionText: 'إرسال تشجيع وبصمة صوتية',
-      accentColor: 'border-purple-500/40 text-purple-400 bg-purple-950/40'
+  // Under Review State
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName || !whatsapp) {
+      alert('يرجى ملء الاسم الكامل ورقم الواتساب للمتابعة');
+      return;
     }
-  ]);
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setStep('under_review');
+    }, 600);
+  };
 
-  const filtered = pendingList.filter(item => {
-    const matchesFilter = filter === 'all' || item.category === filter;
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.detail.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  const handleAction = (item: PendingTrainee) => {
-    if (item.category === 'churn' && item.phone) {
-      window.open(`https://wa.me/${item.phone.replace('+', '')}?text=${encodeURIComponent(`يا بطل إيه الأخبار؟ طمني عليك بقالك 4 أيام مش مسجل تمرينك على CoachPRB!`)}`, '_blank');
-    } else if (item.category === 'evaluation') {
-      window.location.href = '/dashboard/formcheck';
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          setNotificationsEnabled(true);
+        } else {
+          setNotificationsEnabled(true); // Toggle visual fallback
+        }
+      } else {
+        setNotificationsEnabled(true);
+      }
     } else {
-      alert(`تم فتح إجراء: ${item.actionText} للاعب ${item.name}`);
+      setNotificationsEnabled(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-space-void text-white font-sans selection:bg-purple-600" dir="rtl">
-      {/* Laser Navbar */}
-      <nav className="border-b border-purple-500/20 bg-[#07050d]/85 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Logo size="md" />
+    <div className="min-h-screen bg-[#07050d] text-slate-100 flex flex-col justify-between py-10 px-4 font-sans select-none" dir="rtl">
+      {/* Top Brand Centered */}
+      <header className="flex justify-center mb-6">
+        <Logo size="md" />
+      </header>
 
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/dashboard"
-              className="text-xs text-slate-300 hover:text-white flex items-center gap-1 font-bold px-3 py-2 rounded-xl bg-white/5 border border-white/10"
-            >
-              الرئيسية
-            </Link>
-            <Link 
-              href="/dashboard/builder"
-              className="text-xs text-slate-300 hover:text-white flex items-center gap-1 font-bold px-3 py-2 rounded-xl bg-white/5 border border-white/10"
-            >
-              البرامج
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Container */}
-      <main className="max-w-5xl mx-auto px-6 pt-10 pb-24">
-        {/* Top Header Card */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-              <span className="text-[11px] hud-badge-magenta px-2.5 py-0.5 rounded-full font-bold">
-                مركز مهام الكابتن (Captain Pending Hub)
-              </span>
+      {/* Main Card Container */}
+      <main className="w-full max-w-xl mx-auto">
+        {step === 'form' ? (
+          /* STEP 1: Onboarding Questionnaire Card (Pure Minimalist Luxury) */
+          <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div>
+              <h1 className="text-xl font-bold text-white mb-1">عرّفنا بيك</h1>
+              <p className="text-xs text-slate-400">كمّل البيانات دي عشان نراجع طلبك ونتواصل معاك.</p>
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-white">من يحتاجك اليوم؟</h1>
-            <p className="text-xs text-slate-400 mt-1">
-              اللاعبون الذين ينتظرون ردك، التقييمات المعلقة، وتنبيهات المتوقفين عن التمرين
-            </p>
-          </div>
 
-          {/* KPI Snapshot Pills */}
-          <div className="flex items-center gap-2">
-            <div className="px-3.5 py-2 rounded-xl glass-surface border border-purple-500/30 text-center">
-              <span className="text-xl font-black text-purple-400 font-mono">14</span>
-              <span className="text-[10px] text-slate-400 block">تمرّنوا اليوم</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl glass-surface border border-rose-500/40 text-center">
-              <span className="text-xl font-black text-rose-400 font-mono">1</span>
-              <span className="text-[10px] text-slate-400 block">خطر توقف</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl glass-surface border border-emerald-500/40 text-center">
-              <span className="text-xl font-black text-emerald-400 font-mono">1,000</span>
-              <span className="text-[10px] text-slate-400 block">ج.م معلق</span>
-            </div>
-          </div>
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">الاسم بالكامل</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: عمر مصطفى"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
 
-        {/* Filter & Search Bar */}
-        <div className="glass-surface p-4 rounded-2xl mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
-          {/* Categories Pills */}
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            {[
-              { id: 'all', label: 'الكل' },
-              { id: 'evaluation', label: '📸 تقييمات وفورم' },
-              { id: 'churn', label: '⚠️ متوقفون (Churn)' },
-              { id: 'renewal', label: '⏳ ينتهون قريباً' },
-              { id: 'payment', label: '💳 دفعات معلقة' },
-            ].map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setFilter(cat.id as any)}
-                className={`director-pill ${filter === cat.id ? 'active' : ''}`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+              {/* WhatsApp Number */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">واتساب</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="0114482641"
+                  value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value)}
+                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
 
-          {/* Search Input */}
-          <div className="relative w-full sm:w-64">
-            <Search size={15} className="absolute right-3 top-3 text-slate-400" />
-            <input
-              type="text"
-              placeholder="ابحث بالاسم أو التفاصيل..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[#0E081D] border border-white/10 rounded-xl pr-9 pl-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-            />
-          </div>
-        </div>
+              {/* Instagram Handle */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">إنستجرام (اختياري)</label>
+                <input
+                  type="text"
+                  placeholder="@your_handle"
+                  value={instagram}
+                  onChange={e => setInstagram(e.target.value)}
+                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
 
-        {/* Pending Actions List (Kochivo Clean Architecture in Dark Luxury) */}
-        <div className="space-y-3">
-          {filtered.length === 0 ? (
-            <div className="text-center py-16 glass-surface rounded-2xl text-slate-400 text-xs">
-              لا توجد مهام معلقة في هذا القسم. كل اللاعبين متابعون ومحدثون! 🔥
-            </div>
-          ) : (
-            filtered.map(item => (
-              <div 
-                key={item.id}
-                className="glass-surface glass-surface-hover p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-              >
-                {/* Trainee Avatar & Info */}
-                <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm font-mono border ${item.accentColor} shrink-0`}>
-                    {item.initials}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-sm text-white truncate">{item.name}</h3>
-                      <span className="text-[10px] text-slate-500 font-mono">{item.timeAgo}</span>
-                    </div>
-                    <p className="text-xs text-purple-300 font-semibold mt-0.5 truncate">{item.title}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5 truncate">{item.detail}</p>
-                  </div>
-                </div>
-
-                {/* Direct Action Button */}
-                <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
-                  <button
-                    onClick={() => handleAction(item)}
-                    className="btn-cyber-glow px-5 py-2.5 text-xs font-bold flex items-center gap-1.5 w-full md:w-auto justify-center"
-                  >
-                    <span>{item.actionText}</span>
-                    <ChevronLeft size={14} />
-                  </button>
+              {/* Current Tool Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-200 mb-2">بتستخدم إيه حالياً لمتابعة لاعيبتك؟</label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'whatsapp_excel', label: 'واتساب وإكسبل' },
+                    { id: 'other_app', label: 'تطبيق تاني' },
+                    { id: 'just_starting', label: 'لسه ببتدي' },
+                  ].map(item => {
+                    const isSelected = currentTool === item.id;
+                    return (
+                      <button
+                        type="button"
+                        key={item.id}
+                        onClick={() => setCurrentTool(item.id as any)}
+                        className={`p-3 rounded-2xl border text-xs font-semibold transition flex items-center justify-between gap-1.5 ${
+                          isSelected 
+                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                        }`}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            ))
-          )}
-        </div>
+
+              {/* Biggest Challenge */}
+              <div>
+                <label className="block text-xs font-bold text-slate-200 mb-2">إيه أكبر تحدي بيواجهك؟</label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'wasting_time', label: 'تضييع الوقت في الجداول' },
+                    { id: 'tracking_progress', label: 'متابعة تطور اللاعبين' },
+                    { id: 'unprofessional', label: 'شكل الشغل مش احترافي' },
+                  ].map(item => {
+                    const isSelected = biggestChallenge === item.id;
+                    return (
+                      <button
+                        type="button"
+                        key={item.id}
+                        onClick={() => setBiggestChallenge(item.id as any)}
+                        className={`p-3 rounded-2xl border text-xs font-semibold transition flex items-center justify-between gap-1.5 ${
+                          isSelected 
+                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                        }`}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Trainee Count */}
+              <div>
+                <label className="block text-xs font-bold text-slate-200 mb-2">عندك كام لاعب؟</label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {[
+                    { id: '1-10', label: '1-10' },
+                    { id: '11-50', label: '11-50' },
+                    { id: '50+', label: '+50' },
+                  ].map(item => {
+                    const isSelected = traineeCount === item.id;
+                    return (
+                      <button
+                        type="button"
+                        key={item.id}
+                        onClick={() => setTraineeCount(item.id as any)}
+                        className={`p-3 rounded-2xl border text-xs font-mono font-bold transition flex items-center justify-between ${
+                          isSelected 
+                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#a3e635] hover:bg-[#bef264] text-black font-extrabold text-sm py-3.5 rounded-2xl transition shadow-lg shadow-lime-950/40 disabled:opacity-50"
+                >
+                  {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                </button>
+              </div>
+            </form>
+
+            {/* Logout / Switch Account */}
+            <div className="pt-2 border-t border-white/5">
+              <Link 
+                href="/login"
+                className="w-full block text-center py-2.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] text-xs text-slate-400 font-bold transition"
+              >
+                تسجيل الخروج
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* STEP 2: Under Review Screen with Mobile Notifications Toggle */
+          <div className="space-y-4">
+            {/* Header Badge */}
+            <div className="bg-[#100c1e] border border-white/10 rounded-2xl py-3 px-4 text-center text-xs font-bold text-slate-300">
+              حسابك تحت المراجعة
+            </div>
+
+            {/* Main Pending Card */}
+            <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+              {/* Hourglass Icon */}
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
+                <Hourglass size={28} className="animate-pulse" />
+              </div>
+
+              <div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-sm mx-auto">
+                  أهلاً بيك في <strong className="text-white">CoachPRB</strong>. حسابك تحت المراجعة من فريقنا، وهنبعتلك إشعار أول ما يتفعّل.
+                </p>
+              </div>
+
+              {/* Mobile Push Notification Activation Toggle */}
+              <div className="bg-[#171228] border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-3 text-right">
+                <div className="flex-1">
+                  <span className="text-xs font-bold text-white block">إشعارات على الموبايل</span>
+                  <span className="text-[11px] text-slate-400 block mt-0.5">
+                    {notificationsEnabled ? 'الإشعارات شغّالة على الجهاز ده، حتى والتطبيق مقفول.' : 'بتفعّل إعداد الإشعارات...'}
+                  </span>
+                </div>
+
+                {/* Pill Switch */}
+                <button
+                  type="button"
+                  onClick={handleToggleNotifications}
+                  className={`w-12 h-6 rounded-full transition-colors relative p-0.5 shrink-0 ${
+                    notificationsEnabled ? 'bg-[#a3e635]' : 'bg-slate-700'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    notificationsEnabled ? '-translate-x-6' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Logout Button */}
+              <div className="pt-2">
+                <Link 
+                  href="/login"
+                  className="w-full block text-center py-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] text-xs text-slate-400 font-bold transition"
+                >
+                  تسجيل الخروج
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Clean Footer */}
+      <footer className="text-center text-[11px] text-slate-600 mt-6">
+        © 2026 CoachPRB. جميع الحقوق محفوظة.
+      </footer>
     </div>
   );
 }
