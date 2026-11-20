@@ -2,15 +2,11 @@
 
 import { useState } from 'react';
 import { 
-  Bot, 
   Mail, 
-  Lock, 
   ArrowLeft, 
-  CheckCircle, 
   KeyRound, 
-  Sparkles, 
   ShieldCheck,
-  Send
+  Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -80,70 +76,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col justify-between p-6 selection:bg-emerald-500 selection:text-white" dir="rtl">
+    <div className="min-h-screen bg-[#07050d] text-white font-sans flex flex-col justify-between p-6 selection:bg-[#a3e635] selection:text-black" dir="rtl">
       
       {/* Top Header */}
-      <header className="max-w-6xl w-full mx-auto flex items-center justify-between">
+      <header className="max-w-4xl w-full mx-auto flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-purple-950/50">
-            <img src="/brand-pr-logo.png" alt="CoachPRB" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
+          <div className="w-10 h-10 rounded-2xl bg-[#171228] border border-white/10 flex items-center justify-center p-2 shadow-lg">
+            <img src="/brand-pr-logo.png" alt="CoachPRB" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
           </div>
           <div>
             <span className="text-base font-extrabold text-white block">CoachPRB</span>
-            <span className="text-[10px] text-purple-400 font-semibold block -mt-1">منصة التدريب الرياضي</span>
+            <span className="text-[11px] text-[#a3e635] font-semibold block -mt-1">منصة المدربين الذكية</span>
           </div>
         </Link>
 
         <Link 
           href="/pricing" 
-          className="text-xs text-slate-400 hover:text-white transition-colors"
+          className="text-xs text-white/50 hover:text-white transition-colors"
         >
           خطط الأسعار والباقات
         </Link>
       </header>
 
-      {/* Main Login Card */}
-      <main className="max-w-md w-full mx-auto my-12 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+      {/* Main Login Card - Replicating the Kochivo Container */}
+      <main className="max-w-md w-full mx-auto my-10 bg-[#100c1e] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl space-y-6">
         
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-900/30">
-            {step === 'email' ? <Mail className="w-6 h-6" /> : <KeyRound className="w-6 h-6" />}
+          <div className="w-14 h-14 rounded-2xl bg-[#171228] border border-white/10 text-[#a3e635] flex items-center justify-center mx-auto shadow-inner">
+            {step === 'email' ? <Mail className="w-7 h-7" /> : <KeyRound className="w-7 h-7" />}
           </div>
-          <h1 className="text-xl font-black text-white">
-            {step === 'email' ? 'تسجيل الدخول لبوابة العميل' : 'أدخل كود التأكيد (OTP)'}
+          <h1 className="text-2xl font-black text-white pt-2">
+            {step === 'email' ? 'تسجيل الدخول للكابتن' : 'أدخل كود التأكيد (OTP)'}
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-white/60 leading-relaxed">
             {step === 'email' 
-              ? 'أدخل بريدك الإلكتروني لإرسال كود تسجيل دخول آمن بدون كلمة مرور' 
+              ? 'أدخل بريدك الإلكتروني كمدرب لإرسال كود تسجيل دخول فوري وآمن بدون كلمة مرور' 
               : `تم إرسال كود التأكيد (6 أرقام) إلى: ${email}`}
           </p>
         </div>
 
         {errorMsg && (
-          <div className="bg-rose-950/60 border border-rose-800 text-rose-300 text-xs p-3 rounded-xl text-center">
+          <div className="bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs p-3.5 rounded-2xl text-center">
             {errorMsg}
           </div>
         )}
 
         {demoCode && step === 'otp' && (
-          <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs p-3 rounded-xl text-center font-mono">
+          <div className="bg-[#1a2312] border border-[#a3e635]/30 text-[#bef264] text-xs p-3.5 rounded-2xl text-center font-mono">
             كود الدخول السريع للاختبار: <strong>{demoCode}</strong>
           </div>
         )}
 
         {step === 'email' ? (
-          <form onSubmit={handleSendOtp} className="space-y-4 text-xs">
-            <div className="space-y-1.5">
-              <label className="text-slate-300 font-bold block">البريد الإلكتروني للعمل / المتجر</label>
+          <form onSubmit={handleSendOtp} className="space-y-5 text-xs">
+            <div className="space-y-2">
+              <label className="text-white/80 font-bold block">البريد الإلكتروني للكابتن</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute right-3.5 top-3" />
                 <input 
                   type="email" 
                   required
-                  placeholder="name@store.com"
+                  placeholder="coach@example.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pr-10 pl-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs"
+                  className="w-full bg-[#171228] border border-white/10 focus:border-[#a3e635] rounded-2xl px-4 py-3 text-white placeholder-white/30 focus:outline-none text-sm transition-all shadow-inner"
                 />
               </div>
             </div>
@@ -151,7 +146,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer text-xs"
+              className="w-full bg-[#a3e635] hover:bg-[#8fd128] text-black font-extrabold py-3.5 rounded-2xl transition-all shadow-lg shadow-[#a3e635]/20 flex items-center justify-center gap-2 cursor-pointer text-sm"
             >
               {isLoading ? 'جاري الإرسال...' : 'إرسال كود الدخول السريع'}
               <ArrowLeft className="w-4 h-4" />
@@ -168,7 +163,7 @@ export default function LoginPage() {
                   maxLength={1}
                   value={digit}
                   onChange={e => handleOtpChange(idx, e.target.value)}
-                  className="w-12 h-14 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl text-center text-xl font-bold text-white focus:outline-none transition-all font-mono"
+                  className="w-12 h-14 bg-[#171228] border border-white/10 focus:border-[#a3e635] rounded-2xl text-center text-xl font-black text-white focus:outline-none transition-all font-mono"
                 />
               ))}
             </div>
@@ -176,17 +171,17 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer text-xs"
+              className="w-full bg-[#a3e635] hover:bg-[#8fd128] text-black font-extrabold py-3.5 rounded-2xl transition-all shadow-lg shadow-[#a3e635]/20 flex items-center justify-center gap-2 cursor-pointer text-sm"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>تأكيد الكود والدخول للداشبورد</span>
+              <span>تأكيد الكود والدخول للمنصة</span>
             </button>
 
             <div className="text-center">
               <button
                 type="button"
                 onClick={() => setStep('email')}
-                className="text-[11px] text-slate-400 hover:text-emerald-400 transition-colors"
+                className="text-xs text-white/50 hover:text-[#a3e635] transition-colors"
               >
                 تغيير البريد الإلكتروني
               </button>
@@ -194,10 +189,16 @@ export default function LoginPage() {
           </form>
         )}
 
+        <div className="pt-2 text-center border-t border-white/5">
+          <Link href="/captain/pending" className="text-xs text-white/40 hover:text-[#a3e635] transition-colors">
+            كابتن جديد؟ سجّل وانضم لمنظومة التدريب من هنا
+          </Link>
+        </div>
+
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-slate-500">
+      <footer className="text-center text-xs text-white/40 py-4">
         © 2026 CoachPRB &bull; نظام توثيق وتسجيل دخول المدربين والأبطال.
       </footer>
 
