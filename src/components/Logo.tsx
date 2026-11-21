@@ -15,7 +15,7 @@ export function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       <div className="relative flex items-center justify-center p-1.5 rounded-xl bg-purple-950/40 border border-purple-500/30 group-hover:border-purple-400/80 transition-all shadow-[0_0_20px_rgba(139,92,246,0.35)]">
         <Image
           src="/brand-pr-logo.png"
-          alt="CoachPRB Official PR Emblem"
+          alt="CoachPR Official PR Emblem"
           width={dimensions.width}
           height={dimensions.height}
           priority
@@ -26,7 +26,7 @@ export function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       <div className="flex flex-col">
         <div className="flex items-center gap-1.5">
           <span className={`font-black tracking-tight text-white ${dimensions.text}`}>
-            CoachPRB
+            CoachPR
           </span>
           <span className={`font-mono font-bold rounded-full hud-badge-magenta ${dimensions.badge}`}>
             PRO

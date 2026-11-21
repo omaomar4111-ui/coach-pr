@@ -43,14 +43,14 @@ export function PwaInstallPrompt() {
         <div className="w-10 h-10 rounded-xl bg-purple-950/50 border border-purple-500/40 flex items-center justify-center p-1 shrink-0 shadow-[0_0_12px_rgba(168,85,247,0.4)]">
           <Image
             src="/brand-pr-logo.png"
-            alt="CoachPRB Logo"
+            alt="CoachPR Logo"
             width={28}
             height={28}
             className="object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]"
           />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white text-xs font-black truncate">CoachPRB</p>
+          <p className="text-white text-xs font-black truncate">CoachPR</p>
         </div>
         <button
           onClick={handleInstall}

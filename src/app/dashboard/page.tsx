@@ -15,7 +15,9 @@ import {
   ChevronRight, 
   Clock, 
   Smartphone,
-  ExternalLink
+  ExternalLink,
+  Flame,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -24,9 +26,7 @@ import {
   YAxis, 
   Tooltip, 
   ResponsiveContainer, 
-  Cell,
-  PieChart,
-  Pie
+  Cell
 } from 'recharts';
 
 export default function DashboardOverview() {
@@ -53,16 +53,16 @@ export default function DashboardOverview() {
       id: 'c-1',
       name: 'Omar Hassan',
       daysInactive: 8,
-      reason: 'مفيش تمرين ولا وجبة ولا متابعة من 8 أيام، وما ردش على آخر رسالة.',
+      reason: 'مفيش تمرين ولا وجبة مسجلة من 8 أيام، وما ردش على آخر رسالة.',
       phone: '01012345678',
-      aiSuggestion: 'رسالة قصيرة وشخصية غالباً بترجع العميل ده.'
+      aiSuggestion: 'رسالة قصيرة وودية من ميغاتروين تقترح ضبط أوزان التمرين لاستعادة الشغف.'
     }
   ]);
 
   const [workQueue, setWorkQueue] = useState<any[]>([
-    { id: 'wq-1', name: 'Mahmoud Saber', avatar: 'MS', type: 'طلب انضمام', time: 'منذ ساعتين', status: 'pending' },
-    { id: 'wq-2', name: 'Karim Galal', avatar: 'KG', type: 'متابعة أسبوعية', time: 'الآن', status: 'pending' },
-    { id: 'wq-3', name: 'Nour Ibrahim', avatar: 'NI', type: 'مراجعة أداء', time: 'الآن', status: 'pending' },
+    { id: 'wq-1', name: 'Mahmoud Saber', avatar: 'MS', type: 'طلب انضمام جديد', time: 'منذ ساعتين', status: 'pending' },
+    { id: 'wq-2', name: 'Karim Galal', avatar: 'KG', type: 'متابعة أسبوعية (Check-in)', time: 'الآن', status: 'pending' },
+    { id: 'wq-3', name: 'Nour Ibrahim', avatar: 'NI', type: 'مراجعة أداء وتكنيك (Form Check)', time: 'الآن', status: 'pending' },
     { id: 'wq-4', name: 'Reem Gamal', avatar: 'RG', type: 'اشتراك قارب على الانتهاء', time: 'منذ ساعة', status: 'warning' }
   ]);
 
@@ -93,56 +93,58 @@ export default function DashboardOverview() {
             صباح الخير، كابتن Tamer 👋
           </h1>
           <p className="text-xs text-white/40 font-mono mt-0.5">
-            السبت، 21 نوفمبر &bull; محاكاة لوحة التحكم الحقيقية
+            لوحة قيادة التدريب الذكي &bull; الهوية البنفسجية المعتمدة
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/readiness"
-            className="bg-[#171228] border border-[#a3e635]/30 hover:border-[#a3e635] text-[#bef264] px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+            className="bg-[#1e1338] border border-[#7C3AED]/40 hover:border-[#7C3AED] text-[#c4b5fd] px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-[#7C3AED]/20"
           >
-            <Sparkles size={13} /> فحص جاهزية اليوم
+            <Sparkles size={13} className="text-[#a78bfa]" /> فحص جاهزية اليوم
           </Link>
         </div>
       </div>
 
-      {/* 4 Top KPI Cards (Matching GymRate Exact Metric Layout) */}
+      {/* 4 Top KPI Cards (Matching Exact Metric Layout with Purple Identity) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Active Clients */}
-        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
+        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between hover:border-[#7C3AED]/30 transition group">
           <p className="text-xs font-semibold text-white/50 mb-1">العملاء النشطون</p>
           <div className="flex items-baseline justify-between">
-            <h3 className="text-3xl font-black font-mono text-white">{stats.activeClients}</h3>
+            <h3 className="text-3xl font-black font-mono text-white group-hover:text-[#c4b5fd] transition">{stats.activeClients}</h3>
             <span className="text-xs text-white/30 font-normal">لاعب</span>
           </div>
         </div>
 
         {/* Pending Review */}
-        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
+        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between hover:border-amber-500/30 transition">
           <p className="text-xs font-semibold text-white/50 mb-1">بانتظار المراجعة</p>
           <div className="flex items-baseline justify-between">
             <h3 className="text-3xl font-black font-mono text-white">{stats.awaitingReview}</h3>
-            <span className="text-xs text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded-full">معلق</span>
+            <span className="text-xs text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">معلق</span>
           </div>
         </div>
 
         {/* Monthly Revenue */}
-        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
+        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between hover:border-[#7C3AED]/30 transition group">
           <p className="text-xs font-semibold text-white/50 mb-1">إيرادات الشهر</p>
           <div className="flex items-baseline gap-1.5">
-            <h3 className="text-3xl font-black font-mono text-white">{stats.monthlyRevenue.toLocaleString()}</h3>
+            <h3 className="text-3xl font-black font-mono text-white group-hover:text-[#a78bfa] transition">{stats.monthlyRevenue.toLocaleString()}</h3>
             <span className="text-xs text-white/40 font-mono">EGP</span>
           </div>
         </div>
 
         {/* Average Commitment */}
-        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
+        <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between hover:border-[#7C3AED]/30 transition">
           <p className="text-xs font-semibold text-white/50 mb-1">متوسط الالتزام</p>
           <div className="flex items-baseline justify-between">
-            <h3 className="text-3xl font-black font-mono text-[#a3e635]">{stats.commitmentRate}%</h3>
-            <span className="text-[11px] text-[#bef264] font-bold">ممتاز 🔥</span>
+            <h3 className="text-3xl font-black font-mono text-[#a78bfa]">{stats.commitmentRate}%</h3>
+            <span className="text-[11px] text-[#c4b5fd] font-bold flex items-center gap-1">
+              <Flame size={12} className="text-amber-400" /> ممتاز
+            </span>
           </div>
         </div>
 
@@ -151,7 +153,7 @@ export default function DashboardOverview() {
       {/* Middle Section: Revenue Chart & Needs Attention */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left: Revenue Last 7 Days (Exact Gymrate Bar Chart & Commitment Radial) */}
+        {/* Left: Revenue Last 7 Days (Purple Bar Chart & Commitment Radial) */}
         <div className="lg:col-span-7 bg-[#111116] border border-white/5 p-6 rounded-2xl space-y-6">
           
           <div className="flex justify-between items-center border-b border-white/5 pb-3">
@@ -180,15 +182,14 @@ export default function DashboardOverview() {
                     tickFormatter={val => `${val}`}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#171228', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '11px' }}
-                    itemStyle={{ color: '#a3e635' }}
+                    contentStyle={{ backgroundColor: '#1e1338', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '12px', fontSize: '11px' }}
+                    itemStyle={{ color: '#c4b5fd' }}
                   />
                   <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
                     {revenueWeekly.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={entry.revenue > 0 ? '#52525b' : '#27272a'} 
-                        className={entry.active ? 'fill-[#a3e635]' : ''}
+                        fill={entry.active ? '#7C3AED' : (entry.revenue > 0 ? '#581c87' : '#27272a')} 
                       />
                     ))}
                   </Bar>
@@ -196,18 +197,18 @@ export default function DashboardOverview() {
               </ResponsiveContainer>
             </div>
 
-            {/* Circular Gauge for Overall Commitment (86%) */}
+            {/* Circular Gauge for Overall Commitment (86%) with Purple Hue */}
             <div className="md:col-span-4 flex flex-col items-center justify-center p-3 border-t md:border-t-0 md:border-r border-white/5">
               <div className="relative w-28 h-28 flex items-center justify-center">
                 <div className="w-24 h-24 rounded-full border-4 border-white/5 flex items-center justify-center relative">
-                  <div className="absolute inset-0 rounded-full border-4 border-[#a3e635] border-t-transparent -rotate-45"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-[#7C3AED] border-t-transparent -rotate-45 shadow-[0_0_15px_rgba(124,58,237,0.4)]"></div>
                   <div className="text-center">
                     <span className="text-2xl font-black font-mono text-white">86%</span>
                   </div>
                 </div>
               </div>
-              <p className="text-xs font-bold text-white mt-2">الالتزام</p>
-              <span className="text-[10px] text-white/40">كل العملاء</span>
+              <p className="text-xs font-bold text-white mt-2">الالتزام العام</p>
+              <span className="text-[10px] text-white/40">لكافة المشتركين</span>
             </div>
 
           </div>
@@ -222,9 +223,9 @@ export default function DashboardOverview() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                <h3 className="text-xs font-extrabold text-white">يحتاج 3 عملاء إلى تدخلك اليوم</h3>
+                <h3 className="text-xs font-extrabold text-white">يحتاج عميل إلى تدخلك اليوم</h3>
               </div>
-              <span className="text-[10px] text-white/40">ميجاترون : مساعد ذكي</span>
+              <span className="text-[10px] text-[#c4b5fd] bg-[#7C3AED]/20 border border-[#7C3AED]/30 px-2 py-0.5 rounded-full font-bold">ميغاتروين AI</span>
             </div>
 
             {attentionClients.map((client, idx) => (
@@ -237,12 +238,12 @@ export default function DashboardOverview() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                  <span className="text-[10px] text-[#a3e635] font-semibold">{client.aiSuggestion}</span>
+                  <span className="text-[10px] text-[#c4b5fd] font-semibold">{client.aiSuggestion}</span>
                   <a 
                     href={`https://wa.me/${client.phone}?text=${encodeURIComponent(`أهلاً كابتن ${client.name}، طمني عليك لاحظت غيابك بقالك كذا يوم، كل حاجة تمام؟`)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] bg-[#1a2312] hover:bg-[#a3e635] hover:text-black text-[#a3e635] px-2.5 py-1 rounded-lg border border-[#a3e635]/30 font-bold transition flex items-center gap-1"
+                    className="text-[10px] bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-3 py-1 rounded-lg border border-[#7C3AED]/40 font-bold transition flex items-center gap-1 shadow-sm shadow-[#7C3AED]/30"
                   >
                     واتساب ⚡
                   </a>
@@ -250,44 +251,45 @@ export default function DashboardOverview() {
               </div>
             ))}
 
-            <div className="text-left">
-              <Link href="/captain/pending" className="text-[11px] text-[#a3e635] hover:underline font-bold inline-flex items-center gap-1">
-                عرض التقرير <ChevronRight size={12} className="rotate-180" />
+            <div className="pt-1 flex items-center justify-between">
+              <span className="text-[11px] text-white/40">طلب انضمام جديد (14 عميل)</span>
+              <Link href="/captain/pending" className="text-[11px] text-[#a78bfa] hover:underline font-bold inline-flex items-center gap-1">
+                عرض الطلبات &larr;
               </Link>
             </div>
           </div>
 
-          {/* Work Queue (قائمة العمل) */}
+          {/* Work Queue Table (Exact GymRate Styling) */}
           <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl space-y-3">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xs font-extrabold text-white">قائمة العمل</h3>
-              <Link href="/dashboard/inbox" className="text-[11px] text-[#a3e635] hover:underline font-bold">
-                افتح الوارد
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-xs font-extrabold text-white">قائمة الانتظار والعمل اليومي</h3>
+              <Link href="/dashboard/inbox" className="text-[11px] text-[#a78bfa] hover:underline font-bold">
+                فتح الوارد
               </Link>
             </div>
 
-            <div className="space-y-2">
+            <div className="divide-y divide-white/5">
               {workQueue.map((item) => (
-                <div 
-                  key={item.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[#0e0d14] border border-white/5 hover:border-white/10 transition"
-                >
+                <div key={item.id} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#171228] border border-white/10 flex items-center justify-center font-bold text-[11px] text-white/80">
+                    <div className="w-7 h-7 rounded-full bg-[#1e1338] border border-[#7C3AED]/40 flex items-center justify-center text-[10px] font-bold text-[#c4b5fd]">
                       {item.avatar}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">{item.name}</p>
-                      <span className="text-[10px] text-white/40 block">{item.type} &bull; {item.time}</span>
+                      <p className="font-bold text-white text-xs">{item.name}</p>
+                      <p className="text-[10px] text-white/40">{item.type}</p>
                     </div>
                   </div>
 
-                  <Link
-                    href="/dashboard/clients"
-                    className="text-[10px] bg-white/5 hover:bg-white/10 text-white/80 px-3 py-1 rounded-lg border border-white/10 transition font-semibold"
-                  >
-                    مراجعة
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/30 font-mono">{item.time}</span>
+                    <Link
+                      href="/dashboard/inbox"
+                      className="text-[10px] font-bold text-[#c4b5fd] bg-[#7C3AED]/20 border border-[#7C3AED]/40 hover:bg-[#7C3AED] hover:text-white px-2 py-0.5 rounded-md transition"
+                    >
+                      إجراء
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>

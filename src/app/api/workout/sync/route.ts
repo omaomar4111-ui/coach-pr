@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       success: true,
       persisted: 'edge_cache',
       syncedSets: logs.reduce((acc, ex) => acc + (ex.sets?.filter((s: any) => s.completed).length || 0), 0),
-      message: 'تمت المزامنة بنجاح في CoachPRB Edge Server'
+      message: 'تمت المزامنة بنجاح في CoachPR Edge Server'
     });
   } catch (error: any) {
     console.error('Sync workout route error:', error);

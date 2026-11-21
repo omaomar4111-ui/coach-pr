@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
     // 2. Dispatch Web Push notification
     const payload = JSON.stringify({
-      title: title || 'CoachPRB - تنبيه التدريب',
+      title: title || 'CoachPR - تنبيه التدريب',
       body: body || 'لديك تحديث جديد في خطتك التدريبية اليوم.',
       url: url || '/app',
       icon: '/pr-logo.png',

@@ -442,7 +442,7 @@ export default function SettingsPage() {
             {isInviteModalOpen && (
               <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
                 <div className="bg-[#120F1D] border border-white/20 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-                  <h4 className="text-lg font-bold">دعوة عضو جديد لفريق CoachPRB</h4>
+                  <h4 className="text-lg font-bold">دعوة عضو جديد لفريق CoachPR</h4>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">البريد الإلكتروني</label>
                     <input

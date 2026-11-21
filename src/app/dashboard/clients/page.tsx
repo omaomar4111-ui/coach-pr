@@ -57,7 +57,7 @@ export default function ClientsList() {
             <ArrowRight size={14} /> العودة للوحة التحكم
           </Link>
           <h1 className="text-2xl sm:text-3xl font-black text-white">إدارة اللاعبين والمشتركين</h1>
-          <p className="text-xs text-white/50 mt-1">قائمة الرياضيين، أهدافهم، وتتبع التزامهم بتمارين CoachPRB</p>
+          <p className="text-xs text-white/50 mt-1">قائمة الرياضيين، أهدافهم، وتتبع التزامهم بتمارين CoachPR</p>
         </div>
 
         <button 

@@ -1,7 +1,7 @@
-// CoachPRB Offline PWA Service Worker (v3.0)
+// CoachPR Offline PWA Service Worker (v3.0)
 // Designed for basement gym connectivity loss with automatic background sync
 
-const CACHE_NAME = "coachprb-pwa-v3";
+const CACHE_NAME = "coachpr-pwa-v3";
 const OFFLINE_URL = "/app";
 
 const PRECACHE_ASSETS = [
@@ -91,7 +91,7 @@ self.addEventListener("push", function (event) {
           url: data.url || "/app",
         },
       };
-      event.waitUntil(self.registration.showNotification(data.title || "CoachPRB", options));
+      event.waitUntil(self.registration.showNotification(data.title || "CoachPR", options));
     } catch (e) {
       console.warn("Push event error:", e);
     }

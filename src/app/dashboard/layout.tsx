@@ -59,10 +59,10 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'العمل اليومي',
     items: [
-      { name: 'الوارد', href: '/dashboard/inbox', icon: Inbox, badge: '14', badgeColor: 'bg-[#a3e635] text-black' },
-      { name: 'الرسائل', href: '/dashboard/messages', icon: Send, badge: '4', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'الوارد', href: '/dashboard/inbox', icon: Inbox, badge: '14', badgeColor: 'bg-[#7C3AED] text-white' },
+      { name: 'الرسائل', href: '/dashboard/messages', icon: Send, badge: '4', badgeColor: 'bg-[#7C3AED] text-white' },
       { name: 'الرسائل الجماعية', href: '/dashboard/broadcast', icon: MessageSquare },
-      { name: 'مراجعة الأداء', href: '/dashboard/readiness', icon: Play, badge: '1', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'مراجعة الأداء', href: '/dashboard/readiness', icon: Play, badge: '1', badgeColor: 'bg-[#7C3AED] text-white' },
       { name: 'تقييم التمرين', href: '/dashboard/formcheck', icon: CheckSquare },
       { name: 'التعديلات الصحية', href: '/dashboard/health', icon: HeartHandshake },
     ]
@@ -70,7 +70,7 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'العملاء',
     items: [
-      { name: 'العملاء', href: '/dashboard/clients', icon: Users, badge: '1', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'العملاء', href: '/dashboard/clients', icon: Users, badge: '29', badgeColor: 'bg-[#7C3AED] text-white' },
       { name: 'مركز الاستيراد', href: '/dashboard/import', icon: FileText },
       { name: 'العملاء المحتملون', href: '/captain/pending', icon: PhoneCall },
     ]
@@ -97,7 +97,7 @@ const menuGroups: MenuGroup[] = [
       { name: 'التحدي', href: '/dashboard/challenges', icon: Zap },
       { name: 'الإحالات', href: '/dashboard/referrals', icon: Users },
       { name: 'برنامج الشركاء', href: '/dashboard/partners', icon: Store },
-      { name: 'متجر CoachPRB', href: '/dashboard/store', icon: Store },
+      { name: 'متجر CoachPR', href: '/dashboard/store', icon: Store },
     ]
   },
   {
@@ -112,7 +112,7 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'الإعدادات والاشتراك',
     items: [
-      { name: 'اشتراكي في CoachPRB', href: '/dashboard/subscription', icon: ShieldCheck },
+      { name: 'اشتراكي في CoachPR', href: '/dashboard/subscription', icon: ShieldCheck },
       { name: 'الإعدادات', href: '/settings', icon: Settings },
       { name: 'المساعدة', href: '/dashboard/help', icon: HelpCircle },
     ]
@@ -137,12 +137,12 @@ function SidebarNavigation() {
                   <div
                     className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 ${
                       isActive 
-                        ? 'bg-[#171228] text-white font-bold border border-white/10 shadow-sm' 
+                        ? 'bg-[#1e1338] text-white font-bold border border-[#7C3AED]/40 shadow-sm shadow-[#7C3AED]/20' 
                         : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <item.icon size={16} className={isActive ? 'text-[#a3e635]' : 'text-white/40'} />
+                      <item.icon size={16} className={isActive ? 'text-[#a78bfa]' : 'text-white/40'} />
                       <span className="truncate max-w-[145px]">{item.name}</span>
                     </div>
 
@@ -164,20 +164,20 @@ function SidebarNavigation() {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-[#07050d] text-white overflow-hidden font-sans selection:bg-[#a3e635] selection:text-black" dir="rtl">
+    <div className="flex h-screen bg-[#07050d] text-white overflow-hidden font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
       
-      {/* Enterprise Full-Fledged Gymrate-Style Sidebar */}
+      {/* Enterprise Full-Fledged Luxury Sidebar */}
       <aside className="w-64 border-l border-white/5 bg-[#0a0a0a] flex flex-col hidden xl:flex shrink-0 z-30">
         
         {/* Header Logo */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-white/5">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#171228] border border-white/10 flex items-center justify-center p-1.5">
-              <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
+            <div className="w-8 h-8 rounded-xl bg-[#1e1338] border border-[#7C3AED]/30 flex items-center justify-center p-1.5 shadow-sm shadow-[#7C3AED]/30">
+              <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(124,58,237,0.7)]" />
             </div>
-            <span className="text-lg font-black tracking-tighter text-white">Coach<span className="text-[#a3e635]">PRB</span></span>
+            <span className="text-lg font-black tracking-tighter text-white">Coach<span className="text-[#a78bfa]">PR</span></span>
           </Link>
-          <span className="text-[10px] font-mono text-[#a3e635] bg-[#1a2312] border border-[#a3e635]/30 px-2 py-0.5 rounded-full font-bold">
+          <span className="text-[10px] font-mono text-[#c4b5fd] bg-[#7C3AED]/20 border border-[#7C3AED]/40 px-2 py-0.5 rounded-full font-bold">
             PRO
           </span>
         </div>
@@ -190,7 +190,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Bottom Profile Bar */}
         <div className="p-3 border-t border-white/5 bg-[#07050d] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#a3e635] to-emerald-400 border border-[#a3e635] flex items-center justify-center text-black font-black text-xs">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#7C3AED]/40">
               PR
             </div>
             <div>
@@ -218,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <input 
                 type="text" 
                 placeholder="ابحث في الصفحات والإجراءات..." 
-                className="w-full bg-[#111116] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#a3e635] transition"
+                className="w-full bg-[#111116] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#7C3AED] transition"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/30 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
                 Ctrl+K
@@ -229,25 +229,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Right Header Controls */}
           <div className="flex items-center gap-3">
             
-            {/* Ask AI Top Button (Gymrate Megatron Style) */}
+            {/* Ask AI Top Button (Megatron Style with Purple Glow) */}
             <Link 
               href="/copilot"
-              className="bg-[#a3e635] hover:bg-[#8fd128] text-black font-extrabold text-xs px-4 py-2 rounded-full flex items-center gap-1.5 shadow-md shadow-[#a3e635]/20 transition"
+              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-extrabold text-xs px-4 py-2 rounded-full flex items-center gap-1.5 shadow-md shadow-[#7C3AED]/30 transition"
             >
               <Sparkles size={14} />
-              <span>اسأل ميجاترون (AI)</span>
+              <span>اسأل ميغاتروين (AI)</span>
             </Link>
 
             <Link 
               href="/app" 
-              className="text-xs font-bold text-white/70 hover:text-[#a3e635] bg-[#111116] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
+              className="text-xs font-bold text-white/70 hover:text-[#a78bfa] bg-[#111116] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
             >
               <span>تطبيق اللاعب</span>
             </Link>
 
             <button className="relative p-2 text-white/50 hover:text-white transition">
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#a3e635] rounded-full animate-ping"></span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#7C3AED] rounded-full animate-ping"></span>
             </button>
           </div>
 
@@ -260,10 +260,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Floating AI Pulse Button */}
           <Link
             href="/copilot"
-            className="fixed bottom-8 left-8 w-14 h-14 bg-[#171228] border border-[#a3e635]/50 text-[#a3e635] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(163,230,53,0.35)] hover:scale-110 transition-transform z-50 group"
+            className="fixed bottom-8 left-8 w-14 h-14 bg-[#1e1338] border border-[#7C3AED]/60 text-[#a78bfa] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(124,58,237,0.45)] hover:scale-110 transition-transform z-50 group"
             title="المساعد الذكي (Coach Copilot)"
           >
-            <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
+            <Sparkles size={24} className="group-hover:rotate-12 transition-transform text-[#c4b5fd]" />
           </Link>
         </div>
 
@@ -277,7 +277,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         toastOptions={{
           style: {
             background: '#111116',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
             color: '#fff',
             borderRadius: '1rem',
             fontFamily: 'inherit'

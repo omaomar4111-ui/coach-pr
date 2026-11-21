@@ -41,8 +41,8 @@ interface ActiveExercise {
   sets: ActiveSet[];
 }
 
-const LOCAL_STORAGE_KEY = 'coachprb_athlete_workout_v2';
-const PENDING_SYNC_KEY = 'coachprb_pending_sync_queue';
+const LOCAL_STORAGE_KEY = 'coachpr_athlete_workout_v2';
+const PENDING_SYNC_KEY = 'coachpr_pending_sync_queue';
 
 export default function AthleteGymApp() {
   const [isOnline, setIsOnline] = useState<boolean>(true);

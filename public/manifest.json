@@ -1,6 +1,6 @@
 {
-  "name": "CoachPRB - سجّل رقمك. غيّر جسمك",
-  "short_name": "CoachPRB",
+  "name": "CoachPR - سجّل رقمك. غيّر جسمك",
+  "short_name": "CoachPR",
   "description": "منظومة التدريب الرياضي الذكية - تسجيل المجموعات والتكرارات والأوزان أوفلاين مع فحص التكنيك بالذكاء الاصطناعي",
   "start_url": "/app",
   "display": "standalone",

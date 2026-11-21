@@ -244,7 +244,7 @@ export default function CaptainOnboardingPendingPage() {
 
               <div>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-sm mx-auto">
-                  أهلاً بيك في <strong className="text-white">CoachPRB</strong>. حسابك تحت المراجعة من فريقنا، وهنبعتلك إشعار أول ما يتفعّل.
+                  أهلاً بيك في <strong className="text-white">CoachPR</strong>. حسابك تحت المراجعة من فريقنا، وهنبعتلك إشعار أول ما يتفعّل.
                 </p>
               </div>
 
@@ -287,7 +287,7 @@ export default function CaptainOnboardingPendingPage() {
 
       {/* Clean Footer */}
       <footer className="text-center text-[11px] text-slate-600 mt-6">
-        © 2026 CoachPRB. جميع الحقوق محفوظة.
+        © 2026 CoachPR. جميع الحقوق محفوظة.
       </footer>
     </div>
   );

@@ -21,7 +21,7 @@ export default function ContactPage() {
               <polygon points="12 2 22 22 2 22" fill="#8052ff" />
             </svg>
           </div>
-          <span className="text-[16px] font-normal tracking-tight text-white">CoachPRB</span>
+          <span className="text-[16px] font-normal tracking-tight text-white">CoachPR</span>
         </Link>
         <div className="flex items-center gap-6 text-[14px]">
           <Link href="/about" className="text-[#9a9a9a] hover:text-white transition-colors">عن المنصة</Link>

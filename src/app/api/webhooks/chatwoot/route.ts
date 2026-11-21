@@ -4,7 +4,7 @@ import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabaseClient';
 /**
  * Chatwoot Webhook Bridge:
  * Receives events from Chatwoot (e.g. message_created, conversation_created)
- * If message is from customer -> Trigger CoachPRB LLM & Order Extractor
+ * If message is from customer -> Trigger CoachPR LLM & Order Extractor
  * Then post the response back into Chatwoot conversation via Chatwoot API.
  */
 
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
         const customerName = contact?.name || 'Customer';
         const customerPhone = contact?.phone_number || '';
 
-        // 1. Call CoachPRB LLM Router
-        let aiReply = "أهلاً بك يا فندم! 🌸 فريق CoachPRB في خدمتك. جاري مراجعة طلبك والرد فوراً.";
+        // 1. Call CoachPR LLM Router
+        let aiReply = "أهلاً بك يا فندم! 🌸 فريق CoachPR في خدمتك. جاري مراجعة طلبك والرد فوراً.";
         try {
           const chatRes = await fetch(`${req.nextUrl.origin}/api/chat`, {
             method: 'POST',
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     status: 'online',
-    bridge: 'CoachPRB <-> Chatwoot Core Bridge',
+    bridge: 'CoachPR <-> Chatwoot Core Bridge',
     configuredUrl: CHATWOOT_URL
   });
 }

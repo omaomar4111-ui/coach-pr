@@ -20,7 +20,7 @@ export async function GET() {
       }
     }
 
-    // 2. Realistic CoachPRB Pilot Client Roster
+    // 2. Realistic CoachPR Pilot Client Roster
     if (clientsList.length === 0) {
       clientsList = [
         { id: "ath-1", name: "محمود حسن السيد", last_check_in: "2026-11-09T10:00:00Z", subscription_status: "active" },

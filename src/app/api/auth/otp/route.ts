@@ -41,7 +41,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
  */
 async function sendSmsViaUnifonic(phone: string, code: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const appSid = process.env.UNIFONIC_APPSID;
-  const senderId = process.env.UNIFONIC_SENDER_ID || "CoachPRB";
+  const senderId = process.env.UNIFONIC_SENDER_ID || "CoachPR";
 
   if (!appSid) {
     // Mock simulation for sandbox/dev mode
@@ -58,7 +58,7 @@ async function sendSmsViaUnifonic(phone: string, code: string): Promise<{ succes
         AppSid: appSid,
         SenderID: senderId,
         Recipient: phone,
-        Body: `رمز التحقق لمنصة CoachPRB هو: ${code}. صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
+        Body: `رمز التحقق لمنصة CoachPR هو: ${code}. صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
       }),
     });
 
@@ -162,9 +162,9 @@ export async function POST(req: Request) {
         try {
           const resend = new Resend(resendKey);
           const data = await resend.emails.send({
-            from: "CoachPRB <onboarding@resend.dev>",
+            from: "CoachPR <onboarding@resend.dev>",
             to: identifier,
-            subject: `${code} هو كود تسجيل الدخول لمنصة CoachPRB`,
+            subject: `${code} هو كود تسجيل الدخول لمنصة CoachPR`,
             html: `
               <div dir="rtl" style="font-family: Arial, sans-serif; background-color: #07040D; color: #FFFFFF; padding: 32px; border-radius: 16px; max-width: 480px; margin: auto; border: 1px solid #2B184F;">
                 <div style="text-align: center; margin-bottom: 24px;">
@@ -196,10 +196,10 @@ export async function POST(req: Request) {
               auth: { user: smtpUser, pass: smtpPass },
             });
             await transporter.sendMail({
-              from: `"CoachPRB Security" <${smtpUser}>`,
+              from: `"CoachPR Security" <${smtpUser}>`,
               to: identifier,
-              subject: `${code} هو كود تسجيل الدخول لمنصة CoachPRB`,
-              text: `كود الدخول الخاص بك في CoachPRB هو: ${code}`,
+              subject: `${code} هو كود تسجيل الدخول لمنصة CoachPR`,
+              text: `كود الدخول الخاص بك في CoachPR هو: ${code}`,
             });
             deliverySuccess = true;
           } catch (e) {}

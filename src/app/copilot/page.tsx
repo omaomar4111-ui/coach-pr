@@ -162,7 +162,7 @@ export default function CopilotFleetPage() {
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
               <span className="text-[11px] hud-badge-magenta px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <Cpu size={12} /> أسطول الذكاء الاصطناعي (CoachPRB Copilot Engine)
+                <Cpu size={12} /> أسطول الذكاء الاصطناعي (CoachPR Copilot Engine)
               </span>
             </div>
             <h1 className="text-3xl font-black tracking-tight text-white">بطاقات قرارات الكوتش (Action Approvals)</h1>

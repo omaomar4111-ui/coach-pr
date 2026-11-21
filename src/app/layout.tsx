@@ -12,33 +12,33 @@ const tajawal = Tajawal({
 
 export const metadata: Metadata = {
   title: {
-    default: "CoachPRB",
-    template: "%s | CoachPRB",
+    default: "CoachPR",
+    template: "%s | CoachPR",
   },
-  description: "CoachPRB",
-  applicationName: "CoachPRB",
+  description: "CoachPR",
+  applicationName: "CoachPR",
   keywords: [
-    "CoachPRB",
+    "CoachPR",
     "تدريب رياضي",
     "كمال أجسام",
     "كوتش",
   ],
-  authors: [{ name: "CoachPRB" }],
-  creator: "CoachPRB",
-  publisher: "CoachPRB",
-  metadataBase: new URL("https://coachprb.vercel.app"),
+  authors: [{ name: "CoachPR" }],
+  creator: "CoachPR",
+  publisher: "CoachPR",
+  metadataBase: new URL("https://coachpr.vercel.app"),
   openGraph: {
-    title: "CoachPRB",
-    description: "CoachPRB",
-    url: "https://coachprb.vercel.app",
-    siteName: "CoachPRB",
+    title: "CoachPR",
+    description: "CoachPR",
+    url: "https://coachpr.vercel.app",
+    siteName: "CoachPR",
     locale: "ar_EG",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CoachPRB",
-    description: "CoachPRB",
+    title: "CoachPR",
+    description: "CoachPR",
   },
   manifest: "/manifest.json",
   icons: {
@@ -68,9 +68,9 @@ export default function RootLayout({
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "CoachPRB",
-    "url": "https://coachprb.vercel.app",
-    "logo": "https://coachprb.vercel.app/brand-pr-logo.png",
+    "name": "CoachPR",
+    "url": "https://coachpr.vercel.app",
+    "logo": "https://coachpr.vercel.app/brand-pr-logo.png",
     "description": "منصة التدريب الرياضي وكمال الأجسام الأولى في مصر والشرق الأوسط.",
     "sameAs": [
       "https://www.instagram.com"

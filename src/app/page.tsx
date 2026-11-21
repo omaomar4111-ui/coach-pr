@@ -97,7 +97,7 @@ export default function CinemaLandingPage() {
           {/* Badge */}
           <div className="stagger-fade inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/35 text-purple-300 text-xs font-bold mb-6 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
             <Sparkles size={14} className="text-purple-400" />
-            CoachPRB
+            CoachPR
           </div>
           
           {/* Hero Headline */}
@@ -269,7 +269,7 @@ export default function CinemaLandingPage() {
           </div>
 
           <div className="text-[11px] text-slate-500">
-            © 2026 CoachPRB. جميع الحقوق محفوظة.
+            © 2026 CoachPR. جميع الحقوق محفوظة.
           </div>
         </div>
       </footer>

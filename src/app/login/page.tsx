@@ -82,10 +82,10 @@ export default function LoginPage() {
       <header className="max-w-4xl w-full mx-auto flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[#171228] border border-white/10 flex items-center justify-center p-2 shadow-lg">
-            <img src="/brand-pr-logo.png" alt="CoachPRB" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+            <img src="/brand-pr-logo.png" alt="CoachPR" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
           </div>
           <div>
-            <span className="text-base font-extrabold text-white block">CoachPRB</span>
+            <span className="text-base font-extrabold text-white block">CoachPR</span>
             <span className="text-[11px] text-[#a3e635] font-semibold block -mt-1">منصة المدربين الذكية</span>
           </div>
         </Link>
@@ -199,7 +199,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-white/40 py-4">
-        © 2026 CoachPRB &bull; نظام توثيق وتسجيل دخول المدربين والأبطال.
+        © 2026 CoachPR &bull; نظام توثيق وتسجيل دخول المدربين والأبطال.
       </footer>
 
     </div>
