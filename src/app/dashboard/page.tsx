@@ -61,7 +61,15 @@ export default function CoachDashboard() {
             من يحتاجك اليوم
           </Link>
 
-          <Link href="/app" className="bg-[#171228] border border-white/10 hover:border-[#a3e635] text-[#bef264] px-3.5 py-2.5 rounded-2xl transition text-xs font-bold flex items-center gap-2">
+          <Link href="/dashboard/readiness" className="bg-[#171228] border border-white/10 hover:border-[#a3e635] text-[#bef264] px-3.5 py-2.5 rounded-2xl transition text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            ⚡ جاهزية اللاعب وتعديل الستات
+          </Link>
+
+          <Link href="/dashboard/nutrition" className="bg-[#171228] border border-white/10 hover:border-[#a3e635] text-white/90 px-3.5 py-2.5 rounded-2xl transition text-xs font-bold flex items-center gap-1.5">
+            🥗 الماكروز والأكلات
+          </Link>
+
+          <Link href="/app" className="bg-[#171228] border border-white/10 hover:border-[#a3e635] text-white/80 hover:text-white px-3.5 py-2.5 rounded-2xl transition text-xs font-bold flex items-center gap-2">
             <Dumbbell className="w-3.5 h-3.5" />
             وضع الصالة (Gym Mode)
           </Link>
