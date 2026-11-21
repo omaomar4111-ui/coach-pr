@@ -38,6 +38,20 @@ html, body {
   overflow-x: hidden;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}
+
 /* Cosmic Space Void Background with Subtle Radial Aura */
 .bg-space-void {
   background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15) 0%, #07050d 70%),

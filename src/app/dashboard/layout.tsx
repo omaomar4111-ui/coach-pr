@@ -1,183 +1,282 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { motion } from 'framer-motion';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
+  PlaySquare, 
+  Inbox, 
+  MessageSquare, 
+  Send, 
+  Play, 
+  CheckSquare, 
+  HeartHandshake, 
   Users, 
+  FileText, 
+  PhoneCall, 
   Dumbbell, 
-  Activity, 
-  Utensils, 
-  Sparkles, 
-  Flame, 
-  Smartphone, 
-  Bot,
-  LogOut,
-  ChevronLeft
+  Apple, 
+  Sliders, 
+  Zap, 
+  Store, 
+  Wallet, 
+  LineChart, 
+  Bot, 
+  FileCheck, 
+  Mic, 
+  Coins, 
+  ShieldCheck, 
+  Settings, 
+  HelpCircle, 
+  Search, 
+  Bell, 
+  Sparkles,
+  ChevronDown
 } from 'lucide-react';
 import { Toaster } from 'sonner';
 
-const navItems = [
-  { name: 'الرئيسية', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'اللاعبين والمشتركين', href: '/dashboard/clients', icon: Users },
-  { name: 'باني الجداول', href: '/dashboard/builder', icon: Dumbbell },
-  { name: 'جاهزية وتعديل الستات', href: '/dashboard/readiness', icon: Activity, badge: 'Autopilot' },
-  { name: 'الماكروز والتغذية', href: '/dashboard/nutrition', icon: Utensils },
-  { name: 'فحص التكنيك (AI)', href: '/dashboard/formcheck', icon: Sparkles },
-  { name: 'مساعد الكوتش (Copilot)', href: '/copilot', icon: Bot, badge: 'AI' },
-  { name: 'من يحتاجك اليوم', href: '/captain/pending', icon: Flame },
+interface MenuItem {
+  name: string;
+  href: string;
+  icon: any;
+  badge?: string;
+  badgeColor?: string;
+}
+
+interface MenuGroup {
+  title: string;
+  items: MenuItem[];
+}
+
+const menuGroups: MenuGroup[] = [
+  {
+    title: 'الرئيسية',
+    items: [
+      { name: 'نظرة عامة', href: '/dashboard', icon: LayoutDashboard },
+    ]
+  },
+  {
+    title: 'العمل اليومي',
+    items: [
+      { name: 'الوارد', href: '/dashboard/inbox', icon: Inbox, badge: '14', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'الرسائل', href: '/dashboard/messages', icon: Send, badge: '4', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'الرسائل الجماعية', href: '/dashboard/broadcast', icon: MessageSquare },
+      { name: 'مراجعة الأداء', href: '/dashboard/readiness', icon: Play, badge: '1', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'تقييم التمرين', href: '/dashboard/formcheck', icon: CheckSquare },
+      { name: 'التعديلات الصحية', href: '/dashboard/health', icon: HeartHandshake },
+    ]
+  },
+  {
+    title: 'العملاء',
+    items: [
+      { name: 'العملاء', href: '/dashboard/clients', icon: Users, badge: '1', badgeColor: 'bg-[#a3e635] text-black' },
+      { name: 'مركز الاستيراد', href: '/dashboard/import', icon: FileText },
+      { name: 'العملاء المحتملون', href: '/captain/pending', icon: PhoneCall },
+    ]
+  },
+  {
+    title: 'الخطط',
+    items: [
+      { name: 'مكتبة الخطط', href: '/dashboard/plans', icon: FileText },
+      { name: 'الخطط الأساسية', href: '/dashboard/builder', icon: Dumbbell },
+      { name: 'التمارين', href: '/dashboard/exercises', icon: Sliders },
+      { name: 'الأطعمة والماكروز', href: '/dashboard/nutrition', icon: Apple },
+      { name: 'منشئ بروتوكول التحسين', href: '/dashboard/protocols', icon: Zap },
+      { name: 'حزم التهيئة', href: '/dashboard/packages-setup', icon: Sliders },
+    ]
+  },
+  {
+    title: 'الأعمال',
+    items: [
+      { name: 'الباقات', href: '/pricing', icon: Store },
+      { name: 'المدفوعات', href: '/dashboard/payments', icon: Wallet },
+      { name: 'التحليلات', href: '/dashboard/analytics', icon: LineChart },
+      { name: 'الأتمتة', href: '/copilot', icon: Bot },
+      { name: 'نماذج الاستقبال', href: '/captain/pending', icon: FileCheck },
+      { name: 'التحدي', href: '/dashboard/challenges', icon: Zap },
+      { name: 'الإحالات', href: '/dashboard/referrals', icon: Users },
+      { name: 'برنامج الشركاء', href: '/dashboard/partners', icon: Store },
+      { name: 'متجر CoachPRB', href: '/dashboard/store', icon: Store },
+    ]
+  },
+  {
+    title: 'الهوية والذكاء',
+    items: [
+      { name: 'الملف والهوية', href: '/dashboard/profile', icon: Users },
+      { name: 'تصاميم PDF', href: '/dashboard/pdf-designs', icon: FileText },
+      { name: 'صوت الذكاء', href: '/dashboard/voice-ai', icon: Mic },
+      { name: 'رصيد الذكاء', href: '/dashboard/ai-credits', icon: Coins },
+    ]
+  },
+  {
+    title: 'الإعدادات والاشتراك',
+    items: [
+      { name: 'اشتراكي في CoachPRB', href: '/dashboard/subscription', icon: ShieldCheck },
+      { name: 'الإعدادات', href: '/settings', icon: Settings },
+      { name: 'المساعدة', href: '/dashboard/help', icon: HelpCircle },
+    ]
+  }
 ];
 
-function SidebarNav() {
+function SidebarNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
-      {navItems.map((item) => {
-        const isActive = pathname === item.href;
-        return (
-          <Link key={item.name} href={item.href} className="block relative">
-            <div
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all duration-200 ${
-                isActive 
-                  ? 'bg-[#1a2312] text-[#bef264] border border-[#a3e635]/40 font-bold shadow-lg shadow-[#a3e635]/10' 
-                  : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <item.icon size={18} className={isActive ? 'text-[#a3e635]' : 'text-white/50'} />
-                <span className="text-xs font-semibold">{item.name}</span>
-              </div>
+    <nav className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-5 text-xs">
+      {menuGroups.map((group, gIdx) => (
+        <div key={gIdx} className="space-y-1">
+          <h3 className="text-[11px] font-bold text-white/40 px-3 py-1 tracking-wide">
+            {group.title}
+          </h3>
+          <div className="space-y-0.5">
+            {group.items.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link key={item.name} href={item.href} className="block">
+                  <div
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 ${
+                      isActive 
+                        ? 'bg-[#171228] text-white font-bold border border-white/10 shadow-sm' 
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <item.icon size={16} className={isActive ? 'text-[#a3e635]' : 'text-white/40'} />
+                      <span className="truncate max-w-[145px]">{item.name}</span>
+                    </div>
 
-              {item.badge && (
-                <span className="bg-[#171228] border border-white/10 text-[9px] font-bold px-2 py-0.5 rounded-lg text-[#a3e635]">
-                  {item.badge}
-                </span>
-              )}
-            </div>
-          </Link>
-        );
-      })}
+                    {item.badge && (
+                      <span className={`text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded-full leading-tight ${item.badgeColor || 'bg-white/10 text-white'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-[#07050d] text-white overflow-hidden selection:bg-[#a3e635] selection:text-black font-sans" dir="rtl">
+    <div className="flex h-screen bg-[#07050d] text-white overflow-hidden font-sans selection:bg-[#a3e635] selection:text-black" dir="rtl">
       
-      {/* Premium Dark Glassmorphic Sidebar */}
-      <aside className="w-64 border-l border-white/10 bg-[#100c1e]/80 backdrop-blur-2xl flex flex-col hidden lg:flex shrink-0 z-30">
+      {/* Enterprise Full-Fledged Gymrate-Style Sidebar */}
+      <aside className="w-64 border-l border-white/5 bg-[#0a0a0a] flex flex-col hidden xl:flex shrink-0 z-30">
         
-        {/* Brand Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#171228] border border-white/10 flex items-center justify-center p-2 shadow-lg">
-              <img src="/brand-pr-logo.png" alt="CoachPRB" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+        {/* Header Logo */}
+        <div className="h-16 flex items-center justify-between px-5 border-b border-white/5">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#171228] border border-white/10 flex items-center justify-center p-1.5">
+              <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
             </div>
-            <div>
-              <span className="text-lg font-black tracking-tight text-white block">CoachPRB</span>
-              <span className="text-[10px] text-[#a3e635] font-semibold block -mt-1">منصة الكوتش الذكية</span>
-            </div>
+            <span className="text-lg font-black tracking-tighter text-white">Coach<span className="text-[#a3e635]">PRB</span></span>
           </Link>
+          <span className="text-[10px] font-mono text-[#a3e635] bg-[#1a2312] border border-[#a3e635]/30 px-2 py-0.5 rounded-full font-bold">
+            PRO
+          </span>
         </div>
 
-        {/* Navigation wrapped in Suspense for Next.js 16 SSR */}
-        <Suspense fallback={<div className="flex-1 p-4 text-xs text-white/30">تحميل القوائم...</div>}>
-          <SidebarNav />
+        {/* Multi-Section Menu */}
+        <Suspense fallback={<div className="p-4 text-xs text-white/30">تحميل القوائم...</div>}>
+          <SidebarNavigation />
         </Suspense>
 
-        {/* Gym Mode Shortcut */}
-        <div className="px-4 py-2">
-          <Link 
-            href="/app"
-            className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-[#171228] to-[#100c1e] border border-[#a3e635]/30 hover:border-[#a3e635] text-white transition-all shadow-md group"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-[#1a2312] flex items-center justify-center text-[#a3e635]">
-                <Smartphone size={14} />
-              </div>
-              <div>
-                <span className="text-xs font-bold block text-white">وضع الصالة PWA</span>
-                <span className="text-[10px] text-[#a3e635] block">تسجيل أوفلاين بالجيم</span>
-              </div>
+        {/* Bottom Profile Bar */}
+        <div className="p-3 border-t border-white/5 bg-[#07050d] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#a3e635] to-emerald-400 border border-[#a3e635] flex items-center justify-center text-black font-black text-xs">
+              PR
             </div>
-            <ChevronLeft size={14} className="text-white/40 group-hover:translate-x-[-2px] transition" />
-          </Link>
-        </div>
-
-        {/* Footer Logout */}
-        <div className="p-4 border-t border-white/5">
-          <Link 
-            href="/login"
-            className="flex items-center gap-3 px-3.5 py-2.5 w-full text-white/50 hover:text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all text-xs font-bold"
-          >
-            <LogOut size={16} />
-            <span>تسجيل الخروج</span>
+            <div>
+              <p className="text-xs font-bold text-white truncate max-w-[120px]">كوتش تامر</p>
+              <p className="text-[10px] text-white/40">مدرب معتمد</p>
+            </div>
+          </div>
+          <Link href="/login" className="text-white/40 hover:text-rose-400 text-xs">
+            خروج
           </Link>
         </div>
 
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      {/* Main Content View */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
-        {/* Top Header Navbar */}
-        <header className="h-20 border-b border-white/10 bg-[#07050d]/80 backdrop-blur-xl flex items-center justify-between px-6 sm:px-10 z-20 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#171228] border border-white/10 flex items-center justify-center lg:hidden p-1.5">
-              <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                مرحباً بك مجدداً، كابتن 👋
-              </h1>
-              <p className="text-[11px] text-white/40 hidden sm:block">CoachPRB &bull; نظام قيادة أبطال اللياقة وكمال الأجسام</p>
+        {/* Top Navbar */}
+        <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-between px-6 z-20 shrink-0">
+          
+          {/* Search Bar with Keyboard Hint */}
+          <div className="flex items-center gap-4 flex-1 max-w-md">
+            <div className="relative w-full">
+              <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" size={15} />
+              <input 
+                type="text" 
+                placeholder="ابحث في الصفحات والإجراءات..." 
+                className="w-full bg-[#111116] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#a3e635] transition"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/30 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                Ctrl+K
+              </span>
             </div>
           </div>
 
+          {/* Right Header Controls */}
           <div className="flex items-center gap-3">
+            
+            {/* Ask AI Top Button (Gymrate Megatron Style) */}
             <Link 
-              href="/app"
-              className="bg-[#171228] hover:border-[#a3e635] border border-white/10 text-[#a3e635] px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition"
+              href="/copilot"
+              className="bg-[#a3e635] hover:bg-[#8fd128] text-black font-extrabold text-xs px-4 py-2 rounded-full flex items-center gap-1.5 shadow-md shadow-[#a3e635]/20 transition"
             >
-              <Dumbbell size={14} />
-              <span className="hidden sm:inline">تجربة الجيم</span>
+              <Sparkles size={14} />
+              <span>اسأل ميجاترون (AI)</span>
             </Link>
 
-            <div className="flex items-center gap-2.5 bg-[#100c1e] border border-white/10 p-1.5 pr-3 rounded-2xl">
-              <span className="text-xs font-bold text-white hidden sm:inline">كوتش المنظومة</span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#a3e635] to-emerald-400 border border-[#a3e635] flex items-center justify-center text-black font-black text-xs shadow-md">
-                PR
-              </div>
-            </div>
+            <Link 
+              href="/app" 
+              className="text-xs font-bold text-white/70 hover:text-[#a3e635] bg-[#111116] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
+            >
+              <span>تطبيق اللاعب</span>
+            </Link>
+
+            <button className="relative p-2 text-white/50 hover:text-white transition">
+              <Bell size={18} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#a3e635] rounded-full animate-ping"></span>
+            </button>
           </div>
+
         </header>
 
-        {/* Dynamic Page Container with Framer Motion Entrance */}
-        <div className="flex-1 overflow-y-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="min-h-full"
+        {/* Page Content Scroll Container */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 relative">
+          {children}
+
+          {/* Floating AI Pulse Button */}
+          <Link
+            href="/copilot"
+            className="fixed bottom-8 left-8 w-14 h-14 bg-[#171228] border border-[#a3e635]/50 text-[#a3e635] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(163,230,53,0.35)] hover:scale-110 transition-transform z-50 group"
+            title="المساعد الذكي (Coach Copilot)"
           >
-            {children}
-          </motion.div>
+            <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
+          </Link>
         </div>
 
       </main>
 
-      {/* Global Dark Luxury Toast Notifications */}
+      {/* Global Notifications */}
       <Toaster 
         theme="dark" 
         position="top-center" 
         richColors 
         toastOptions={{
           style: {
-            background: '#100c1e',
+            background: '#111116',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             color: '#fff',
             borderRadius: '1rem',
