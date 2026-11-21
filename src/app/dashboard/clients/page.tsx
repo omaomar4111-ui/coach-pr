@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserPlus, Search, ChevronRight, Dumbbell, ArrowRight, ShieldCheck, Phone, Target, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ClientsList() {
   const [clients, setClients] = useState<any[]>([]);
@@ -10,21 +11,35 @@ export default function ClientsList() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchClients = () => {
-    fetch('/api/clients').then(res => res.json()).then(data => setClients(data.clients || []));
+    fetch('/api/clients')
+      .then(res => res.json())
+      .then(data => setClients(data.clients || []))
+      .catch(() => toast.error('تعذر جلب قائمة اللاعبين'));
   };
 
   useEffect(() => { fetchClients(); }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch('/api/clients', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newClient)
-    });
-    setIsAdding(false);
-    setNewClient({ name: '', phone: '', goal: '', injuries: '' });
-    fetchClients();
+    try {
+      const res = await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClient)
+      });
+      if (res.ok) {
+        toast.success('تمت إضافة البطل بنجاح! ⚡', {
+          description: `تم تسجيل ${newClient.name}، ويمكنك الآن تصميم جدوله التدريبي.`
+        });
+        setIsAdding(false);
+        setNewClient({ name: '', phone: '', goal: '', injuries: '' });
+        fetchClients();
+      } else {
+        toast.error('حدث خطأ أثناء الإضافة', { description: 'يرجى المحاولة مرة أخرى.' });
+      }
+    } catch (err) {
+      toast.error('تعذر الاتصال بالخادم', { description: 'تحقق من اتصال الإنترنت.' });
+    }
   };
 
   const filteredClients = clients.filter(c => 

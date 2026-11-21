@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { motion } from 'framer-motion';
 import { 
   Sparkles, 
   ArrowLeft, 
@@ -86,7 +87,12 @@ export default function CinemaLandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-6 pt-16 pb-24">
+      <motion.main 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="max-w-7xl mx-auto px-6 pt-16 pb-24"
+      >
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           <div className="stagger-fade inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/35 text-purple-300 text-xs font-bold mb-6 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
@@ -248,7 +254,7 @@ export default function CinemaLandingPage() {
             <h3 className="text-base font-black text-white">وضع صالة الجيم بدون إنترنت (Offline)</h3>
           </div>
         </div>
-      </main>
+      </motion.main>
 
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-[#07050d]/90 py-8 text-xs text-slate-400">
