@@ -28,6 +28,7 @@ import {
   ResponsiveContainer, 
   Cell
 } from 'recharts';
+import ProactiveAgentFeed from '@/components/ProactiveAgentFeed';
 
 export default function DashboardOverview() {
   const [stats, setStats] = useState({
@@ -287,6 +288,9 @@ export default function DashboardOverview() {
           ))}
         </div>
       </div>
+
+      {/* Proactive AI Agent Live Feed Section */}
+      <ProactiveAgentFeed />
 
     </motion.div>
   );
