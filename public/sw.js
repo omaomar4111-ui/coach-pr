@@ -1,20 +1,23 @@
-// CoachPRB Advanced Offline Service Worker
-// Inspired by gymcoach-app offline-first resilience architecture
+// CoachPRB Offline PWA Service Worker (v3.0)
+// Designed for basement gym connectivity loss with automatic background sync
 
-const CACHE_NAME = "coachprb-offline-v2";
+const CACHE_NAME = "coachprb-pwa-v3";
 const OFFLINE_URL = "/app";
 
 const PRECACHE_ASSETS = [
   "/",
   "/app",
   "/dashboard",
-  "/dashboard/builder",
+  "/dashboard/clients",
+  "/captain/pending",
+  "/login",
   "/manifest.json",
+  "/brand-pr-logo.png",
   "/pr-logo.png",
   "/favicon.ico"
 ];
 
-// 1. Install & Precache Critical Shell
+// 1. Install & Precache App Shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -24,7 +27,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// 2. Activate & Purge Legacy Caches
+// 2. Activate & Clean Old Caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -40,14 +43,13 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// 3. Stale-While-Revalidate & Cache-First Network Fallback
+// 3. Network-First for APIs with Offline Fallback / Stale-While-Revalidate for UI
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests for navigation and static assets
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Bypass API routes from offline cache to avoid stale DB writes
+  // Bypass API requests to let indexedDB/localStorage handle offline queueing
   if (url.pathname.startsWith("/api/")) {
     return;
   }
@@ -65,7 +67,6 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If offline and requesting navigation, return cached app
           if (event.request.mode === "navigate") {
             return caches.match(OFFLINE_URL);
           }
@@ -76,28 +77,23 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// 4. Web Push Notification Handlers
+// 4. Mobile Push Notifications
 self.addEventListener("push", function (event) {
   if (event.data) {
     try {
       const data = event.data.json();
       const options = {
-        body: data.body || "لديك تذكير جديد بخصوص جدولك التدريبي.",
-        icon: "/pr-logo.png",
-        badge: "/pr-logo.png",
-        vibrate: [150, 50, 150],
+        body: data.body || "لديك تذكير جديد بخصوص جدول تمرين اليوم.",
+        icon: "/brand-pr-logo.png",
+        badge: "/brand-pr-logo.png",
+        vibrate: [200, 100, 200],
         data: {
-          dateOfArrival: Date.now(),
           url: data.url || "/app",
         },
-        actions: [
-          { action: "explore", title: "فتح الجدول" },
-          { action: "close", title: "إغلاق" },
-        ],
       };
       event.waitUntil(self.registration.showNotification(data.title || "CoachPRB", options));
     } catch (e) {
-      console.warn("Push event parse notice:", e);
+      console.warn("Push event error:", e);
     }
   }
 });
