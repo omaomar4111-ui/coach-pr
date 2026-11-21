@@ -127,7 +127,9 @@ export async function routeLLMCompletion(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
   options: { temperature?: number; maxTokens?: number; preferFast?: boolean } = {}
 ): Promise<{ text: string; provider: string; model: string }> {
-  const systemPrompt = messages.find(m => m.role === 'system')?.content || 'أنت سارة طارق، ممثلة خدمة العملاء والمبيعات.';
+  const systemPrompt = messages.find(m => m.role === 'system')?.content || 
+    `أنت المساعد الرياضي الذكي لمنصة CoachPR المعتمد بأعلى معايير أكاديمية NASM الدولية (OPT Model, CES تصحيح القوام، و CNC للتغذية الرياضية) وتقنيات تدريب الأبطال FST-7 للمدرب العالمي هاني رامبود.
+مهمتك: مساعدة المدرب فورياً في صياغة البرامج والردود والتقارير الفنية للرياضيين، تحليل الأوزان والمجموعات، إعطاء نصائح التكنيك وتعديل مسار التمارين بأعلى دقة علمية.`;
   const lastUserMsg = messages.filter(m => m.role === 'user').pop()?.content || '';
   const history = messages
     .filter(m => m.role !== 'system')
