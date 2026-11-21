@@ -1,0 +1,690 @@
+[
+  {
+    "method": "DELETE",
+    "path": "/coach/check-ins/:id/feedback"
+  },
+  {
+    "method": "DELETE",
+    "path": "/diet-plans/proofs/:id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/progress/ten-of-ten/rest-day"
+  },
+  {
+    "method": "GET",
+    "path": "/announcements/current"
+  },
+  {
+    "method": "GET",
+    "path": "/app/bootstrap"
+  },
+  {
+    "method": "GET",
+    "path": "/assistant/access"
+  },
+  {
+    "method": "GET",
+    "path": "/auth/me"
+  },
+  {
+    "method": "GET",
+    "path": "/challenge/coach/roster"
+  },
+  {
+    "method": "GET",
+    "path": "/challenge/seasons/current"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/stickers"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/threads"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/threads/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/threads/:id/access"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/threads/:id/messages"
+  },
+  {
+    "method": "GET",
+    "path": "/chat/unread-count"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-cues"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-products"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-profile/certificates"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-profile/transformations"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-score/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-score/coaches/:id/reviews"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-score/episode/current"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-score/me"
+  },
+  {
+    "method": "GET",
+    "path": "/coach-score/settings"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/ai-usage"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/analytics"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/assignments/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/attention"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/attention/counts"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/automations/ai-checkin-drafts"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/automations/rules"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/automations/scheduled"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/automations/trainees"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/broadcasts"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/cheat-meals"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/check-ins/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/client-payments"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/client-payments/summary"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/client-payments/trainees"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/company"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/custom-exercises"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/feedback-templates"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/foods"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/insights"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/insights/client/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/intake-templates"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/intake-templates/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/join-requests"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/leads"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/leads/stats"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/me/entitlements"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/migrations"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/migrations/eligibility"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/my-coach"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/package-services"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/packages"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/pending-check-ins"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/plan-briefs"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/protocols"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/revenue-report"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/seat-usage"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/self-training"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/setup-status"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/cheat-meals"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/exercise-progress"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/intake-assignment"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/intake-assignments"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/notes"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/photo-gallery"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/plan-history"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/shopping-list"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/subscription"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/subscription-freeze"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/ten-of-ten"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/trainees/:id/training-days"
+  },
+  {
+    "method": "GET",
+    "path": "/coach/workspace"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/:id/history"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/:id/history/:versionId"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/:id/versions"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/adherence"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/foods"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/foods/lookup"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/foods/shortcuts"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/logs/summary"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/meal-templates"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/proofs"
+  },
+  {
+    "method": "GET",
+    "path": "/diet-plans/trainee/:id/meals-summary"
+  },
+  {
+    "method": "GET",
+    "path": "/enhancement"
+  },
+  {
+    "method": "GET",
+    "path": "/form-checks"
+  },
+  {
+    "method": "GET",
+    "path": "/form-checks/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/health-conditions"
+  },
+  {
+    "method": "GET",
+    "path": "/health-sync/:a/:b"
+  },
+  {
+    "method": "GET",
+    "path": "/health-sync/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/health-sync/trainees/:id/summary"
+  },
+  {
+    "method": "GET",
+    "path": "/notifications"
+  },
+  {
+    "method": "GET",
+    "path": "/profile"
+  },
+  {
+    "method": "GET",
+    "path": "/progress"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/session-feedback"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/summary"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/ten-of-ten"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/trainee/:id/meals-summary"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/trainee/:id/workout-summary"
+  },
+  {
+    "method": "GET",
+    "path": "/progress/workout-day-skips"
+  },
+  {
+    "method": "GET",
+    "path": "/public/partner-store"
+  },
+  {
+    "method": "GET",
+    "path": "/referral"
+  },
+  {
+    "method": "GET",
+    "path": "/referral/ledger"
+  },
+  {
+    "method": "GET",
+    "path": "/referral/list"
+  },
+  {
+    "method": "GET",
+    "path": "/referral/me"
+  },
+  {
+    "method": "GET",
+    "path": "/subscription/me"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee-subscription/me"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee/check-in-status"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee/check-ins"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee/intake-assignment"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee/intake-assignments"
+  },
+  {
+    "method": "GET",
+    "path": "/trainee/subscription-freeze"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/metrics"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans/:id"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans/:id/history"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans/:id/history/:versionId"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans/:id/versions"
+  },
+  {
+    "method": "GET",
+    "path": "/workout-plans/exercises"
+  },
+  {
+    "method": "PATCH",
+    "path": "/chat/threads/:id/read"
+  },
+  {
+    "method": "PATCH",
+    "path": "/coach/check-ins/:id/review"
+  },
+  {
+    "method": "PATCH",
+    "path": "/coach/join-requests/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/diet-plans/:id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/form-checks/:id/review"
+  },
+  {
+    "method": "PATCH",
+    "path": "/form-checks/:id/seen"
+  },
+  {
+    "method": "PATCH",
+    "path": "/notifications/:id/read"
+  },
+  {
+    "method": "PATCH",
+    "path": "/notifications/read-all"
+  },
+  {
+    "method": "PATCH",
+    "path": "/profile"
+  },
+  {
+    "method": "PATCH",
+    "path": "/progress/session-feedback/:id/review"
+  },
+  {
+    "method": "PATCH",
+    "path": "/workout-plans/:id"
+  },
+  {
+    "method": "POST",
+    "path": "/announcements/:id/receipts"
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login"
+  },
+  {
+    "method": "POST",
+    "path": "/auth/logout"
+  },
+  {
+    "method": "POST",
+    "path": "/auth/refresh"
+  },
+  {
+    "method": "POST",
+    "path": "/calorie-calculator"
+  },
+  {
+    "method": "POST",
+    "path": "/chat/threads/:id/messages"
+  },
+  {
+    "method": "POST",
+    "path": "/chat/threads/:id/read"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/assign"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/assignments"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/attention/reviewed"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/check-ins/:id/ai-feedback-draft"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/check-ins/:id/review"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/check-ins/ai-drafts/batch"
+  },
+  {
+    "method": "POST",
+    "path": "/coach/trainees/:id/notes"
+  },
+  {
+    "method": "POST",
+    "path": "/diet-plans"
+  },
+  {
+    "method": "POST",
+    "path": "/diet-plans/proofs"
+  },
+  {
+    "method": "POST",
+    "path": "/notifications/:id/read"
+  },
+  {
+    "method": "POST",
+    "path": "/notifications/read-all"
+  },
+  {
+    "method": "POST",
+    "path": "/plans/validate-against-intake"
+  },
+  {
+    "method": "POST",
+    "path": "/progress"
+  },
+  {
+    "method": "POST",
+    "path": "/progress/exercise-history"
+  },
+  {
+    "method": "POST",
+    "path": "/progress/session-start"
+  },
+  {
+    "method": "POST",
+    "path": "/progress/ten-of-ten/finish"
+  },
+  {
+    "method": "POST",
+    "path": "/progress/ten-of-ten/rest-day"
+  },
+  {
+    "method": "POST",
+    "path": "/uploads"
+  },
+  {
+    "method": "POST",
+    "path": "/uploads/audio"
+  },
+  {
+    "method": "POST",
+    "path": "/uploads/files"
+  },
+  {
+    "method": "POST",
+    "path": "/uploads/images"
+  },
+  {
+    "method": "POST",
+    "path": "/uploads/video"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/metrics"
+  },
+  {
+    "method": "POST",
+    "path": "/workout-plans"
+  },
+  {
+    "method": "POST",
+    "path": "/workout-plans/:id/duplicate"
+  },
+  {
+    "method": "PUT",
+    "path": "/diet-plans/:id"
+  },
+  {
+    "method": "PUT",
+    "path": "/progress/ten-of-ten/training-days"
+  },
+  {
+    "method": "PUT",
+    "path": "/workout-plans/:id"
+  }
+]
