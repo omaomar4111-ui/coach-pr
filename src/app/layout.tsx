@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Tajawal } from "next/font/google";
 import "./globals.css";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import DeviceTracker from "@/components/DeviceTracker";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const tajawal = Tajawal({
@@ -92,6 +93,7 @@ export default function RootLayout({
       <body className="font-tajawal bg-[#0e0918] text-white antialiased">
         {children}
         <PwaInstallPrompt />
+        <DeviceTracker />
       </body>
     </html>
   );

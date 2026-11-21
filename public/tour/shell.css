@@ -263,6 +263,9 @@ html[lang='ar'] .pane__label {
   position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .phone {
   position: absolute;
@@ -270,15 +273,18 @@ html[lang='ar'] .pane__label {
   top: 50%;
   width: 390px;
   height: 844px;
+  max-width: 95%;
   border-radius: 54px;
   background: #050605;
   padding: 11px;
   box-shadow:
     0 0 0 1px var(--line2),
     0 0 0 2px #050605,
-    0 40px 90px -30px rgba(0, 0, 0, 0.9);
+    0 0 25px rgba(212, 246, 11, 0.12),
+    0 40px 90px -30px rgba(0, 0, 0, 0.95);
   transform: translate(-50%, -50%);
   transform-origin: center center;
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .phone__screen {
   position: relative;
