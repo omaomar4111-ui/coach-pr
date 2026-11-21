@@ -1,323 +1,202 @@
 import { NextRequest, NextResponse } from "next/server";
-import { NASM_KNOWLEDGE_BASE, HANY_RAMBOD_FST7_KNOWLEDGE_BASE } from "@/lib/scientificCoachKnowledge";
+import { 
+  NASM_DEEP_KNOWLEDGE, 
+  HANY_RAMBOD_DEEP_FST7_MANUAL, 
+  FST7MuscleExerciseBlueprint 
+} from "@/lib/scientificCoachKnowledgeDeep";
 
-interface TraineeProfile {
+interface AdvancedProgramRequest {
   clientName: string;
   age?: number;
-  gender?: "male" | "female";
+  weightKg?: number;
+  heightCm?: number;
   trainingExperience: "beginner" | "intermediate" | "advanced";
-  primaryGoal: "hypertrophy" | "fat_loss" | "strength" | "rehab_posture";
+  primaryGoal: "hypertrophy" | "fat_loss" | "strength" | "power" | "rehab_posture";
   daysPerWeek: number; // 3, 4, 5, or 6
-  focusMuscle?: string;
-  posturalIssues?: string[]; // e.g. "Forward Head & Rounded Shoulders", "Anterior Pelvic Tilt"
-  methodology: "FST7_HanyRambod" | "NASM_OPT" | "Hybrid_Science_Pro";
+  kineticChainSyndrome?: "Upper Crossed Syndrome (متلازمة التقاطع العلوي)" | "Lower Crossed Syndrome (متلازمة التقاطع السفلي)" | "Pronation Distortion Syndrome (متلازمة تشوه الكب للقدم والركبة)";
+  specialFocus?: "Chest" | "Back" | "Legs" | "Shoulders" | "Arms" | "Balanced";
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body: TraineeProfile = await req.json();
+    const body: AdvancedProgramRequest = await req.json();
     const {
-      clientName = "متدرب جديد",
+      clientName = "البطل الرياضي",
+      weightKg = 80,
       trainingExperience = "intermediate",
       primaryGoal = "hypertrophy",
-      daysPerWeek = 4,
-      focusMuscle = "الصدر والظهر",
-      posturalIssues = [],
-      methodology = "Hybrid_Science_Pro"
+      daysPerWeek = 5,
+      kineticChainSyndrome = "Upper Crossed Syndrome (متلازمة التقاطع العلوي)",
+      specialFocus = "Balanced"
     } = body;
 
-    // 1. Select NASM Phase
-    let selectedPhase = NASM_KNOWLEDGE_BASE.optModelPhases[2]; // Default: Phase 3 Hypertrophy
+    // 1. Determine Exact NASM OPT Phase
+    let optPhase = NASM_DEEP_KNOWLEDGE.optModelPhases[2]; // Phase 3 Hypertrophy default
     if (trainingExperience === "beginner" || primaryGoal === "rehab_posture") {
-      selectedPhase = NASM_KNOWLEDGE_BASE.optModelPhases[0]; // Phase 1 Stabilization
+      optPhase = NASM_DEEP_KNOWLEDGE.optModelPhases[0]; // Phase 1 Stabilization Endurance
     } else if (primaryGoal === "fat_loss" && trainingExperience !== "advanced") {
-      selectedPhase = NASM_KNOWLEDGE_BASE.optModelPhases[1]; // Phase 2 Strength Endurance
+      optPhase = NASM_DEEP_KNOWLEDGE.optModelPhases[1]; // Phase 2 Strength Endurance
     } else if (primaryGoal === "strength") {
-      selectedPhase = NASM_KNOWLEDGE_BASE.optModelPhases[3]; // Phase 4 Max Strength
+      optPhase = NASM_DEEP_KNOWLEDGE.optModelPhases[3]; // Phase 4 Max Strength
+    } else if (primaryGoal === "power") {
+      optPhase = NASM_DEEP_KNOWLEDGE.optModelPhases[4]; // Phase 5 Power
     }
 
-    // 2. Select Relevant Postural Fixes (CES)
-    const postureFixes = posturalIssues.map((issue) => {
-      const fix = (NASM_KNOWLEDGE_BASE.cesCorrectiveRules as any)[issue];
-      return {
-        issue,
-        musclesOveractive: fix ? fix.muscleOveractive : [],
-        musclesUnderactive: fix ? fix.muscleUnderactive : [],
-        recommendedWarmupProtocol: fix ? fix.solution : "إحماء مفصلي ديناميكي 5-7 دقائق + تفعيل الكور"
-      };
-    });
+    // 2. Extract Full NASM 4-Step Corrective Exercise Continuum (CEx) for the Chosen Syndrome
+    const posturalData = (NASM_DEEP_KNOWLEDGE.posturalSyndromes as any)[kineticChainSyndrome] || 
+      NASM_DEEP_KNOWLEDGE.posturalSyndromes["Upper Crossed Syndrome (متلازمة التقاطع العلوي)"];
 
-    // 3. Assemble Days Split & Exercises integrating FST-7
-    const splitDays = [];
-    
-    if (daysPerWeek === 4) {
-      splitDays.push(
-        {
-          dayTitle: "اليوم الأول: الصدر والترايسبس (Chest & Triceps + FST-7)",
-          warmup: postureFixes.length > 0 ? postureFixes[0].recommendedWarmupProtocol : "إحماء ديناميكي للروتيتور كف والصدر بالفوم رولر 5 دقائق",
-          exercises: [
-            {
-              name: "Incline Dumbbell Press (تجميع علوي دمبلز)",
-              sets: 4,
-              reps: "8-10",
-              tempo: selectedPhase.tempo,
-              rest: "90s",
-              notes: "التركيز على النزول المتحكم بزاوية 30 درجة لتفعيل ألياف الصدر العلوية (Clavicular Head)"
-            },
-            {
-              name: "Flat Barbell Bench Press (بنش بريس بار مستوي)",
-              sets: 3,
-              reps: "8-10",
-              tempo: "2-0-1",
-              rest: "90s",
-              notes: "تثبيت لوحي الكتف Retracted & Depressed لعزل الصدر ومنع ضغط المفصل"
-            },
-            {
-              name: "Dips / Machine Chest Press (غطس أو جهاز دفع الصدر)",
-              sets: 3,
-              reps: "10-12",
-              tempo: "2-1-2",
-              rest: "60s",
-              notes: "عصر العضلة مع ميل الجذع للأمام قليلاً"
-            },
-            {
-              name: "FST-7 Cable Crossover Finisher (سيفن كابل كروس أوفر - هاني رامبود)",
-              sets: 7,
-              reps: "10-12",
-              tempo: "2-1-2",
-              rest: "35s",
-              notes: "★ هاني رامبود FST-7: راحة 35 ثانية فقط، عصر العضلة والشَّد الإيزومتري (Iso-Tension) لمدة 10 ثوانٍ في فترة الراحة وشرب رشفة ماء بين كل جولة."
-            },
-            {
-              name: "FST-7 Rope Tricep Pushdown (سيفن ترايسبس بالحبل)",
-              sets: 7,
-              reps: "10-12",
-              tempo: "2-0-2",
-              rest: "30s",
-              notes: "فتح الحبل في الأسفل لعصر الرأس الخارجي والطويل للترايسبس."
-            }
-          ]
+    // 3. Assemble Days using Hany Rambod's Elite Muscle Blueprints
+    const blueprints = HANY_RAMBOD_DEEP_FST7_MANUAL.muscleBlueprints;
+    const chestBP = blueprints.find(b => b.muscleGroup === "Chest")!;
+    const backBP = blueprints.find(b => b.muscleGroup === "Back")!;
+    const legsBP = blueprints.find(b => b.muscleGroup === "Legs")!;
+    const shouldersBP = blueprints.find(b => b.muscleGroup === "Shoulders")!;
+    const armsBP = blueprints.find(b => b.muscleGroup === "Arms")!;
+
+    const weeklyDaysPlan = [];
+
+    // Format Day helper
+    const buildDay = (title: string, bp: FST7MuscleExerciseBlueprint, extraExercises: any[] = []) => {
+      return {
+        dayTitle: title,
+        olympiaChampionsInspiration: bp.olympiaChampionsShowcase,
+        warmupAndCExProtocol: {
+          step1_Inhibit: posturalData.inhibitProtocol,
+          step2_Lengthen: posturalData.lengthenProtocol,
+          step3_Activate: posturalData.activateProtocol,
+          step4_Integrate: posturalData.integrateProtocol
         },
-        {
-          dayTitle: "اليوم الثاني: الظهر والبايسبس (Back Width & Biceps + FST-7)",
-          warmup: "إطالة اللاتس وتفعيل عضلات Rhomboids عبر Band Pull-Aparts",
-          exercises: [
-            {
-              name: "Lat Pulldown Wide Grip (سحب عريض للجهاز)",
-              sets: 4,
-              reps: "8-10",
-              tempo: "2-1-2",
-              rest: "90s",
-              notes: "سحب الكوعين نحو الحوض لتفعيل أسفل اللاتس والابتعاد عن الشد بالذراع"
-            },
-            {
-              name: "Barbell Bent-Over Row (سحب بار حر مقلوب)",
-              sets: 4,
-              reps: "6-8",
-              tempo: "2-0-1",
-              rest: "90s",
-              notes: "الحفاظ على ثبات الحوض والعمود الفقري المحايد (NASM Kinetic Chain)"
-            },
-            {
-              name: "Seated Cable Row Close-Grip (سحب أرضي قبضة ضيقة)",
-              sets: 3,
-              reps: "10-12",
-              tempo: "2-1-2",
-              rest: "60s",
-              notes: "فرد اللوحين في الأمام وتجميعهما بالخلف لعصر منتصف الظهر"
-            },
-            {
-              name: "FST-7 Straight-Arm Rope Cable Pulldown (سيفن سحب ذراع مفرود)",
-              sets: 7,
-              reps: "10-12",
-              tempo: "2-1-2",
-              rest: "40s",
-              notes: "★ هاني رامبود FST-7: إمساك قائم الكيبل وتمديد عريضة الظهر (Lat Spread Stretch) 10 ثوانٍ في فترة الراحة لتمديد اللفافة العضلية."
-            },
-            {
-              name: "FST-7 EZ-Bar Cable Preacher Curl (سيفن بايسبس لاري سكوت)",
-              sets: 7,
-              reps: "10-12",
-              tempo: "2-0-2",
-              rest: "30s",
-              notes: "عصر البايسبس في القمة مع عصر متواصل لقبضة اليد."
-            }
-          ]
-        },
-        {
-          dayTitle: "اليوم الثالث: راحة استشفاء وتغذية (Active Recovery & Mobility)",
-          warmup: "فوم رولر لكامل الجسم 15 دقيقة + مشي 30 دقيقة على معدة مرتاحة",
-          exercises: [
-            {
-              name: "Foam Rolling SMR (تدليك ذاتي بالأفلات)",
-              sets: 1,
-              reps: "10 دقائق",
-              tempo: "بطيء",
-              rest: "-",
-              notes: "التركيز على عضلة السمانة، الفخذ الخارجي TFL، وأعلى الظهر"
-            },
-            {
-              name: "Core Stabilization - Plank & Bird Dog",
-              sets: 3,
-              reps: "45 ثانية ثبات",
-              tempo: "إيزومتري",
-              rest: "45s",
-              notes: "تفعيل البطن العميقة Transverse Abdominis حسب كود NASM"
-            }
-          ]
-        },
-        {
-          dayTitle: "اليوم الرابع: الأرجل والسمانة (Wheels & Calves + FST-7)",
-          warmup: "إحماء الهيب فليكسورز والجلوتس بريدج بـ Mini-Band",
-          exercises: [
-            {
-              name: "Barbell Back Squat (اسكوات بار حر)",
-              sets: 4,
-              reps: "8-10",
-              tempo: "3-1-1",
-              rest: "120s",
-              notes: "نزول موازي تحت مفصل الركبة مع فتح الركبتين للخارج منعاً للـ Knee Valgus"
-            },
-            {
-              name: "Romanian Deadlift (ديدليفت روماني للهامسترينج)",
-              sets: 4,
-              reps: "8-10",
-              tempo: "3-0-1",
-              rest: "90s",
-              notes: "دفع الحوض للخلف والحفاظ على استقامة الظهر حتى أقصى شد في الفخذ الخلفي"
-            },
-            {
-              name: "Leg Press (دفع رجل على الجهاز)",
-              sets: 3,
-              reps: "10-12",
-              tempo: "2-0-2",
-              rest: "90s",
-              notes: "قدمان في المنتصف بزاوية عرض الأكتاف"
-            },
-            {
-              name: "FST-7 Leg Extension (سيفن رفرفة رجل أمامي)",
-              sets: 7,
-              reps: "12-15",
-              tempo: "2-1-2",
-              rest: "45s",
-              notes: "★ هاني رامبود FST-7: تمديد الفاشيا بالوقوف وشد الكعب للمؤخرة بين الجولات لضخ أقصى كمية دم في الكوادز."
-            },
-            {
-              name: "Standing Calf Raises (سمانة واقف)",
-              sets: 4,
-              reps: "15-20",
-              tempo: "2-2-1",
-              rest: "45s",
-              notes: "ثانيتان ثبات كامل في أسفل التمدد وثانية ثبات في قمة الانقباض"
-            }
-          ]
-        },
-        {
-          dayTitle: "اليوم الخامس: الأكتاف والترابيس والبطن (3D Boulder Delts + FST-7)",
-          warmup: "Face Pulls خفيف بالحبل + حركات دوران الكتف 5 دقائق",
-          exercises: [
-            {
-              name: "Seated Dumbbell Shoulder Press (ضغط كتف بالدمبلز جالس)",
-              sets: 4,
-              reps: "8-10",
-              tempo: "2-0-1",
-              rest: "90s",
-              notes: "عدم إغلاق مفصل الكوع بالكامل بالقمة للإبقاء على التوتر المستمر في العضلة"
-            },
-            {
-              name: "Bent-Over Rear Delt Cable Flye (رفرفة كتف خلفي بالكيبل)",
-              sets: 4,
-              reps: "12-15",
-              tempo: "2-1-2",
-              rest: "60s",
-              notes: "التركيز على الرأس الخلفي للأكتاف لتحقيق التوازن مع الصدر"
-            },
-            {
-              name: "FST-7 Standing Dumbbell Lateral Raises (سيفن رفرفة جانبي دمبلز)",
-              sets: 7,
-              reps: "12-15",
-              tempo: "2-0-2",
-              rest: "30s",
-              notes: "★ هاني رامبود FST-7: راحة 30 ثانية صارمة، مع ثبات إيزومتري جانبي بالذراعين لعصر الرأس الأوسط للكتف."
-            },
-            {
-              name: "Cable Woodchoppers & Hanging Leg Raises (بطن وجوانب)",
-              sets: 3,
-              reps: "15",
-              tempo: "2-1-2",
-              rest: "45s",
-              notes: "تحكم كامل بدون أرجحة"
-            }
-          ]
-        }
+        exercises: [
+          ...bp.primaryCompoundExercises.map((c) => ({
+            name: c.name,
+            type: "Compound Heavy Strength (بناء الكثافة)",
+            sets: c.sets,
+            reps: c.reps,
+            tempo: optPhase.tempo,
+            rir: c.rir,
+            rest: c.rest,
+            executionCue: c.executionCue
+          })),
+          ...extraExercises,
+          {
+            name: bp.fst7Finisher.exerciseName,
+            type: "FST-7 Fascia Stretch Finisher (مجموعة السيفن الختامية)",
+            sets: bp.fst7Finisher.sets,
+            reps: bp.fst7Finisher.reps,
+            tempo: "2-1-2 (عصر كامل بالقمة)",
+            rir: 0,
+            rest: `${bp.fst7Finisher.restSeconds}s (صارمة)`,
+            whyThisExercise: bp.fst7Finisher.whyThisExercise,
+            interSet30SecondsAction: bp.fst7Finisher.interSetProtocol,
+            lastSetsIntensityTechnique: bp.fst7Finisher.intensityTechniqueLastSets,
+            executionCue: `★ بروتوكول هاني رامبود: راحة ${bp.fst7Finisher.restSeconds} ثانية فقط. ارتشاف ماء + شد إيزومتري 10 ثوانٍ بين كل جولة.`
+          }
+        ]
+      };
+    };
+
+    if (daysPerWeek >= 5) {
+      // 5-Day Classic Olympia FST-7 Split
+      weeklyDaysPlan.push(
+        buildDay("اليوم الأول: الصدر والتكثيف العلوي (Chest Expansion & Upper Clavicular) + FST-7", chestBP),
+        buildDay("اليوم الثاني: الظهر وعرض المجنص والكثافة (Back Width & Lat Thickness) + FST-7", backBP),
+        buildDay("اليوم الثالث: الذراعين - البايسبس والترايسبس (Guns & Horseshoe Triceps) + FST-7", armsBP),
+        buildDay("اليوم الرابع: الأكتاف ثلاثية الأبعاد والترابيس (3D Boulder Delts) + FST-7", shouldersBP),
+        buildDay("اليوم الخامس: الأرجل والفخذ الرباعي والخلفيات (Wheels & Calves) + FST-7", legsBP)
       );
     } else {
-      // 3 or 5 days fallback template structured around Push / Pull / Legs
-      splitDays.push(
-        {
-          dayTitle: "اليوم الأول: دفع (Push - الصدر، الكتف الأمامي والجانبي، الترايسبس) + FST-7",
-          warmup: "إحماء مفاصل وتفعيل الروتيتور كف 5 دقائق",
-          exercises: [
-            { name: "Incline Barbell Bench Press", sets: 4, reps: "8-10", tempo: "2-1-1", rest: "90s", notes: "التركيز على الصدر العلوي" },
-            { name: "Flat Dumbbell Press", sets: 3, reps: "8-10", tempo: "2-0-1", rest: "90s", notes: "مدى حركي كامل" },
-            { name: "Overhead Dumbbell Press", sets: 3, reps: "10-12", tempo: "2-0-2", rest: "60s", notes: "أكتاف أمامية وجانبية" },
-            { name: "FST-7 Cable Flyes (هاني رامبود)", sets: 7, reps: "10-12", tempo: "2-1-2", rest: "35s", notes: "عصر العضلة 10 ثوانٍ في الراحة" },
-            { name: "FST-7 Cable Triceps Pushdown", sets: 7, reps: "10-12", tempo: "2-0-2", rest: "30s", notes: "حبس الدم وعصر الترايسبس" }
-          ]
-        },
-        {
-          dayTitle: "اليوم الثاني: سحب (Pull - الظهر، المجنص، الكتف الخلفي، البايسبس) + FST-7",
-          warmup: "إطالات ديناميكية وسحب باند خفيف",
-          exercises: [
-            { name: "Deadlift / Rack Pulls", sets: 3, reps: "6-8", tempo: "2-1-1", rest: "120s", notes: "كثافة الظهر والعمود الفقري" },
-            { name: "Lat Pulldown Wide Grip", sets: 4, reps: "8-10", tempo: "2-1-2", rest: "90s", notes: "عرض الظهر والمجنص" },
-            { name: "Seated Cable Row", sets: 3, reps: "10-12", tempo: "2-1-2", rest: "60s", notes: "سمك منتصف الظهر" },
-            { name: "FST-7 Rope Straight-Arm Pulldown (هاني رامبود)", sets: 7, reps: "10-12", tempo: "2-1-2", rest: "40s", notes: "إطالة الفاشيا Lat Spread Stretch" },
-            { name: "FST-7 Cable Bicep Curl", sets: 7, reps: "10-12", tempo: "2-0-2", rest: "30s", notes: "بمب دموي أقصى للبايسبس" }
-          ]
-        },
-        {
-          dayTitle: "اليوم الثالث: أرجل وبطن (Legs & Core Wheels) + FST-7",
-          warmup: "إحماء الركبة والحوض 7 دقائق",
-          exercises: [
-            { name: "Barbell Squats", sets: 4, reps: "8-10", tempo: "3-1-1", rest: "120s", notes: "عمق موازي متزن" },
-            { name: "Romanian Deadlift", sets: 4, reps: "8-10", tempo: "3-0-1", rest: "90s", notes: "إطالة الفخذ الخلفي" },
-            { name: "Leg Press", sets: 3, reps: "10-12", tempo: "2-0-2", rest: "90s", notes: "دفع متزن" },
-            { name: "FST-7 Leg Extension / Curl (هاني رامبود)", sets: 7, reps: "12-15", tempo: "2-1-2", rest: "45s", notes: "إطالة الكوادز والهامسترينج في الراحة" },
-            { name: "Hanging Leg Raises & Plank", sets: 3, reps: "15-20", tempo: "2-1-2", rest: "45s", notes: "تثبيت الكور والعمود الفقري" }
-          ]
-        }
+      // 4-Day Push / Pull / Legs / Upper FST-7 Split
+      weeklyDaysPlan.push(
+        buildDay("اليوم الأول: دفع الصدر والترايسبس (Push Day A) + FST-7", chestBP, [
+          {
+            name: "Cable Rope Triceps Pushdown",
+            type: "Secondary Compound",
+            sets: 3,
+            reps: "10-12",
+            tempo: "2-0-2",
+            rir: 1,
+            rest: "60s",
+            executionCue: "فتح الحبل في الأسفل لعصر الرأس الخارجي للترايسبس."
+          }
+        ]),
+        buildDay("اليوم الثاني: سحب الظهر والبايسبس (Pull Day A) + FST-7", backBP, [
+          {
+            name: "EZ-Bar Standing Biceps Curl",
+            type: "Secondary Compound",
+            sets: 3,
+            reps: "10-12",
+            tempo: "2-0-2",
+            rir: 1,
+            rest: "60s",
+            executionCue: "تثبيت الكوعين بجانب الجذع وعصر قمة البايسبس."
+          }
+        ]),
+        buildDay("اليوم الثالث: الأرجل والسمانة (Legs & Calves) + FST-7", legsBP),
+        buildDay("اليوم الرابع: الأكتاف والترابيس والبطن (Shoulders & Core) + FST-7", shouldersBP)
       );
     }
 
-    // 4. Construct Full Scientific Report for the Coach
-    const generatedProgram = {
-      clientName,
-      generatedAt: new Date().toISOString(),
-      metadata: {
-        scientificFramework: "NASM OPT™ (Optimum Performance Training) + Hany Rambod FST-7 Olympia Elite System",
-        optPhase: selectedPhase.phaseName,
-        tempoNotation: selectedPhase.tempo,
-        restInterval: selectedPhase.restInterval,
-        methodologyUsed: methodology,
-        postureAssessment: postureFixes
+    // 4. Construct Full Scientific Report & Nutritional Blueprint
+    const estimatedDailyWaterLiters = (weightKg * 0.045).toFixed(1);
+    const estimatedProteinGrams = primaryGoal === "fat_loss" 
+      ? Math.round(weightKg * 2.4) 
+      : Math.round(weightKg * 2.0);
+
+    const fullScientificReport = {
+      clientOverview: {
+        name: clientName,
+        weightKg,
+        primaryGoal,
+        trainingExperience,
+        daysPerWeek,
+        generatedAt: new Date().toISOString()
       },
-      nutritionGuidelines: {
-        proteinRecommendation: primaryGoal === "fat_loss" 
-          ? NASM_KNOWLEDGE_BASE.nutritionCNC.proteinGramsPerKg.cutting 
-          : NASM_KNOWLEDGE_BASE.nutritionCNC.proteinGramsPerKg.bulking,
-        hydrationFormula: NASM_KNOWLEDGE_BASE.nutritionCNC.hydrationRules,
-        periWorkoutTiming: NASM_KNOWLEDGE_BASE.nutritionCNC.periWorkoutNutrientTiming,
-        electrolyteStrategy: "إضافة 1 جرام ملح هيمالايا أو صوديوم للتر ماء أثناء تمرين FST-7 لضمان أقصى حجم وضخ دموي بالخلايا."
+      nasmScientificFramework: {
+        optPhaseName: optPhase.nameAr,
+        optPhaseLevel: optPhase.level,
+        tempoCode: optPhase.tempo,
+        targetIntensity: optPhase.intensity,
+        restIntervals: optPhase.restSeconds,
+        progressionRule: optPhase.progressionRule,
+        kineticChainAssessment: {
+          syndromeIdentified: kineticChainSyndrome,
+          clinicalDescription: posturalData.description,
+          ohsaKeyFinding: posturalData.assessmentKey,
+          correctiveExerciseContinuum4Steps: {
+            step1_Inhibit_SMR: posturalData.inhibitProtocol,
+            step2_Lengthen_Static: posturalData.lengthenProtocol,
+            step3_Activate_Isolated: posturalData.activateProtocol,
+            step4_Integrate_Dynamic: posturalData.integrateProtocol
+          }
+        }
       },
-      hanyRambodFST7Rules: HANY_RAMBOD_FST7_KNOWLEDGE_BASE.goldenRules,
-      weeklySplit: splitDays,
-      coachExecutiveSummary: `تم إنشاء هذا البرنامج التدريبي خصيصاً للمتدرب (${clientName}) بناءً على معايير أكاديمية NASM الدولية في تصحيح التوازن الحركي والقوة العضلية، مع دمج بروتوكول FST-7 الختامي للمدرب العالمي هاني رامبود لتوسيع اللفافة العضلية وتحفيز أقصى ضخ دموي وبناء عضلي في أقل فترة زمنية ممكنة.`
+      hanyRambodFST7MasterManual: {
+        philosophy: HANY_RAMBOD_DEEP_FST7_MANUAL.corePhysiologicalMechanism,
+        olympiaTitlesLegacy: HANY_RAMBOD_DEEP_FST7_MANUAL.olympiaTitlesCount,
+        hydrationMandate: HANY_RAMBOD_DEEP_FST7_MANUAL.hydrationAndSodiumMandate,
+        thirtySecondsProtocol: HANY_RAMBOD_DEEP_FST7_MANUAL.intraSet30SecondsProtocol,
+        goldenRules: HANY_RAMBOD_DEEP_FST7_MANUAL.rulesOfExecution
+      },
+      nutritionCNCPrecision: {
+        dailyProteinTarget: `${estimatedProteinGrams} جرام بروتين نقي يومياً (${primaryGoal === 'fat_loss' ? '2.4' : '2.0'} جم/كجم)`,
+        leucineRequirement: NASM_DEEP_KNOWLEDGE.nutritionScienceCNC.proteinMetabolism.leucineThreshold,
+        dailyHydrationTarget: `${estimatedDailyWaterLiters} إلى 5 لتر ماء نقي يومياً + 750 مل أثناء حصة التمرين`,
+        intraWorkoutStrategy: "شرب ماء ممزوج بـ 10 جرام EAA/BCAAs مع ربع ملعقة ملح صخري (صوديوم) لتعزيز تدفق الدم ومنع الشد العضلي أثناء مجموعات الـ 7 الختامية.",
+        periWorkoutTiming: "وجبة قبل التمرين بساعتين (أرز بسمتي + صدور دجاج وقليل الدهون) + وجبة بعد التمرين مباشرة غنية بالجليكوجين سريع الهضم وبروتين معزول (Whey Isolate)."
+      },
+      weeklySchedule: weeklyDaysPlan,
+      coachExecutiveReportMarkdown: `### 📋 تقرير الإعداد الفني للرياضي (${clientName})
+* **الإطار الأكاديمي:** NASM OPT Model (${optPhase.nameAr})
+* **نظام البناء المتقدم:** Hany Rambod FST-7 Olympia Blueprint
+* **التصحيح الحركي:** ${kineticChainSyndrome} وفق بروتوكول CEx الرباعي (Inhibit, Lengthen, Activate, Integrate).
+* **إرشادات الإيقاع (Tempo):** (${optPhase.tempo}) لضبط التوتر الميكانيكي المستمر (TUT).
+* **احتياج التغذية المبرمج:** ${estimatedProteinGrams} جم بروتين، و ${estimatedDailyWaterLiters} لتر ماء يومياً.`
     };
 
     return NextResponse.json({
       success: true,
-      program: generatedProgram
+      program: fullScientificReport
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

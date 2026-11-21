@@ -23,8 +23,41 @@ export async function GET(request: Request) {
       }
     }
 
-    // High quality initial templates (Egyptian & Arab Strength Training standards)
+    // High quality templates with full NASM OPT & Hany Rambod FST-7 Olympia Standards
     const fallbackPlans = [
+      {
+        id: 'plan-fst7-olympia',
+        title: 'بروتوكول هاني رامبود المعتمد (Hany Rambod FST-7 Olympia 5 Days)',
+        category: 'hypertrophy',
+        days_per_week: 5,
+        is_template: true,
+        methodology: 'FST-7 Fascia Stretch Training (24 مستر أولمبيا)',
+        description: 'نظام أبطال مستر أولمبيا (فيل هيث، ديريك لونسفورد، هادي شوبان). يجمع بين التمارين المركبة الثقيلة ومجموعات الـ 7 الختامية بفاصل راحة 30-45 ثانية لتمديد اللفافة العضلية وتحفيز أقصى ضخ دموي.',
+        days: [
+          { day: 'اليوم 1', name: 'الصدر والتكثيف العلوي + FST-7 Cable Flyes', exercises: 4, sets: 17 },
+          { day: 'اليوم 2', name: 'الظهر وعرض المجنص + FST-7 Straight-Arm Pulldown', exercises: 4, sets: 18 },
+          { day: 'اليوم 3', name: 'الذراعين - البايسبس والترايسبس + FST-7 Super-7s', exercises: 4, sets: 18 },
+          { day: 'اليوم 4', name: 'الأكتاف 3D Delts والترابيس + FST-7 Lateral Raises', exercises: 4, sets: 18 },
+          { day: 'اليوم 5', name: 'الأرجل والكوادز والخلفيات + FST-7 Leg Extension', exercises: 4, sets: 19 }
+        ],
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'plan-nasm-opt-corrective',
+        title: 'برنامج تصحيح القوام والبناء (NASM OPT Phase 1 & 2 Hybrid)',
+        category: 'rehab_posture',
+        days_per_week: 4,
+        is_template: true,
+        methodology: 'NASM OPT Model & Corrective Exercise Continuum (CEx)',
+        description: 'معتمد من أكاديمية NASM الدولية لعلاج متلازمات القوام (Upper & Lower Crossed) مع تقوية الكور ومفاصل التثبيت بإيقاع زمني 4-2-1 وسوبر سيت التوازن.',
+        days: [
+          { day: 'اليوم 1', name: 'سحب وتصحيح انحناء الأكتاف (CEx + Pull)', exercises: 5, sets: 15 },
+          { day: 'اليوم 2', name: 'دفع الصدر وتثبيت مفصل الكتف (Push Stability)', exercises: 5, sets: 16 },
+          { day: 'اليوم 3', name: 'علاج ميل الحوض والأرجل المتوازنة (Pelvic Reset & Legs)', exercises: 5, sets: 15 },
+          { day: 'اليوم 4', name: 'تقوية الكور العميقة والوقاية من الإصابات (Core Kinetic)', exercises: 4, sets: 14 }
+        ],
+        created_at: new Date().toISOString()
+      },
       {
         id: 'plan-1',
         title: 'برنامج التضخيم وحماية المفاصل (Upper/Lower 4 Days)',
