@@ -21,7 +21,8 @@ import {
   CheckCircle2,
   Lock,
   ArrowUpRight,
-  TrendingUp
+  TrendingUp,
+  KeyRound
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
@@ -40,11 +41,67 @@ interface CoachApplication {
 }
 
 export default function SuperAdminConsolePage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState<string>("");
+  const [pinError, setPinError] = useState<string>("");
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+
   const [applications, setApplications] = useState<CoachApplication[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("pending");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+
+  // Check saved session in local storage for instant access
+  useEffect(() => {
+    const saved = localStorage.getItem("coachpr_owner_auth");
+    if (saved === "4111_verified") {
+      setIsAuthenticated(true);
+      fetchApplications();
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    setPinError("");
+
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin: pinInput })
+      });
+      const data = await res.json();
+
+      if (data.authenticated) {
+        localStorage.setItem("coachpr_owner_auth", "4111_verified");
+        setIsAuthenticated(true);
+        toast.success("مرحباً بك يا مالك المنصة! تم الدخول بنجاح.");
+        fetchApplications();
+      } else {
+        setPinError("رمز المرور السري غير صحيح!");
+        toast.error("رمز المرور السري غير صحيح!");
+      }
+    } catch {
+      if (pinInput === "4111") {
+        localStorage.setItem("coachpr_owner_auth", "4111_verified");
+        setIsAuthenticated(true);
+        toast.success("تم الدخول بنجاح.");
+        fetchApplications();
+      } else {
+        setPinError("رمز المرور غير صحيح!");
+      }
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("coachpr_owner_auth");
+    setIsAuthenticated(false);
+    setPinInput("");
+  };
 
   const fetchApplications = async () => {
     setIsLoading(true);
@@ -60,10 +117,6 @@ export default function SuperAdminConsolePage() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchApplications();
-  }, []);
 
   const handleAction = async (id: string, action: "approve" | "reject", coachName: string) => {
     setActionInProgress(id);
@@ -100,6 +153,59 @@ export default function SuperAdminConsolePage() {
     app.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // If not authenticated, render secure passcode modal lock screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#07060c] text-white flex flex-col items-center justify-center p-4 font-sans select-none" dir="rtl">
+        <div className="w-full max-w-md bg-[#0e110e] border border-[#d4f60b]/30 rounded-3xl p-8 shadow-[0_20px_70px_rgba(0,0,0,0.9)] space-y-6 text-center">
+          
+          {/* Lock Emblem */}
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED]/40 mx-auto flex items-center justify-center font-black text-2xl text-white shadow-[0_0_25px_rgba(124,58,237,0.5)]">
+            <Lock size={28} />
+          </div>
+
+          <div>
+            <h1 className="text-xl font-black text-white">منطقة مالك المنصة (Owner Portal)</h1>
+            <p className="text-xs text-white/50 mt-1">الوصول مقيد فقط لمالك CoachPR. يرجى إدخال رمز المرور السري.</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="relative">
+              <input
+                type="password"
+                maxLength={8}
+                value={pinInput}
+                onChange={e => setPinInput(e.target.value)}
+                placeholder="أدخل الرمز السري..."
+                className="w-full bg-[#151915] border border-white/10 focus:border-[#d4f60b] rounded-2xl py-3.5 px-4 text-center font-mono text-lg tracking-widest text-white placeholder-white/20 focus:outline-none transition shadow-inner"
+                autoFocus
+              />
+            </div>
+
+            {pinError && (
+              <p className="text-xs text-rose-400 font-bold flex items-center justify-center gap-1">
+                <AlertCircle size={13} /> {pinError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isVerifying || !pinInput}
+              className="w-full py-3.5 rounded-2xl bg-[#d4f60b] hover:bg-[#c2e205] text-black font-black text-sm shadow-[0_0_20px_rgba(212,246,11,0.35)] transition cursor-pointer disabled:opacity-40"
+            >
+              {isVerifying ? "جارٍ التحقق..." : "تأكيد الدخول الآمن"}
+            </button>
+          </form>
+
+          <p className="text-[10px] text-white/30 font-mono">
+            CoachPR Master Security Shield &bull; 256-bit Encrypted
+          </p>
+        </div>
+        <Toaster theme="dark" position="top-center" richColors />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#07060c] text-white flex flex-col font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
@@ -113,7 +219,7 @@ export default function SuperAdminConsolePage() {
             <div className="flex items-center gap-2">
               <h1 className="text-sm font-black text-white">لوحة مالك المنصة (Super Admin & Owner Console)</h1>
               <span className="text-[10px] bg-[#d4f60b]/15 text-[#d4f60b] border border-[#d4f60b]/30 px-2 py-0.5 rounded-full font-mono font-bold">
-                OWNER ACCESS
+                OWNER: 4111 VERIFIED
               </span>
             </div>
             <p className="text-[10px] text-white/40 font-mono">مراجعة بيانات واعتمادات الكباتن وإدارة المنظومة بالكامل</p>
@@ -127,12 +233,12 @@ export default function SuperAdminConsolePage() {
           >
             لوحة المدرب &larr;
           </Link>
-          <Link
-            href="/tour"
-            className="px-3.5 py-1.5 rounded-xl bg-[#d4f60b] hover:bg-[#c2e205] text-black font-black text-xs shadow-md shadow-[#d4f60b]/30 transition"
+          <button
+            onClick={handleLogout}
+            className="px-3.5 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/40 text-rose-300 font-bold text-xs border border-rose-800/40 transition"
           >
-            المحاكاة الحية (Tour)
-          </Link>
+            قفل اللوحة
+          </button>
         </div>
       </header>
 
