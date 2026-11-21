@@ -35,6 +35,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Toaster } from 'sonner';
+import MegatronModal from '@/components/MegatronModal';
 
 interface MenuItem {
   name: string;
@@ -59,10 +60,10 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'العمل اليومي',
     items: [
-      { name: 'الوارد', href: '/dashboard/inbox', icon: Inbox, badge: '14', badgeColor: 'bg-[#7C3AED] text-white' },
-      { name: 'الرسائل', href: '/dashboard/messages', icon: Send, badge: '4', badgeColor: 'bg-[#7C3AED] text-white' },
+      { name: 'الوارد', href: '/dashboard/inbox', icon: Inbox, badge: '15', badgeColor: 'bg-[#d4f60b] text-black font-black' },
+      { name: 'الرسائل', href: '/dashboard/messages', icon: Send, badge: '4', badgeColor: 'bg-[#d4f60b] text-black font-black' },
       { name: 'الرسائل الجماعية', href: '/dashboard/broadcast', icon: MessageSquare },
-      { name: 'مراجعة الأداء', href: '/dashboard/readiness', icon: Play, badge: '1', badgeColor: 'bg-[#7C3AED] text-white' },
+      { name: 'مراجعة الأداء', href: '/dashboard/readiness', icon: Play, badge: '1', badgeColor: 'bg-[#d4f60b] text-black font-black' },
       { name: 'تقييم التمرين', href: '/dashboard/formcheck', icon: CheckSquare },
       { name: 'التعديلات الصحية', href: '/dashboard/health', icon: HeartHandshake },
     ]
@@ -70,7 +71,7 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'العملاء',
     items: [
-      { name: 'العملاء', href: '/dashboard/clients', icon: Users, badge: '29', badgeColor: 'bg-[#7C3AED] text-white' },
+      { name: 'العملاء', href: '/dashboard/clients', icon: Users, badge: '29', badgeColor: 'bg-white/10 text-white' },
       { name: 'مركز الاستيراد', href: '/dashboard/import', icon: FileText },
       { name: 'العملاء المحتملون', href: '/captain/pending', icon: PhoneCall },
     ]
@@ -103,18 +104,12 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'الهوية والذكاء',
     items: [
-      { name: 'الملف والهوية', href: '/dashboard/profile', icon: Users },
+      { name: 'الملف والتهيئة', href: '/dashboard/profile', icon: Settings },
       { name: 'تصاميم PDF', href: '/dashboard/pdf-designs', icon: FileText },
-      { name: 'صوت الذكاء', href: '/dashboard/voice-ai', icon: Mic },
-      { name: 'رصيد الذكاء', href: '/dashboard/ai-credits', icon: Coins },
-    ]
-  },
-  {
-    title: 'الإعدادات والاشتراك',
-    items: [
-      { name: 'اشتراكي في CoachPR', href: '/dashboard/subscription', icon: ShieldCheck },
-      { name: 'الإعدادات', href: '/settings', icon: Settings },
-      { name: 'المساعدة', href: '/dashboard/help', icon: HelpCircle },
+      { name: 'المساعد الصوتي AI', href: '/dashboard/voice-ai', icon: Mic },
+      { name: 'رصيد الذكاء الاصطناعي', href: '/dashboard/ai-credits', icon: Coins },
+      { name: 'الاشتراك', href: '/dashboard/subscription', icon: ShieldCheck },
+      { name: 'المساعدة والدعم', href: '/dashboard/help', icon: HelpCircle },
     ]
   }
 ];
@@ -123,29 +118,31 @@ function SidebarNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-5 text-xs">
-      {menuGroups.map((group, gIdx) => (
-        <div key={gIdx} className="space-y-1">
-          <h3 className="text-[11px] font-bold text-white/40 px-3 py-1 tracking-wide">
+    <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 custom-scrollbar">
+      {menuGroups.map((group, idx) => (
+        <div key={idx} className="space-y-1">
+          <p className="px-3 text-[11px] font-bold text-white/30 tracking-wider">
             {group.title}
-          </h3>
-          <div className="space-y-0.5">
+          </p>
+          <div className="space-y-0.5 mt-1">
             {group.items.map((item) => {
               const isActive = pathname === item.href;
+              const Icon = item.icon;
               return (
-                <Link key={item.name} href={item.href} className="block">
-                  <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 ${
-                      isActive 
-                        ? 'bg-[#1e1338] text-white font-bold border border-[#7C3AED]/40 shadow-sm shadow-[#7C3AED]/20' 
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <item.icon size={16} className={isActive ? 'text-[#a78bfa]' : 'text-white/40'} />
-                      <span className="truncate max-w-[145px]">{item.name}</span>
-                    </div>
-
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all group ${
+                    isActive 
+                      ? 'bg-[#181d16] text-[#d4f60b] border border-[#d4f60b]/30 shadow-sm' 
+                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon size={16} className={isActive ? 'text-[#d4f60b]' : 'text-white/40 group-hover:text-white/70'} />
+                    <span>{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
                     {item.badge && (
                       <span className={`text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded-full leading-tight ${item.badgeColor || 'bg-white/10 text-white'}`}>
                         {item.badge}
@@ -163,21 +160,23 @@ function SidebarNavigation() {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [isMegatronOpen, setIsMegatronOpen] = useState(false);
+
   return (
-    <div className="flex h-screen bg-[#07050d] text-white overflow-hidden font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
+    <div className="flex h-screen bg-[#07060c] text-white overflow-hidden font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
       {/* Enterprise Full-Fledged Luxury Sidebar */}
-      <aside className="w-64 border-l border-white/5 bg-[#0a0a0a] flex flex-col hidden xl:flex shrink-0 z-30">
+      <aside className="w-64 border-l border-white/5 bg-[#090b09] flex flex-col hidden xl:flex shrink-0 z-30">
         
-        {/* Header Logo */}
+        {/* Header Logo: Official PR Emblem */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-white/5">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#1e1338] border border-[#7C3AED]/30 flex items-center justify-center p-1.5 shadow-sm shadow-[#7C3AED]/30">
-              <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(124,58,237,0.7)]" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED]/40 flex items-center justify-center font-black text-sm text-white shadow-[0_0_12px_rgba(124,58,237,0.5)]">
+              PR
             </div>
-            <span className="text-lg font-black tracking-tighter text-white">Coach<span className="text-[#a78bfa]">PR</span></span>
+            <span className="text-lg font-black tracking-tight text-white">Coach<span className="text-[#d4f60b]">PR</span></span>
           </Link>
-          <span className="text-[10px] font-mono text-[#c4b5fd] bg-[#7C3AED]/20 border border-[#7C3AED]/40 px-2 py-0.5 rounded-full font-bold">
+          <span className="text-[10px] font-mono text-[#d4f60b] bg-[#d4f60b]/10 border border-[#d4f60b]/30 px-2 py-0.5 rounded-full font-bold">
             PRO
           </span>
         </div>
@@ -188,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Suspense>
 
         {/* Bottom Profile Bar */}
-        <div className="p-3 border-t border-white/5 bg-[#07050d] flex items-center justify-between">
+        <div className="p-3 border-t border-white/5 bg-[#07060c] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#7C3AED]/40">
               PR
@@ -209,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
         {/* Top Navbar */}
-        <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-between px-6 z-20 shrink-0">
+        <header className="h-16 border-b border-white/5 bg-[#090b09]/95 backdrop-blur-md flex items-center justify-between px-6 z-20 shrink-0">
           
           {/* Search Bar with Keyboard Hint */}
           <div className="flex items-center gap-4 flex-1 max-w-md">
@@ -218,7 +217,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <input 
                 type="text" 
                 placeholder="ابحث في الصفحات والإجراءات..." 
-                className="w-full bg-[#111116] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#7C3AED] transition"
+                className="w-full bg-[#111411] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b] transition"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/30 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
                 Ctrl+K
@@ -229,45 +228,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Right Header Controls */}
           <div className="flex items-center gap-3">
             
-            {/* Ask AI Top Button (Megatron Style with Purple Glow) */}
-            <Link 
-              href="/copilot"
-              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-extrabold text-xs px-4 py-2 rounded-full flex items-center gap-1.5 shadow-md shadow-[#7C3AED]/30 transition"
+            {/* Ask Megatron Top Button (Exact match with glowing yellow-lime badge) */}
+            <button 
+              onClick={() => setIsMegatronOpen(true)}
+              className="bg-[#d4f60b] hover:bg-[#c2e205] text-black font-black text-xs px-4 py-2 rounded-full flex items-center gap-1.5 shadow-[0_0_18px_rgba(212,246,11,0.35)] transition cursor-pointer active:scale-95"
             >
-              <Sparkles size={14} />
-              <span>اسأل ميغاتروين (AI)</span>
-            </Link>
+              <Sparkles size={14} className="fill-black" />
+              <span>اسأل ميجاترون</span>
+            </button>
 
             <Link 
               href="/app" 
-              className="text-xs font-bold text-white/70 hover:text-[#a78bfa] bg-[#111116] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
+              className="text-xs font-bold text-white/70 hover:text-[#d4f60b] bg-[#111411] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
             >
               <span>تطبيق اللاعب</span>
             </Link>
 
             <button className="relative p-2 text-white/50 hover:text-white transition">
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#7C3AED] rounded-full animate-ping"></span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#d4f60b] rounded-full animate-ping"></span>
             </button>
           </div>
 
         </header>
 
         {/* Page Content Scroll Container */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 relative">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 relative bg-gradient-to-b from-[#07060c] via-[#090b09] to-[#07060c]">
           {children}
 
-          {/* Floating AI Pulse Button */}
-          <Link
-            href="/copilot"
-            className="fixed bottom-8 left-8 w-14 h-14 bg-[#1e1338] border border-[#7C3AED]/60 text-[#a78bfa] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(124,58,237,0.45)] hover:scale-110 transition-transform z-50 group"
-            title="المساعد الذكي (Coach Copilot)"
+          {/* Floating AI Pulse Button triggers Megatron Modal */}
+          <button
+            onClick={() => setIsMegatronOpen(true)}
+            className="fixed bottom-8 left-8 w-14 h-14 bg-[#111411] border border-[#d4f60b]/50 text-[#d4f60b] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,246,11,0.35)] hover:scale-110 transition-transform z-40 group cursor-pointer"
+            title="المساعد الذكي (ميجاترون AI)"
           >
-            <Sparkles size={24} className="group-hover:rotate-12 transition-transform text-[#c4b5fd]" />
-          </Link>
+            <Sparkles size={24} className="group-hover:rotate-12 transition-transform text-[#d4f60b]" />
+          </button>
         </div>
 
       </main>
+
+      {/* Interactive Megatron AI Modal (Exact replica of user screenshot) */}
+      <MegatronModal 
+        isOpen={isMegatronOpen} 
+        onClose={() => setIsMegatronOpen(false)} 
+        contextPage="Coach dashboard" 
+      />
 
       {/* Global Notifications */}
       <Toaster 
@@ -276,8 +282,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         richColors 
         toastOptions={{
           style: {
-            background: '#111116',
-            border: '1px solid rgba(124, 58, 237, 0.3)',
+            background: '#111411',
+            border: '1px solid rgba(212, 246, 11, 0.3)',
             color: '#fff',
             borderRadius: '1rem',
             fontFamily: 'inherit'
