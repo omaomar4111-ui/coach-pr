@@ -46,7 +46,7 @@ export default function GymRateStyleLandingPage() {
     },
     {
       q: 'إيه الفرق بين الباقات؟',
-      a: 'كل الباقات فيها الأساسيات كاملة. الفارق الأساسي هو عدد العملاء النشطين (10 في Starter، 30 في Pro، 60 في Max، ومفتوح في Agency)، مع رصيد الذكاء الاصطناعي الإضافي.'
+      a: 'باقة Starter Free تمنحك إدارة أول 5 متدربين مجاناً مدى الحياة (0 ج.م). باقة Coach Pro بسعر 390 ج.م فقط تتيح حتى 30 لاعباً مع مساعد ميجاترون ورادار الغياب، وباقة Elite تتيح عدداً غير محدود من اللاعبين.'
     },
     {
       q: 'بدفع إزاي؟',
@@ -56,35 +56,27 @@ export default function GymRateStyleLandingPage() {
 
   const plans = [
     {
-      name: 'Starter',
-      price: billingPeriod === 'yearly' ? 240 : 299,
-      seats: 'لحد 10 عملاء',
-      credits: '25 رصيد AI في الشهر',
-      features: ['ميغاتروين AI المساعد', 'بدائل التمارين بالذكاء الاصطناعي', 'نماذج الاستقبال والفحص الطبي', 'تطبيق المتدرب PWA'],
+      name: 'Starter Free',
+      price: 0,
+      seats: 'أول 5 متدربين مجاناً 100%',
+      credits: 'أساسيات المتابعة وتطبيق PWA',
+      features: ['أول 5 متدربين مجاناً مدى الحياة', 'بنك تمارين بـ 450+ تمريناً', 'تطبيق المتدرب PWA أوفلاين', 'متابعة الأوزان والقياسات والـ PRs'],
       popular: false
     },
     {
-      name: 'Pro',
-      price: billingPeriod === 'yearly' ? 790 : 999,
-      seats: 'لحد 30 عميل',
-      credits: '100 رصيد AI في الشهر',
-      features: ['مختبر التكنيك (Form Check بالفيديو)', 'تحليل صور ومكونات الوجبات', 'تحليلات الإيرادات ونمو الـ MRR', 'تصدير PDF بهويتك وشعارك', 'رسائل ومتابعات مجدولة آلياً'],
+      name: 'Coach Pro',
+      price: billingPeriod === 'yearly' ? 325 : 390,
+      seats: 'حتى 30 متدرباً نشطاً',
+      credits: 'مساعد ميجاترون AI كامل',
+      features: ['كل مميزات Starter Free', 'مساعد ميغاتروين AI للردود الذكية', 'مختبر التكنيك (Form Check بالفيديو)', 'رادار المتابعة الاستباقي للغياب', 'تصدير PDF بهويتك وشعارك'],
       popular: true
     },
     {
-      name: 'Max',
-      price: billingPeriod === 'yearly' ? 1590 : 1999,
-      seats: 'لحد 60 عميل',
-      credits: '300 رصيد AI في الشهر',
-      features: ['كل مميزات Pro', 'تتبع بروتوكولات المكملات والاستشفاء', 'دعم الأولوية عبر الواتساب', 'متجر بيع الجداول الرقمية'],
-      popular: false
-    },
-    {
-      name: 'Agency',
-      price: billingPeriod === 'yearly' ? 3190 : 3999,
-      seats: 'عدد مفتوح من العملاء',
-      credits: '1,000 رصيد AI في الشهر',
-      features: ['شركة تدريب وتعيين مدربين مساعدين', 'رسائل الذكاء الاصطناعي بأسلوبك وصوتك', 'تخصيص كامل للهوية والنطاق الخاص'],
+      name: 'Elite Unlimited',
+      price: billingPeriod === 'yearly' ? 658 : 790,
+      seats: 'عدد غير محدود من اللاعبين',
+      credits: 'أولوية قصوى ودعم VIP',
+      features: ['كل مميزات Coach Pro', 'عدد متدربين غير محدود (Unlimited)', 'مسودات التشيك إن التلقائية', 'تحليلات الإيرادات ونمو الـ MRR', 'إضافة حسابات لكباتن مساعدين'],
       popular: false
     }
   ];
@@ -399,7 +391,7 @@ export default function GymRateStyleLandingPage() {
 
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {plans.map((p, idx) => (
               <div
                 key={idx}
