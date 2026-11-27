@@ -104,6 +104,7 @@ const menuGroups: MenuGroup[] = [
   {
     title: 'الهوية والذكاء',
     items: [
+      { name: 'استوديو الهوية (White Label)', href: '/dashboard/branding', icon: Sparkles },
       { name: 'الملف والتهيئة', href: '/dashboard/profile', icon: Settings },
       { name: 'تصاميم PDF', href: '/dashboard/pdf-designs', icon: FileText },
       { name: 'المساعد الصوتي AI', href: '/dashboard/voice-ai', icon: Mic },
