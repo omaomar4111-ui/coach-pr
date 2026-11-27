@@ -63,7 +63,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div className="text-2xl font-extrabold text-white">
-            {stats.totalSales.toLocaleString()} ج.م
+            {stats.totalSales.toLocaleString('en-US')} ج.م
           </div>
           <span className="text-[11px] text-emerald-400 mt-2 block">
             من طلبات المحادثات المباشرة

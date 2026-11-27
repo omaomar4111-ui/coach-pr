@@ -133,7 +133,7 @@ export default function DashboardOverview() {
         <div className="bg-[#111116] border border-white/5 p-5 rounded-2xl flex flex-col justify-between hover:border-[#d4f60b]/30 transition group">
           <p className="text-xs font-semibold text-white/50 mb-1">إيرادات الشهر</p>
           <div className="flex items-baseline gap-1.5">
-            <h3 className="text-3xl font-black font-mono text-[#d4f60b] transition">{stats.monthlyRevenue.toLocaleString()}</h3>
+            <h3 className="text-3xl font-black font-mono text-[#d4f60b] transition">{stats.monthlyRevenue.toLocaleString('en-US')}</h3>
             <span className="text-xs text-white/40 font-mono">EGP</span>
           </div>
         </div>

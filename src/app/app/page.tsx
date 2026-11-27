@@ -919,7 +919,7 @@ export default function AthleteMobileApp() {
             <div className="grid grid-cols-2 gap-2 bg-black/40 p-3 rounded-xl border border-white/10">
               <div>
                 <span className="text-[10px] text-white/40 block">إجمالي الحجم</span>
-                <span className="text-base font-black font-mono text-[#d4f60b]">{summaryStats.volume.toLocaleString()} KG</span>
+                <span className="text-base font-black font-mono text-[#d4f60b]">{summaryStats.volume.toLocaleString('en-US')} KG</span>
               </div>
               <div>
                 <span className="text-[10px] text-white/40 block">المجموعات المنجزة</span>
