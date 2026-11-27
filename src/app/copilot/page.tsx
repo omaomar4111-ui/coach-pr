@@ -133,7 +133,7 @@ export default function CopilotFleetPage() {
   return (
     <div className="min-h-screen bg-space-void text-white font-sans selection:bg-purple-600" dir="rtl">
       {/* Top Navbar */}
-      <nav className="border-b border-purple-500/20 bg-[#07050d]/85 backdrop-blur-xl sticky top-0 z-50">
+      <nav className="border-b border-purple-500/20 bg-background/85 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <Logo size="md" />
 

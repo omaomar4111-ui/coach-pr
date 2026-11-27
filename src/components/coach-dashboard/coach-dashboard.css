@@ -1,11 +1,11 @@
 .cpr-dashboard {
-  --cpr-bg: #08090b;
-  --cpr-panel: #111318;
-  --cpr-panel-raised: #15181e;
-  --cpr-border: #242831;
-  --cpr-text: #f2f4f6;
-  --cpr-muted: #8d929d;
-  --cpr-lime: #d4f60b;
+  --cpr-bg: #07060C;
+  --cpr-panel: #111116;
+  --cpr-panel-raised: #1D1D22;
+  --cpr-border: #24242B;
+  --cpr-text: #F5F5F5;
+  --cpr-muted: #A1A1AA;
+  --cpr-lime: #D4F60B;
   --cpr-purple: #8b5cf6;
   --cpr-green: #43d49a;
   --cpr-red: #f16b78;
@@ -30,7 +30,7 @@
   display: flex;
   flex-direction: column;
   padding: 22px 15px 14px;
-  background: #0d0f12;
+  background: #090A0A;
   border-left: 1px solid var(--cpr-border);
   position: sticky;
   top: 0;

@@ -97,7 +97,7 @@ export default function ClientIntakeReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07050d] text-white font-sans selection:bg-[#7C3AED] py-6 sm:py-12 px-4" dir="rtl">
+    <div className="min-h-screen bg-background text-white font-sans selection:bg-[#7C3AED] py-6 sm:py-12 px-4" dir="rtl">
       
       {/* Top Header */}
       <header className="max-w-xl mx-auto flex items-center justify-between border-b border-white/5 pb-4 mb-8">
@@ -119,7 +119,7 @@ export default function ClientIntakeReportPage() {
       {/* Main Container */}
       <main className="max-w-xl mx-auto">
         {step !== 3 ? (
-          <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
+          <div className="bg-card border border-white/10 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
             <div>
               <div className="flex items-center gap-2 text-xs text-[#d4f60b] font-bold mb-1">
                 <span>الخطوة {step} من 2</span>
@@ -147,7 +147,7 @@ export default function ClientIntakeReportPage() {
                       placeholder="عمر حسن السيد"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
-                      className="w-full bg-[#171228] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b]"
+                      className="w-full bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b]"
                     />
                   </div>
 
@@ -159,7 +159,7 @@ export default function ClientIntakeReportPage() {
                       placeholder="01012345678"
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
-                      className="w-full bg-[#171228] border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-mono placeholder-white/30 focus:outline-none focus:border-[#d4f60b]"
+                      className="w-full bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-mono placeholder-white/30 focus:outline-none focus:border-[#d4f60b]"
                     />
                   </div>
 
@@ -170,7 +170,7 @@ export default function ClientIntakeReportPage() {
                         type="number"
                         value={age}
                         onChange={e => setAge(e.target.value)}
-                        className="w-full bg-[#171228] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
+                        className="w-full bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
                       />
                     </div>
                     <div>
@@ -179,7 +179,7 @@ export default function ClientIntakeReportPage() {
                         type="number"
                         value={heightCm}
                         onChange={e => setHeightCm(e.target.value)}
-                        className="w-full bg-[#171228] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
+                        className="w-full bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
                       />
                     </div>
                     <div>
@@ -189,7 +189,7 @@ export default function ClientIntakeReportPage() {
                         step="0.1"
                         value={weightKg}
                         onChange={e => setWeightKg(e.target.value)}
-                        className="w-full bg-[#171228] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
+                        className="w-full bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-[#d4f60b] outline-none"
                       />
                     </div>
                   </div>
@@ -200,7 +200,7 @@ export default function ClientIntakeReportPage() {
                       <select
                         value={primaryGoal}
                         onChange={(e: any) => setPrimaryGoal(e.target.value)}
-                        className="w-full bg-[#171228] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#d4f60b] outline-none"
+                        className="w-full bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#d4f60b] outline-none"
                       >
                         <option value="hypertrophy">بناء وتضخيم عضلات صافية (Hypertrophy)</option>
                         <option value="fat_loss">تنشيف وخسارة دهون مع شد الجسم</option>
@@ -214,7 +214,7 @@ export default function ClientIntakeReportPage() {
                       <select
                         value={preferredDays}
                         onChange={e => setPreferredDays(Number(e.target.value))}
-                        className="w-full bg-[#171228] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#d4f60b] outline-none font-mono"
+                        className="w-full bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#d4f60b] outline-none font-mono"
                       >
                         <option value={3}>3 أيام أسبوعياً (Full Body / PPL)</option>
                         <option value={4}>4 أيام أسبوعياً (Upper / Lower)</option>
@@ -249,7 +249,7 @@ export default function ClientIntakeReportPage() {
                         className={`p-3.5 rounded-2xl border text-center transition flex items-center justify-center gap-2 cursor-pointer ${
                           hasInjury === 'no' 
                             ? 'bg-[#152417] border-emerald-500 text-emerald-300 font-black' 
-                            : 'bg-[#171228] border-white/5 text-white/50 hover:text-white'
+                            : 'bg-surface border-white/5 text-white/50 hover:text-white'
                         }`}
                       >
                         <Check size={16} />
@@ -262,7 +262,7 @@ export default function ClientIntakeReportPage() {
                         className={`p-3.5 rounded-2xl border text-center transition flex items-center justify-center gap-2 cursor-pointer ${
                           hasInjury === 'yes' 
                             ? 'bg-[#29121c] border-rose-500 text-rose-300 font-black' 
-                            : 'bg-[#171228] border-white/5 text-white/50 hover:text-white'
+                            : 'bg-surface border-white/5 text-white/50 hover:text-white'
                         }`}
                       >
                         <AlertTriangle size={16} />
@@ -328,7 +328,7 @@ export default function ClientIntakeReportPage() {
                         {uploadedFiles.length > 0 && (
                           <div className="space-y-1.5 pt-2">
                             {uploadedFiles.map((file, i) => (
-                              <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-[#171228] border border-white/5 text-xs">
+                              <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-white/5 text-xs">
                                 <div className="flex items-center gap-2">
                                   <FileCheck size={14} className="text-emerald-400" />
                                   <span className="font-bold text-white truncate max-w-[200px]">{file.name}</span>
@@ -382,7 +382,7 @@ export default function ClientIntakeReportPage() {
           </div>
         ) : (
           /* STEP 3: Success Confirmation & Unique Client Code */
-          <div className="bg-[#100c1e] border border-emerald-500/30 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl animate-in zoom-in-95">
+          <div className="bg-card border border-emerald-500/30 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl animate-in zoom-in-95">
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400">
               <CheckCircle2 size={36} />
             </div>
@@ -390,7 +390,7 @@ export default function ClientIntakeReportPage() {
             <div className="space-y-1">
               <span className="text-[11px] text-emerald-400 font-bold block">تم استلام التقرير الطبي بنجاح!</span>
               <h2 className="text-2xl font-black text-white">كود اللاعب الخاص بك:</h2>
-              <div className="inline-block px-5 py-2 rounded-2xl bg-[#171228] border border-[#d4f60b]/30 font-mono text-xl font-black text-[#d4f60b] tracking-wider my-2 shadow-inner">
+              <div className="inline-block px-5 py-2 rounded-2xl bg-surface border border-[#d4f60b]/30 font-mono text-xl font-black text-[#d4f60b] tracking-wider my-2 shadow-inner">
                 {submittedReport?.clientCode}
               </div>
               <p className="text-xs text-white/60 max-w-sm mx-auto leading-relaxed">

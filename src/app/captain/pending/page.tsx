@@ -51,7 +51,7 @@ export default function CaptainOnboardingPendingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07050d] text-slate-100 flex flex-col justify-between py-10 px-4 font-sans select-none" dir="rtl">
+    <div className="min-h-screen bg-background text-slate-100 flex flex-col justify-between py-10 px-4 font-sans select-none" dir="rtl">
       {/* Top Brand Centered */}
       <header className="flex justify-center mb-6">
         <Logo size="md" />
@@ -61,7 +61,7 @@ export default function CaptainOnboardingPendingPage() {
       <main className="w-full max-w-xl mx-auto">
         {step === 'form' ? (
           /* STEP 1: Onboarding Questionnaire Card (Pure Minimalist Luxury) */
-          <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="bg-card border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
             <div>
               <h1 className="text-xl font-bold text-white mb-1">عرّفنا بيك</h1>
               <p className="text-xs text-slate-400">كمّل البيانات دي عشان نراجع طلبك ونتواصل معاك.</p>
@@ -77,7 +77,7 @@ export default function CaptainOnboardingPendingPage() {
                   placeholder="مثال: عمر مصطفى"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-surface border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
 
@@ -90,7 +90,7 @@ export default function CaptainOnboardingPendingPage() {
                   placeholder="0114482641"
                   value={whatsapp}
                   onChange={e => setWhatsapp(e.target.value)}
-                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-surface border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
 
@@ -102,7 +102,7 @@ export default function CaptainOnboardingPendingPage() {
                   placeholder="@your_handle"
                   value={instagram}
                   onChange={e => setInstagram(e.target.value)}
-                  className="w-full bg-[#171228] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-surface border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
 
@@ -123,13 +123,13 @@ export default function CaptainOnboardingPendingPage() {
                         onClick={() => setCurrentTool(item.id as any)}
                         className={`p-3 rounded-2xl border text-xs font-semibold transition flex items-center justify-between gap-1.5 ${
                           isSelected 
-                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
-                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                            ? 'border-[#d4f60b] bg-[#161c10]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-surface text-slate-400 hover:border-white/20'
                         }`}
                       >
                         <span className="truncate">{item.label}</span>
                         <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                          isSelected ? 'border-[#d4f60b] bg-[#d4f60b]' : 'border-slate-600'
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
                         </div>
@@ -156,13 +156,13 @@ export default function CaptainOnboardingPendingPage() {
                         onClick={() => setBiggestChallenge(item.id as any)}
                         className={`p-3 rounded-2xl border text-xs font-semibold transition flex items-center justify-between gap-1.5 ${
                           isSelected 
-                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
-                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                            ? 'border-[#d4f60b] bg-[#161c10]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-surface text-slate-400 hover:border-white/20'
                         }`}
                       >
                         <span className="truncate">{item.label}</span>
                         <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                          isSelected ? 'border-[#d4f60b] bg-[#d4f60b]' : 'border-slate-600'
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
                         </div>
@@ -189,13 +189,13 @@ export default function CaptainOnboardingPendingPage() {
                         onClick={() => setTraineeCount(item.id as any)}
                         className={`p-3 rounded-2xl border text-xs font-mono font-bold transition flex items-center justify-between ${
                           isSelected 
-                            ? 'border-[#a3e635] bg-[#1a2312]/60 text-white shadow-sm' 
-                            : 'border-white/5 bg-[#171228] text-slate-400 hover:border-white/20'
+                            ? 'border-[#d4f60b] bg-[#161c10]/60 text-white shadow-sm' 
+                            : 'border-white/5 bg-surface text-slate-400 hover:border-white/20'
                         }`}
                       >
                         <span>{item.label}</span>
                         <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                          isSelected ? 'border-[#a3e635] bg-[#a3e635]' : 'border-slate-600'
+                          isSelected ? 'border-[#d4f60b] bg-[#d4f60b]' : 'border-slate-600'
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-black"></div>}
                         </div>
@@ -210,7 +210,7 @@ export default function CaptainOnboardingPendingPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#a3e635] hover:bg-[#bef264] text-black font-extrabold text-sm py-3.5 rounded-2xl transition shadow-lg shadow-lime-950/40 disabled:opacity-50"
+                  className="w-full bg-[#d4f60b] hover:bg-[#d4f60b] text-black font-extrabold text-sm py-3.5 rounded-2xl transition shadow-lg shadow-lime-950/40 disabled:opacity-50"
                 >
                   {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
                 </button>
@@ -231,12 +231,12 @@ export default function CaptainOnboardingPendingPage() {
           /* STEP 2: Under Review Screen with Mobile Notifications Toggle */
           <div className="space-y-4">
             {/* Header Badge */}
-            <div className="bg-[#100c1e] border border-white/10 rounded-2xl py-3 px-4 text-center text-xs font-bold text-slate-300">
+            <div className="bg-card border border-white/10 rounded-2xl py-3 px-4 text-center text-xs font-bold text-slate-300">
               حسابك تحت المراجعة
             </div>
 
             {/* Main Pending Card */}
-            <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+            <div className="bg-card border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
               {/* Hourglass Icon */}
               <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
                 <Hourglass size={28} className="animate-pulse" />
@@ -249,7 +249,7 @@ export default function CaptainOnboardingPendingPage() {
               </div>
 
               {/* Mobile Push Notification Activation Toggle */}
-              <div className="bg-[#171228] border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-3 text-right">
+              <div className="bg-surface border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-3 text-right">
                 <div className="flex-1">
                   <span className="text-xs font-bold text-white block">إشعارات على الموبايل</span>
                   <span className="text-[11px] text-slate-400 block mt-0.5">
@@ -262,7 +262,7 @@ export default function CaptainOnboardingPendingPage() {
                   type="button"
                   onClick={handleToggleNotifications}
                   className={`w-12 h-6 rounded-full transition-colors relative p-0.5 shrink-0 ${
-                    notificationsEnabled ? 'bg-[#a3e635]' : 'bg-slate-700'
+                    notificationsEnabled ? 'bg-[#d4f60b]' : 'bg-slate-700'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition-transform ${

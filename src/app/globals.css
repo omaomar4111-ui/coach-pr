@@ -1,28 +1,61 @@
 @import "tailwindcss";
 
-/* ===================================================
-   Dark Luxury Cyber-Cinema Aesthetic Design System
-   for CoachPR (كوتش بي آر بي)
-   Palette:
-   --space-void: #07050d
-   --space-abyss: #0b0d17
-   --glass-surface: rgba(16, 12, 28, 0.85)
-   --cyber-glow-start: #8b5cf6
-   --cyber-glow-end: #7c3aed
-   --laser-edge: rgba(168, 85, 247, 0.25)
-   --hud-green: #10b981
-   --hud-amber: #f59e0b
-   --hud-magenta: #d946ef
-=================================================== */
+@theme {
+  /* Core Layout Surfaces */
+  --color-background: #07060C;
+  --color-shell: #090A0A;
+  --color-card: #111116;
+  --color-surface: #1D1D22;
+  --color-border: #24242B;
+
+  /* Explicit Brand Palette */
+  --color-brand-lime: #D4F60B;
+  --color-brand-purple: #7C3AED;
+
+  /* Semantic UI Roles */
+  --color-primary: #D4F60B;
+  --color-primary-foreground: #090A0A;
+  --color-secondary: #1D1D22;
+  --color-secondary-foreground: #F5F5F5;
+
+  /* Typography Hierarchy */
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #A1A1AA;
+  --color-muted-foreground: #A1A1AA;
+}
 
 :root {
-  --space-void: #07050d;
-  --space-abyss: #0b0d17;
-  --glass-surface: rgba(16, 12, 28, 0.85);
-  --glass-surface-hover: rgba(26, 19, 45, 0.95);
+  /* CoachPR Official Global Design Tokens */
+  --cp-background: #07060C;
+  --cp-shell: #090A0A;
+  --cp-card: #111116;
+  --cp-surface-elevated: #1D1D22;
+  --cp-border: #24242B;
+
+  /* Brand Distinct Accents */
+  --cp-brand-lime: #D4F60B;
+  --cp-brand-purple: #7C3AED;
+
+  /* Semantic UI Tokens */
+  --cp-primary: #D4F60B;
+  --cp-primary-foreground: #090A0A;
+  --cp-secondary: #1D1D22;
+  --cp-secondary-foreground: #F5F5F5;
+
+  /* Content & Text Tokens */
+  --cp-text-primary: #F5F5F5;
+  --cp-text-secondary: #A1A1AA;
+  --cp-muted-foreground: #A1A1AA;
+  --cp-chart-muted: #3F4438;
+
+  /* Legacy CSS Variable Bridges */
+  --space-void: #07060C;
+  --space-abyss: #090A0A;
+  --glass-surface: rgba(17, 17, 22, 0.85);
+  --glass-surface-hover: rgba(29, 29, 34, 0.95);
   --cyber-glow-start: #8b5cf6;
   --cyber-glow-end: #7c3aed;
-  --laser-edge: rgba(168, 85, 247, 0.25);
+  --laser-edge: rgba(124, 58, 237, 0.25);
   --laser-edge-bright: rgba(192, 132, 252, 0.6);
   --hud-green: #10b981;
   --hud-amber: #f59e0b;
@@ -32,39 +65,25 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #07050d !important;
-  color: #ffffff !important;
+  background-color: #07060C !important;
+  color: #F5F5F5 !important;
   font-family: var(--font-tajawal), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED;
-}
-
 /* Cosmic Space Void Background with Subtle Radial Aura */
 .bg-space-void {
-  background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15) 0%, #07050d 70%),
+  background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15) 0%, #07060C 70%),
               radial-gradient(circle at 100% 50%, rgba(217, 70, 239, 0.08) 0%, transparent 50%),
-              #07050d;
+              #07060C;
 }
 
 /* High-End Glassmorphism Surfaces */
 .glass-surface {
-  background: rgba(16, 12, 28, 0.85) !important;
+  background: rgba(17, 17, 22, 0.85) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+  border: 1px solid rgba(124, 58, 237, 0.25) !important;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), 
               inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
 }
@@ -73,56 +92,32 @@ html, body {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 .glass-surface-hover:hover {
-  background: rgba(22, 16, 40, 0.95) !important;
-  border-color: rgba(192, 132, 252, 0.5) !important;
-  box-shadow: 0 14px 40px -10px rgba(124, 58, 237, 0.25),
-              inset 0 1px 0 0 rgba(255, 255, 255, 0.15) !important;
+  background: rgba(29, 29, 34, 0.95) !important;
+  border: 1px solid rgba(192, 132, 252, 0.6) !important;
   transform: translateY(-2px);
+  box-shadow: 0 12px 35px -8px rgba(124, 58, 237, 0.3),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-/* Laser Cut 1px Edge */
-.laser-border {
-  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+/* Cyber Glow Borders and Pulsing */
+.border-laser {
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+}
+.border-laser-bright {
+  border: 1px solid rgba(192, 132, 252, 0.6) !important;
 }
 
-.laser-border-glow {
-  border: 1px solid rgba(192, 132, 252, 0.5) !important;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
+.shadow-glow-purple {
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+}
+.shadow-glow-magenta {
+  box-shadow: 0 0 25px rgba(217, 70, 239, 0.35);
+}
+.shadow-glow-green {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
 }
 
-/* Tactile Director Pills */
-.director-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-  background: rgba(20, 14, 36, 0.9);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  user-select: none;
-}
-.director-pill:hover {
-  background: rgba(124, 58, 237, 0.25);
-  border-color: #8b5cf6;
-  color: #ffffff;
-  transform: scale(1.04);
-}
-.director-pill:active {
-  transform: scale(0.96);
-}
-.director-pill.active {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-  border-color: #a78bfa;
-  color: #ffffff;
-  box-shadow: 0 0 14px rgba(139, 92, 246, 0.6);
-}
-
-/* HUD Badges */
+/* Telemetry HUD Badges */
 .hud-badge-green {
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.35);
@@ -144,10 +139,7 @@ html, body {
 /* Hollywood Signature Purple Glow Button */
 .btn-cyber-glow {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
-  color: #ffffff !important;
-  border-radius: 9999px !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 25px rgba(124, 58, 237, 0.5), 
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.45), 
               inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   border: 1px solid rgba(192, 132, 252, 0.4) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;

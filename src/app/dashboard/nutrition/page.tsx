@@ -97,17 +97,17 @@ export default function NutritionMacrosPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#07050d] text-white font-sans p-6 sm:p-10 selection:bg-[#a3e635] selection:text-black" dir="rtl">
+    <div className="min-h-screen bg-background text-white font-sans p-6 sm:p-10 selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
       {/* Header */}
       <header className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
         <div>
-          <Link href="/dashboard" className="text-white/40 hover:text-[#a3e635] mb-2 inline-flex items-center gap-1.5 text-xs font-semibold transition">
+          <Link href="/dashboard" className="text-white/40 hover:text-[#d4f60b] mb-2 inline-flex items-center gap-1.5 text-xs font-semibold transition">
             <ArrowRight size={14} /> العودة للوحة التحكم
           </Link>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-black text-white">مكتبة الأكلات والماكروز المصرية</h1>
-            <span className="bg-[#1a2312] border border-[#a3e635]/30 text-[#bef264] text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+            <span className="bg-[#161c10] border border-[#d4f60b]/30 text-[#d4f60b] text-[10px] font-bold px-2.5 py-0.5 rounded-full">
               Nutrition Builder
             </span>
           </div>
@@ -118,7 +118,7 @@ export default function NutritionMacrosPage() {
 
         <Link
           href="/dashboard/builder"
-          className="bg-[#171228] border border-white/10 hover:border-[#a3e635] text-[#a3e635] px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+          className="bg-surface border border-white/10 hover:border-[#d4f60b] text-[#d4f60b] px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
         >
           <Dumbbell size={14} /> باني جداول التمارين
         </Link>
@@ -131,28 +131,28 @@ export default function NutritionMacrosPage() {
         <div className="lg:col-span-5 space-y-6">
           
           {/* Total Macros Summary Card */}
-          <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
+          <div className="bg-card border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
             <div className="flex justify-between items-center border-b border-white/5 pb-4">
               <div>
                 <span className="text-[11px] text-white/40 font-bold block">إجمالي الطاقة المحسوبة</span>
                 <span className="text-3xl font-mono font-black text-white">{totalCalories} <span className="text-xs font-normal text-white/50">سعرة حرارية</span></span>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-[#171228] border border-white/10 flex items-center justify-center text-[#a3e635]">
+              <div className="w-12 h-12 rounded-2xl bg-surface border border-white/10 flex items-center justify-center text-[#d4f60b]">
                 <Flame size={24} />
               </div>
             </div>
 
             {/* Macro Bars */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-[#171228] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="bg-surface border border-white/10 rounded-2xl p-3 text-center">
                 <span className="text-[10px] text-indigo-400 font-bold block">بروتين (Protein)</span>
                 <span className="text-xl font-mono font-black text-white">{totalProtein}g</span>
               </div>
-              <div className="bg-[#171228] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="bg-surface border border-white/10 rounded-2xl p-3 text-center">
                 <span className="text-[10px] text-amber-400 font-bold block">كاربوهيدرات (Carbs)</span>
                 <span className="text-xl font-mono font-black text-white">{totalCarbs}g</span>
               </div>
-              <div className="bg-[#171228] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="bg-surface border border-white/10 rounded-2xl p-3 text-center">
                 <span className="text-[10px] text-rose-400 font-bold block">دهون صحية (Fats)</span>
                 <span className="text-xl font-mono font-black text-white">{totalFats}g</span>
               </div>
@@ -160,9 +160,9 @@ export default function NutritionMacrosPage() {
           </div>
 
           {/* Active Plate / Ingredients */}
-          <div className="bg-[#100c1e] border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="bg-card border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
             <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-              <Utensils size={15} className="text-[#a3e635]" /> مكونات وجبة البطل
+              <Utensils size={15} className="text-[#d4f60b]" /> مكونات وجبة البطل
             </h3>
 
             <div className="space-y-3">
@@ -173,7 +173,7 @@ export default function NutritionMacrosPage() {
                   const itemCal = Math.round((item.food.calories * item.amountGrams) / item.food.servingGrams);
                   const itemProt = Math.round((item.food.protein * item.amountGrams) / item.food.servingGrams);
                   return (
-                    <div key={idx} className="bg-[#171228] border border-white/10 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                    <div key={idx} className="bg-surface border border-white/10 rounded-2xl p-3.5 flex items-center justify-between gap-3">
                       <div className="flex-1">
                         <h4 className="text-xs font-bold text-white">{item.food.name}</h4>
                         <span className="text-[10px] text-white/40 block mt-0.5">
@@ -187,7 +187,7 @@ export default function NutritionMacrosPage() {
                           step="10"
                           value={item.amountGrams}
                           onChange={e => updateAmount(idx, parseFloat(e.target.value) || 0)}
-                          className="w-16 bg-[#100c1e] border border-white/10 rounded-xl text-center font-mono font-bold text-xs py-1.5 text-[#a3e635] focus:outline-none"
+                          className="w-16 bg-card border border-white/10 rounded-xl text-center font-mono font-bold text-xs py-1.5 text-[#d4f60b] focus:outline-none"
                         />
                         <span className="text-[10px] text-white/40">جم</span>
 
@@ -204,7 +204,7 @@ export default function NutritionMacrosPage() {
               )}
             </div>
 
-            <button className="w-full bg-[#a3e635] hover:bg-[#8fd128] text-black font-extrabold py-3 rounded-2xl text-xs transition mt-2 shadow-lg shadow-[#a3e635]/20 cursor-pointer">
+            <button className="w-full bg-[#d4f60b] hover:bg-[#c2e205] text-black font-extrabold py-3 rounded-2xl text-xs transition mt-2 shadow-lg shadow-[#d4f60b]/20 cursor-pointer">
               حفظ وتوزيع خطة الوجبة للاعب 🚀
             </button>
           </div>
@@ -212,7 +212,7 @@ export default function NutritionMacrosPage() {
         </div>
 
         {/* Right: Egyptian Local Food Database */}
-        <div className="lg:col-span-7 bg-[#100c1e] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="lg:col-span-7 bg-card border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
           
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
@@ -221,7 +221,7 @@ export default function NutritionMacrosPage() {
             </div>
 
             {/* Category Filter Pills */}
-            <div className="flex gap-1.5 bg-[#171228] p-1 rounded-2xl border border-white/10 text-[11px]">
+            <div className="flex gap-1.5 bg-surface p-1 rounded-2xl border border-white/10 text-[11px]">
               {[
                 { id: 'all', label: 'الكل' },
                 { id: 'protein', label: 'بروتين' },
@@ -233,7 +233,7 @@ export default function NutritionMacrosPage() {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-3 py-1 rounded-xl font-bold transition ${
                     selectedCategory === cat.id 
-                      ? 'bg-[#a3e635] text-black' 
+                      ? 'bg-[#d4f60b] text-black' 
                       : 'text-white/50 hover:text-white'
                   }`}
                 >
@@ -251,7 +251,7 @@ export default function NutritionMacrosPage() {
               placeholder="ابحث عن أكلة (دجاج، جبنة قريش، شوفان، بلطي، أرز...)"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[#171228] border border-white/10 rounded-2xl pr-11 pl-4 py-3 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#a3e635] transition"
+              className="w-full bg-surface border border-white/10 rounded-2xl pr-11 pl-4 py-3 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b] transition"
             />
           </div>
 
@@ -260,11 +260,11 @@ export default function NutritionMacrosPage() {
             {filteredFoods.map(food => (
               <div 
                 key={food.id}
-                className="bg-[#171228] border border-white/10 hover:border-[#a3e635]/40 rounded-2xl p-4 flex flex-col justify-between gap-3 transition group"
+                className="bg-surface border border-white/10 hover:border-[#d4f60b]/40 rounded-2xl p-4 flex flex-col justify-between gap-3 transition group"
               >
                 <div>
                   <div className="flex justify-between items-start gap-1">
-                    <h4 className="text-xs font-bold text-white group-hover:text-[#a3e635] transition leading-tight">
+                    <h4 className="text-xs font-bold text-white group-hover:text-[#d4f60b] transition leading-tight">
                       {food.name}
                     </h4>
                     <span className="text-[10px] text-white/30 shrink-0 font-mono">
@@ -273,7 +273,7 @@ export default function NutritionMacrosPage() {
                   </div>
 
                   <div className="flex items-center gap-3 mt-3 text-[11px] font-mono text-white/60">
-                    <span className="text-[#a3e635] font-bold">{food.calories} cal</span>
+                    <span className="text-[#d4f60b] font-bold">{food.calories} cal</span>
                     <span>P: {food.protein}g</span>
                     <span>C: {food.carbs}g</span>
                     <span>F: {food.fats}g</span>
@@ -282,7 +282,7 @@ export default function NutritionMacrosPage() {
 
                 <button 
                   onClick={() => addFoodToMeal(food)}
-                  className="w-full bg-[#100c1e] hover:bg-[#a3e635] hover:text-black border border-white/10 text-white/80 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full bg-card hover:bg-[#d4f60b] hover:text-black border border-white/10 text-white/80 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Plus size={14} /> إضافة للوجبة
                 </button>

@@ -2,16 +2,16 @@
 /* Color tokens: Matte Black #08090b / #000000, Carbon Dark #111418, Lime #d4f60b, Royal Purple #7C3AED */
 
 :root {
-  --cpr-app-bg: #07080a;
-  --cpr-app-card: #11141a;
-  --cpr-app-card-raised: #161b22;
-  --cpr-app-border: #212631;
-  --cpr-app-lime: #d4f60b;
+  --cpr-app-bg: #07060C;
+  --cpr-app-card: #111116;
+  --cpr-app-card-raised: #1D1D22;
+  --cpr-app-border: #24242B;
+  --cpr-app-lime: #D4F60B;
   --cpr-app-lime-glow: rgba(212, 246, 11, 0.25);
   --cpr-app-purple: #7C3AED;
   --cpr-app-purple-glow: rgba(124, 58, 237, 0.25);
-  --cpr-app-text: #f3f5f8;
-  --cpr-app-muted: #848a97;
+  --cpr-app-text: #F5F5F5;
+  --cpr-app-muted: #A1A1AA;
 }
 
 .cpr-app-container {

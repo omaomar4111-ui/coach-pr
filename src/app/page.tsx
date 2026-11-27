@@ -82,15 +82,15 @@ export default function GymRateStyleLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#07050d] text-white font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
+    <div className="min-h-screen bg-background text-white font-sans selection:bg-[#7C3AED] selection:text-white" dir="rtl">
       
       {/* Top Laser Navbar */}
-      <header className="border-b border-white/5 bg-[#07050d]/90 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-white/5 bg-background/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-[#1e1338] border border-[#7C3AED]/40 flex items-center justify-center p-1.5 shadow-sm shadow-[#7C3AED]/30">
+              <div className="w-9 h-9 rounded-2xl bg-card border border-[#7C3AED]/40 flex items-center justify-center p-1.5 shadow-sm shadow-[#7C3AED]/30">
                 <img src="/brand-pr-logo.png" alt="PR" className="w-full h-full object-contain filter drop-shadow-[0_0_6px_rgba(124,58,237,0.7)]" />
               </div>
               <span className="text-xl font-black tracking-tighter text-white">Coach<span className="text-[#a78bfa]">PR</span></span>
@@ -115,7 +115,7 @@ export default function GymRateStyleLandingPage() {
 
             <Link
               href="/dashboard"
-              className="bg-[#1e1338] hover:bg-[#281b4d] text-[#c4b5fd] border border-[#7C3AED]/40 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+              className="bg-card hover:bg-[#281b4d] text-[#c4b5fd] border border-[#7C3AED]/40 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
             >
               <Play size={12} className="fill-[#c4b5fd]" /> جرّب بنفسك
             </Link>
@@ -141,7 +141,7 @@ export default function GymRateStyleLandingPage() {
             {/* Right: Text Pitch */}
             <div className="lg:col-span-7 space-y-6">
               
-              <div className="inline-flex items-center gap-2 bg-[#1e1338] border border-[#7C3AED]/30 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#c4b5fd]">
+              <div className="inline-flex items-center gap-2 bg-card border border-[#7C3AED]/30 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#c4b5fd]">
                 <Sparkles size={13} className="text-[#a78bfa]" /> للمدربين الأونلاين وكمال الأجسام في مصر والوطن العربي
               </div>
 
@@ -201,17 +201,17 @@ export default function GymRateStyleLandingPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-[#171228] p-3 rounded-xl border border-white/5">
+                    <div className="bg-surface p-3 rounded-xl border border-white/5">
                       <span className="text-[10px] text-white/40 block">العملاء النشطون</span>
                       <span className="text-lg font-black font-mono text-white">29 لاعب</span>
                     </div>
-                    <div className="bg-[#171228] p-3 rounded-xl border border-white/5">
+                    <div className="bg-surface p-3 rounded-xl border border-white/5">
                       <span className="text-[10px] text-white/40 block">الالتزام اليومي</span>
                       <span className="text-lg font-black font-mono text-[#a78bfa]">86%</span>
                     </div>
                   </div>
 
-                  <div className="bg-[#171228] p-3 rounded-xl border border-white/5 text-xs text-white/70 space-y-1">
+                  <div className="bg-surface p-3 rounded-xl border border-white/5 text-xs text-white/70 space-y-1">
                     <span className="text-[#a78bfa] font-bold block flex items-center gap-1">
                       <Sparkles size={12} /> تنبيه ميغاتروين الصباحي:
                     </span>
@@ -253,7 +253,7 @@ export default function GymRateStyleLandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <div className="bg-[#111116] border border-white/5 hover:border-[#7C3AED]/40 rounded-3xl p-6 space-y-4 transition shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-[#1e1338] border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
+              <div className="w-12 h-12 rounded-2xl bg-card border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
                 <Sparkles size={22} />
               </div>
               <h3 className="text-lg font-bold text-white group-hover:text-[#c4b5fd] transition flex items-center justify-between">
@@ -266,7 +266,7 @@ export default function GymRateStyleLandingPage() {
             </div>
 
             <div className="bg-[#111116] border border-white/5 hover:border-[#7C3AED]/40 rounded-3xl p-6 space-y-4 transition shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-[#1e1338] border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
+              <div className="w-12 h-12 rounded-2xl bg-card border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
                 <Activity size={22} />
               </div>
               <h3 className="text-lg font-bold text-white group-hover:text-[#c4b5fd] transition flex items-center justify-between">
@@ -279,7 +279,7 @@ export default function GymRateStyleLandingPage() {
             </div>
 
             <div className="bg-[#111116] border border-white/5 hover:border-[#7C3AED]/40 rounded-3xl p-6 space-y-4 transition shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-[#1e1338] border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
+              <div className="w-12 h-12 rounded-2xl bg-card border border-[#7C3AED]/30 flex items-center justify-center text-[#c4b5fd]">
                 <ShieldCheck size={22} />
               </div>
               <h3 className="text-lg font-bold text-white group-hover:text-[#c4b5fd] transition">
@@ -434,7 +434,7 @@ export default function GymRateStyleLandingPage() {
                   className={`w-full py-3 rounded-2xl text-xs font-black transition text-center block ${
                     p.popular 
                       ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-lg shadow-[#7C3AED]/30' 
-                      : 'bg-[#1e1338] hover:bg-[#7C3AED] text-[#c4b5fd] hover:text-white border border-[#7C3AED]/30'
+                      : 'bg-card hover:bg-[#7C3AED] text-[#c4b5fd] hover:text-white border border-[#7C3AED]/30'
                   }`}
                 >
                   ابدأ بـ {p.name}

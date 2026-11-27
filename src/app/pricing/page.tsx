@@ -152,9 +152,9 @@ export default function PricingPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#07060c] text-white font-sans selection:bg-[#7C3AED] selection:text-white pb-24">
+    <div dir="rtl" className="min-h-screen bg-background text-white font-sans selection:bg-[#7C3AED] selection:text-white pb-24">
       {/* Top Header */}
-      <header className="border-b border-white/5 bg-[#090b09]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 max-w-7xl mx-auto flex items-center justify-between">
+      <header className="border-b border-white/5 bg-shell/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#7C3AED] to-[#d4f60b] flex items-center justify-center shadow-lg shadow-[#7C3AED]/20">
             <Dumbbell className="w-5 h-5 text-black" />
@@ -412,7 +412,7 @@ export default function PricingPage() {
               <p className="text-xs font-bold text-white">حول المبلغ لحساب إنستاباي التالي:</p>
 
               {/* IPA Field */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#090b09] border border-white/10">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-shell border border-white/10">
                 <div>
                   <span className="text-[10px] text-white/40 block">معرف إنستاباي (IPA):</span>
                   <span className="font-mono text-sm font-bold text-[#d4f60b]">{instapayConfig.instapayUsername}</span>
@@ -428,7 +428,7 @@ export default function PricingPage() {
               </div>
 
               {/* Phone Field */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#090b09] border border-white/10">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-shell border border-white/10">
                 <div>
                   <span className="text-[10px] text-white/40 block">رقم الموبايل المسجل بإنستاباي:</span>
                   <span className="font-mono text-sm font-bold text-white">{instapayConfig.instapayPhone}</span>
@@ -461,7 +461,7 @@ export default function PricingPage() {
                     value={traineeName}
                     onChange={(e) => setTraineeName(e.target.value)}
                     placeholder="مثال: كابتن أحمد - 010xxxxxxxx"
-                    className="w-full bg-[#090b09] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder-white/30 focus:border-[#7C3AED] outline-none"
+                    className="w-full bg-shell border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder-white/30 focus:border-[#7C3AED] outline-none"
                   />
                 </div>
 

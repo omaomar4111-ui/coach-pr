@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0e0918",
+  themeColor: "#07060C",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -90,7 +90,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="font-tajawal bg-[#0e0918] text-white antialiased">
+      <body className="font-tajawal bg-background text-white antialiased">
         {children}
         <PwaInstallPrompt />
         <DeviceTracker />
