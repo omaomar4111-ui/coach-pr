@@ -48,12 +48,12 @@ export default function ClientsList() {
   );
 
   return (
-    <div className="p-6 sm:p-10 bg-[#07050d] min-h-screen text-white font-sans selection:bg-[#a3e635] selection:text-black" dir="rtl">
+    <div className="p-6 sm:p-10 bg-background min-h-screen text-white font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
         <div>
-          <Link href="/dashboard" className="text-white/40 hover:text-[#a3e635] mb-2 inline-flex items-center gap-1.5 text-xs font-semibold transition">
+          <Link href="/dashboard" className="text-white/40 hover:text-[#d4f60b] mb-2 inline-flex items-center gap-1.5 text-xs font-semibold transition">
             <ArrowRight size={14} /> العودة للوحة التحكم
           </Link>
           <h1 className="text-2xl sm:text-3xl font-black text-white">إدارة اللاعبين والمشتركين</h1>
@@ -62,7 +62,7 @@ export default function ClientsList() {
 
         <button 
           onClick={() => setIsAdding(!isAdding)} 
-          className="bg-[#a3e635] hover:bg-[#8fd128] text-black px-4 py-2.5 rounded-2xl flex items-center gap-2 font-extrabold text-xs shadow-lg shadow-[#a3e635]/20 cursor-pointer transition"
+          className="bg-[#d4f60b] hover:bg-[#c2e205] text-black px-4 py-2.5 rounded-2xl flex items-center gap-2 font-extrabold text-xs shadow-lg shadow-[#d4f60b]/20 cursor-pointer transition"
         >
           <UserPlus size={16} /> إضافة لاعب جديد
         </button>
@@ -70,8 +70,8 @@ export default function ClientsList() {
 
       {/* Add Client Card */}
       {isAdding && (
-        <div className="bg-[#100c1e] p-6 sm:p-8 rounded-3xl border border-white/10 mb-8 space-y-4 animate-in fade-in">
-          <div className="flex items-center gap-2 text-[#a3e635]">
+        <div className="bg-card p-6 sm:p-8 rounded-3xl border border-white/10 mb-8 space-y-4 animate-in fade-in">
+          <div className="flex items-center gap-2 text-[#d4f60b]">
             <Sparkles size={18} />
             <h2 className="text-lg font-bold text-white">تسجيل بيانات بطل جديد</h2>
           </div>
@@ -82,7 +82,7 @@ export default function ClientsList() {
               <input 
                 required 
                 placeholder="مثال: أحمد عبد الله" 
-                className="w-full bg-[#171228] border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#a3e635] transition text-xs" 
+                className="w-full bg-surface border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#d4f60b] transition text-xs" 
                 value={newClient.name} 
                 onChange={e => setNewClient({...newClient, name: e.target.value})} 
               />
@@ -93,7 +93,7 @@ export default function ClientsList() {
               <input 
                 required 
                 placeholder="مثال: 01012345678" 
-                className="w-full bg-[#171228] border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#a3e635] transition text-xs" 
+                className="w-full bg-surface border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#d4f60b] transition text-xs" 
                 value={newClient.phone} 
                 onChange={e => setNewClient({...newClient, phone: e.target.value})} 
               />
@@ -103,7 +103,7 @@ export default function ClientsList() {
               <label className="text-white/70 font-semibold">الهدف التدريبي</label>
               <input 
                 placeholder="تضخيم عضلي صافي / تنشيف ودهون أقل" 
-                className="w-full bg-[#171228] border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#a3e635] transition text-xs" 
+                className="w-full bg-surface border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#d4f60b] transition text-xs" 
                 value={newClient.goal} 
                 onChange={e => setNewClient({...newClient, goal: e.target.value})} 
               />
@@ -113,7 +113,7 @@ export default function ClientsList() {
               <label className="text-white/70 font-semibold">إصابات سابقة أو تنبيهات طبية</label>
               <input 
                 placeholder="خشونة ركبة خفيفة / إصابة كتف قديمة" 
-                className="w-full bg-[#171228] border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#a3e635] transition text-xs" 
+                className="w-full bg-surface border border-white/10 rounded-2xl p-3 text-white focus:outline-none focus:border-[#d4f60b] transition text-xs" 
                 value={newClient.injuries} 
                 onChange={e => setNewClient({...newClient, injuries: e.target.value})} 
               />
@@ -129,7 +129,7 @@ export default function ClientsList() {
               </button>
               <button 
                 type="submit" 
-                className="bg-[#a3e635] hover:bg-[#8fd128] text-black px-6 py-2.5 rounded-2xl font-black text-xs transition"
+                className="bg-[#d4f60b] hover:bg-[#c2e205] text-black px-6 py-2.5 rounded-2xl font-black text-xs transition"
               >
                 تأكيد وحفظ اللاعب
               </button>
@@ -146,15 +146,15 @@ export default function ClientsList() {
           placeholder="ابحث بالاسم أو رقم الهاتف..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full bg-[#100c1e] border border-white/10 rounded-2xl pr-11 pl-4 py-3 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#a3e635] transition"
+          className="w-full bg-card border border-white/10 rounded-2xl pr-11 pl-4 py-3 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#d4f60b] transition"
         />
       </div>
 
       {/* Clients Cards Table */}
-      <div className="bg-[#100c1e] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+      <div className="bg-card rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-right text-xs">
-            <thead className="bg-[#171228] border-b border-white/10 text-white/50 text-[11px]">
+            <thead className="bg-surface border-b border-white/10 text-white/50 text-[11px]">
               <tr>
                 <th className="p-4 font-semibold">الاسم</th>
                 <th className="p-4 font-semibold">الهاتف</th>
@@ -174,7 +174,7 @@ export default function ClientsList() {
                 filteredClients.map(client => (
                   <tr key={client.id} className="hover:bg-white/[0.02] transition">
                     <td className="p-4 font-bold text-white flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#171228] border border-white/10 flex items-center justify-center text-[#a3e635] font-black text-xs">
+                      <div className="w-8 h-8 rounded-xl bg-surface border border-white/10 flex items-center justify-center text-[#d4f60b] font-black text-xs">
                         {client.name ? client.name.charAt(0) : 'ب'}
                       </div>
                       <span>{client.name}</span>
@@ -182,14 +182,14 @@ export default function ClientsList() {
                     <td className="p-4 text-white/60 font-mono" dir="ltr">{client.phone}</td>
                     <td className="p-4 text-white/60">{client.goal || 'تضخيم وتطوير القوة'}</td>
                     <td className="p-4">
-                      <span className="bg-[#1a2312] border border-[#a3e635]/30 text-[#bef264] px-2.5 py-1 rounded-xl text-[10px] font-bold">
+                      <span className="bg-[#161c10] border border-[#d4f60b]/30 text-[#d4f60b] px-2.5 py-1 rounded-xl text-[10px] font-bold">
                         نشط ومتابع
                       </span>
                     </td>
                     <td className="p-4 text-center">
                       <Link 
                         href={`/dashboard/clients/${client.id}`}
-                        className="bg-[#171228] hover:bg-[#a3e635] hover:text-black border border-white/10 text-[#a3e635] px-3.5 py-1.5 rounded-xl text-xs font-bold transition inline-flex items-center gap-1"
+                        className="bg-surface hover:bg-[#d4f60b] hover:text-black border border-white/10 text-[#d4f60b] px-3.5 py-1.5 rounded-xl text-xs font-bold transition inline-flex items-center gap-1"
                       >
                         البيانات والتطور التدريبي
                         <ChevronRight size={14} className="rotate-180" />

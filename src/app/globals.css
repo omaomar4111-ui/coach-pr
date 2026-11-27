@@ -1,28 +1,36 @@
 @import "tailwindcss";
 
-/* ===================================================
-   Dark Luxury Cyber-Cinema Aesthetic Design System
-   for CoachPR (كوتش بي آر بي)
-   Palette:
-   --space-void: #07050d
-   --space-abyss: #0b0d17
-   --glass-surface: rgba(16, 12, 28, 0.85)
-   --cyber-glow-start: #8b5cf6
-   --cyber-glow-end: #7c3aed
-   --laser-edge: rgba(168, 85, 247, 0.25)
-   --hud-green: #10b981
-   --hud-amber: #f59e0b
-   --hud-magenta: #d946ef
-=================================================== */
+@theme {
+  --color-background: #07060C;
+  --color-shell: #090A0A;
+  --color-card: #111116;
+  --color-surface: #1D1D22;
+  --color-border: #24242B;
+  --color-primary: #D4F60B;
+  --color-secondary: #7C3AED;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #A1A1AA;
+}
 
 :root {
-  --space-void: #07050d;
-  --space-abyss: #0b0d17;
-  --glass-surface: rgba(16, 12, 28, 0.85);
-  --glass-surface-hover: rgba(26, 19, 45, 0.95);
+  /* CoachPR Official Global Design Tokens */
+  --cp-background: #07060C;
+  --cp-shell: #090A0A;
+  --cp-card: #111116;
+  --cp-surface-elevated: #1D1D22;
+  --cp-border: #24242B;
+  --cp-primary: #D4F60B;
+  --cp-secondary: #7C3AED;
+  --cp-text-primary: #F5F5F5;
+  --cp-text-secondary: #A1A1AA;
+
+  --space-void: #07060C;
+  --space-abyss: #090A0A;
+  --glass-surface: rgba(17, 17, 22, 0.85);
+  --glass-surface-hover: rgba(29, 29, 34, 0.95);
   --cyber-glow-start: #8b5cf6;
   --cyber-glow-end: #7c3aed;
-  --laser-edge: rgba(168, 85, 247, 0.25);
+  --laser-edge: rgba(124, 58, 237, 0.25);
   --laser-edge-bright: rgba(192, 132, 252, 0.6);
   --hud-green: #10b981;
   --hud-amber: #f59e0b;
@@ -32,31 +40,17 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #07050d !important;
-  color: #ffffff !important;
+  background-color: #07060C !important;
+  color: #F5F5F5 !important;
   font-family: var(--font-tajawal), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED;
-}
-
 /* Cosmic Space Void Background with Subtle Radial Aura */
 .bg-space-void {
-  background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15) 0%, #07050d 70%),
+  background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15) 0%, #07060C 70%),
               radial-gradient(circle at 100% 50%, rgba(217, 70, 239, 0.08) 0%, transparent 50%),
-              #07050d;
+              #07060C;
 }
 
 /* High-End Glassmorphism Surfaces */

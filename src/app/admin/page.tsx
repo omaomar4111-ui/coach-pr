@@ -156,7 +156,7 @@ export default function SuperAdminConsolePage() {
   // If not authenticated, render secure passcode modal lock screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#07060c] text-white flex flex-col items-center justify-center p-4 font-sans select-none" dir="rtl">
+      <div className="min-h-screen bg-background text-white flex flex-col items-center justify-center p-4 font-sans select-none" dir="rtl">
         <div className="w-full max-w-md bg-[#0e110e] border border-[#d4f60b]/30 rounded-3xl p-8 shadow-[0_20px_70px_rgba(0,0,0,0.9)] space-y-6 text-center">
           
           {/* Lock Emblem */}
@@ -207,10 +207,10 @@ export default function SuperAdminConsolePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07060c] text-white flex flex-col font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
+    <div className="min-h-screen bg-background text-white flex flex-col font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
       {/* Top Navbar */}
-      <header className="h-16 border-b border-white/5 bg-[#090b09]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
+      <header className="h-16 border-b border-white/5 bg-shell/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED]/40 flex items-center justify-center font-black text-sm text-white shadow-[0_0_12px_rgba(124,58,237,0.5)]">
             PR
@@ -259,7 +259,7 @@ export default function SuperAdminConsolePage() {
             </div>
           </div>
 
-          <div className="bg-[#111411] border border-white/5 p-5 rounded-2xl">
+          <div className="bg-card border border-white/5 p-5 rounded-2xl">
             <span className="text-xs font-semibold text-white/50 block mb-1">إجمالي الكباتن المعتمدين</span>
             <div className="flex items-baseline justify-between">
               <h3 className="text-3xl font-black font-mono text-white">
@@ -269,7 +269,7 @@ export default function SuperAdminConsolePage() {
             </div>
           </div>
 
-          <div className="bg-[#111411] border border-white/5 p-5 rounded-2xl">
+          <div className="bg-card border border-white/5 p-5 rounded-2xl">
             <span className="text-xs font-semibold text-white/50 block mb-1">إجمالي إيرادات المنصة</span>
             <div className="flex items-baseline gap-1.5">
               <h3 className="text-3xl font-black font-mono text-white">74,200</h3>
@@ -277,7 +277,7 @@ export default function SuperAdminConsolePage() {
             </div>
           </div>
 
-          <div className="bg-[#111411] border border-white/5 p-5 rounded-2xl">
+          <div className="bg-card border border-white/5 p-5 rounded-2xl">
             <span className="text-xs font-semibold text-white/50 block mb-1">نسبة نمو الاشتراكات</span>
             <div className="flex items-baseline justify-between">
               <h3 className="text-3xl font-black font-mono text-[#d4f60b]">+38.5%</h3>
@@ -289,7 +289,7 @@ export default function SuperAdminConsolePage() {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-[#111411] border border-white/5 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => setFilter("pending")}
@@ -340,14 +340,14 @@ export default function SuperAdminConsolePage() {
         {/* Applications List */}
         <div className="space-y-4">
           {filtered.length === 0 ? (
-            <div className="bg-[#111411] border border-white/5 rounded-2xl p-12 text-center text-white/40 text-sm">
+            <div className="bg-card border border-white/5 rounded-2xl p-12 text-center text-white/40 text-sm">
               لا توجد طلبات تطابق الفلتر الحالي.
             </div>
           ) : (
             filtered.map((coach) => (
               <div
                 key={coach.id}
-                className="bg-[#111411] border border-white/10 hover:border-[#d4f60b]/30 p-5 rounded-2xl transition space-y-4"
+                className="bg-card border border-white/10 hover:border-[#d4f60b]/30 p-5 rounded-2xl transition space-y-4"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   {/* Coach Identity Info */}

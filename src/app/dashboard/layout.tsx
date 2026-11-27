@@ -163,10 +163,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isMegatronOpen, setIsMegatronOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#07060c] text-white overflow-hidden font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
+    <div className="flex h-screen bg-background text-white overflow-hidden font-sans selection:bg-[#d4f60b] selection:text-black" dir="rtl">
       
       {/* Enterprise Full-Fledged Luxury Sidebar */}
-      <aside className="w-64 border-l border-white/5 bg-[#090b09] flex flex-col hidden xl:flex shrink-0 z-30">
+      <aside className="w-64 border-l border-white/5 bg-shell flex flex-col hidden xl:flex shrink-0 z-30">
         
         {/* Header Logo: Official PR Emblem */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-white/5">
@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Suspense>
 
         {/* Bottom Profile Bar */}
-        <div className="p-3 border-t border-white/5 bg-[#07060c] flex items-center justify-between">
+        <div className="p-3 border-t border-white/5 bg-background flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#a855f7] border border-[#7C3AED] flex items-center justify-center text-white font-black text-xs shadow-sm shadow-[#7C3AED]/40">
               PR
@@ -208,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
         {/* Top Navbar */}
-        <header className="h-16 border-b border-white/5 bg-[#090b09]/95 backdrop-blur-md flex items-center justify-between px-6 z-20 shrink-0">
+        <header className="h-16 border-b border-white/5 bg-shell/95 backdrop-blur-md flex items-center justify-between px-6 z-20 shrink-0">
           
           {/* Search Bar with Keyboard Hint */}
           <div className="flex items-center gap-4 flex-1 max-w-md">
@@ -217,7 +217,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <input 
                 type="text" 
                 placeholder="ابحث في الصفحات والإجراءات..." 
-                className="w-full bg-[#111411] border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b] transition"
+                className="w-full bg-card border border-white/10 rounded-full py-2 pr-9 pl-12 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#d4f60b] transition"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/30 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
                 Ctrl+K
@@ -239,7 +239,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <Link 
               href="/app" 
-              className="text-xs font-bold text-white/70 hover:text-[#d4f60b] bg-[#111411] border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
+              className="text-xs font-bold text-white/70 hover:text-[#d4f60b] bg-card border border-white/10 px-3 py-2 rounded-full hidden sm:flex items-center gap-1.5 transition"
             >
               <span>تطبيق اللاعب</span>
             </Link>
@@ -253,13 +253,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page Content Scroll Container */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 relative bg-gradient-to-b from-[#07060c] via-[#090b09] to-[#07060c]">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 relative bg-gradient-to-b from-background via-shell to-background">
           {children}
 
           {/* Floating AI Pulse Button triggers Megatron Modal */}
           <button
             onClick={() => setIsMegatronOpen(true)}
-            className="fixed bottom-8 left-8 w-14 h-14 bg-[#111411] border border-[#d4f60b]/50 text-[#d4f60b] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,246,11,0.35)] hover:scale-110 transition-transform z-40 group cursor-pointer"
+            className="fixed bottom-8 left-8 w-14 h-14 bg-card border border-[#d4f60b]/50 text-[#d4f60b] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,246,11,0.35)] hover:scale-110 transition-transform z-40 group cursor-pointer"
             title="المساعد الذكي (ميجاترون AI)"
           >
             <Sparkles size={24} className="group-hover:rotate-12 transition-transform text-[#d4f60b]" />
@@ -282,7 +282,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         richColors 
         toastOptions={{
           style: {
-            background: '#111411',
+            background: '#111116',
             border: '1px solid rgba(212, 246, 11, 0.3)',
             color: '#fff',
             borderRadius: '1rem',

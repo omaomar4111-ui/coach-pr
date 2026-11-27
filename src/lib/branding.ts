@@ -6,11 +6,11 @@ export interface TenantBranding {
   brandName: string;
   logoUrl?: string;
   faviconUrl?: string;
-  primaryColor: string; // default: #d4f60b
+  primaryColor: string; // default: #D4F60B
   secondaryColor: string; // default: #7C3AED
-  backgroundColor: string; // default: #08090b
-  cardColor: string; // default: #11141a
-  textColor: string; // default: #f2f4f6
+  backgroundColor: string; // default: #07060C
+  cardColor: string; // default: #111116
+  textColor: string; // default: #F5F5F5
   coachName: string;
   coachTitle: string;
   coachAvatar: string;
@@ -24,11 +24,11 @@ export interface TenantBranding {
 export const DEFAULT_BRANDING: TenantBranding = {
   tenantId: 'coachpr_default',
   brandName: 'CoachPR',
-  primaryColor: '#d4f60b',
+  primaryColor: '#D4F60B',
   secondaryColor: '#7C3AED',
-  backgroundColor: '#08090b',
-  cardColor: '#11141a',
-  textColor: '#f2f4f6',
+  backgroundColor: '#07060C',
+  cardColor: '#111116',
+  textColor: '#F5F5F5',
   coachName: 'كابتن تامر سيف',
   coachTitle: 'مدرب لياقة بدنية معتمد NASM & Olympia Coach',
   coachAvatar: 'كأ',
@@ -42,10 +42,10 @@ export const DEFAULT_BRANDING: TenantBranding = {
  */
 export function getThemeTokens(branding: TenantBranding = DEFAULT_BRANDING): Record<string, string> {
   return {
-    '--cpr-brand-primary': branding.primaryColor || '#d4f60b',
+    '--cpr-brand-primary': branding.primaryColor || '#D4F60B',
     '--cpr-brand-secondary': branding.secondaryColor || '#7C3AED',
-    '--cpr-brand-bg': branding.backgroundColor || '#08090b',
-    '--cpr-brand-card': branding.cardColor || '#11141a',
-    '--cpr-brand-text': branding.textColor || '#f2f4f6'
+    '--cpr-brand-bg': branding.backgroundColor || '#07060C',
+    '--cpr-brand-card': branding.cardColor || '#111116',
+    '--cpr-brand-text': branding.textColor || '#F5F5F5'
   };
 }

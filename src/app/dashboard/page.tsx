@@ -183,7 +183,7 @@ export default function DashboardOverview() {
                     tickFormatter={val => `${val}`}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#111411', border: '1px solid rgba(212,246,11,0.3)', borderRadius: '12px', fontSize: '11px' }}
+                    contentStyle={{ backgroundColor: '#111116', border: '1px solid rgba(212,246,11,0.3)', borderRadius: '12px', fontSize: '11px' }}
                     itemStyle={{ color: '#d4f60b' }}
                   />
                   <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
