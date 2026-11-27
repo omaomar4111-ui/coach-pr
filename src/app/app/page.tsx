@@ -54,6 +54,19 @@ export default function AthleteMobileApp() {
 
   // Athlete & Coach Live State
   const [homeData, setHomeData] = useState<any>(null);
+  const [tenantBrand, setTenantBrand] = useState<{
+    brandName: string;
+    logoUrl: string;
+    primaryColor: string;
+    secondaryColor: string;
+    announcement: string;
+  }>({
+    brandName: 'CoachPR',
+    logoUrl: '/brand-pr-logo.png',
+    primaryColor: '#D4F60B',
+    secondaryColor: '#7C3AED',
+    announcement: 'عاش يا وحش! ركز في التمرين على أقصى استجابة عضلية.'
+  });
   const [workoutSession, setWorkoutSession] = useState<any>(null);
   
   // Workout Execution State
@@ -131,6 +144,15 @@ export default function AthleteMobileApp() {
       const json = await res.json();
       if (json.success && json.data) {
         setHomeData(json.data);
+        if (json.data.coach) {
+          setTenantBrand({
+            brandName: json.data.coach.brandName || 'CoachPR',
+            logoUrl: json.data.coach.logoUrl || '/brand-pr-logo.png',
+            primaryColor: json.data.coach.primaryColor || '#D4F60B',
+            secondaryColor: json.data.coach.secondaryColor || '#7C3AED',
+            announcement: json.data.coach.announcement || 'عاش يا وحش!'
+          });
+        }
         setWorkoutSession(json.data.todayWorkout);
 
         // Cache assigned workout in IndexedDB for offline gym sessions
@@ -299,8 +321,19 @@ export default function AthleteMobileApp() {
         
         {/* User Brand & Identity */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#d4f60b] text-[#07080a] font-black flex items-center justify-center text-xs shadow-[0_0_15px_rgba(212,246,11,0.4)]">
-            {homeData?.athlete?.avatar || 'كأ'}
+          <div 
+            className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shadow-lg overflow-hidden border"
+            style={{ 
+              backgroundColor: tenantBrand.primaryColor,
+              color: '#07080a',
+              borderColor: `${tenantBrand.primaryColor}60`
+            }}
+          >
+            {tenantBrand.logoUrl && tenantBrand.logoUrl !== '/brand-pr-logo.png' ? (
+              <img src={tenantBrand.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              homeData?.athlete?.avatar || 'كأ'
+            )}
           </div>
           <div>
             <h1 className="text-xs font-black text-white flex items-center gap-1.5">
@@ -483,14 +516,29 @@ export default function AthleteMobileApp() {
             </div>
 
             {/* COACH ANNOUNCEMENT */}
-            <div className="cpr-card p-4 bg-gradient-to-l from-[#11141a] to-[#161224] border border-[#7C3AED]/30 flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#7C3AED]/20 border border-[#7C3AED]/40 flex items-center justify-center shrink-0 text-[#c4b5fd]">
+            <div 
+              className="cpr-card p-4 border flex items-start gap-3 transition-colors"
+              style={{
+                backgroundColor: '#111116',
+                borderColor: `${tenantBrand.secondaryColor}40`
+              }}
+            >
+              <div 
+                className="w-9 h-9 rounded-xl border flex items-center justify-center shrink-0"
+                style={{
+                  backgroundColor: `${tenantBrand.secondaryColor}25`,
+                  borderColor: `${tenantBrand.secondaryColor}50`,
+                  color: tenantBrand.secondaryColor
+                }}
+              >
                 <Sparkles size={16} />
               </div>
               <div className="space-y-0.5">
-                <span className="text-[10px] font-bold text-[#c4b5fd] block">توجيه كابتن تامر اليومي</span>
+                <span className="text-[10px] font-bold block" style={{ color: tenantBrand.secondaryColor }}>
+                  توجيه {tenantBrand.brandName} اليومي
+                </span>
                 <p className="text-xs text-white/80 leading-relaxed">
-                  {homeData?.coach?.announcement || "عاش يا وحش! ركز في التمرين على التحكم في النزول السلبي لتوليد أقصى استجابة عضلية."}
+                  {tenantBrand.announcement}
                 </p>
               </div>
             </div>

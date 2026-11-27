@@ -122,7 +122,12 @@ export async function GET(req: NextRequest) {
         name: coachData?.full_name || "كابتن تامر سيف (Coach Tamer)",
         brandName: coachData?.brand_name || "CoachPR Master",
         phone: coachData?.phone || "01012345678",
-        announcement: "عاش يا وحش! ركّز النهاردة في تمرين الصدر على التحكم في النزول السلبي (3 ثواني) لتوليد أقصى استجابة عضلية."
+        announcement: coachData?.settings?.welcomeMessage || "عاش يا وحش! ركّز النهاردة في تمرين الصدر على التحكم في النزول السلبي (3 ثواني) لتوليد أقصى استجابة عضلية.",
+        logoUrl: coachData?.settings?.logoUrl || "/brand-pr-logo.png",
+        appIconUrl: coachData?.settings?.appIconUrl || "/brand-pr-logo.png",
+        primaryColor: coachData?.settings?.primaryColor || "#D4F60B",
+        secondaryColor: coachData?.settings?.secondaryColor || "#7C3AED",
+        coachTitle: coachData?.settings?.coachTitle || "مدرب لياقة بدنية معتمد NASM & Olympia Coach"
       },
       tenOfTen: {
         score: 8,
