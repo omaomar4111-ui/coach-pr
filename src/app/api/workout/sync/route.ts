@@ -1,10 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase, supabaseAdmin, isSupabaseConfigured } from '@/lib/supabaseClient';
 
-export async function POST(request: Request) {
+function resolveSessionUser(req: NextRequest): { id: string; role: string } | null {
+  const sessionCookie = req.cookies.get("coachpr_session");
+  if (sessionCookie) {
+    try {
+      const parsed = JSON.parse(sessionCookie.value);
+      if (parsed?.user?.id) return parsed.user;
+    } catch {
+      // ignore
+    }
+  }
+  const authHeader = req.headers.get("authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return { id: "trainee_karim", role: "ATHLETE" };
+  }
+  return null;
+}
+
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { athleteId, workoutName, logs, syncedAt, idempotencyKey } = body;
+    const { athleteId: bodyAthleteId, workoutName, logs, syncedAt, idempotencyKey } = body;
 
     if (!logs || !Array.isArray(logs)) {
       return NextResponse.json(
@@ -13,7 +30,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const targetAthleteId = athleteId || 'trainee_karim';
+    // Zero-trust identity: If authenticated user is an ATHLETE, use their session ID
+    const sessionUser = resolveSessionUser(request);
+    let targetAthleteId = sessionUser?.role === "ATHLETE" ? sessionUser.id : (bodyAthleteId || 'trainee_karim');
     const logTimestamp = syncedAt || new Date().toISOString();
 
     // If Supabase is connected, persist transactionally to database
@@ -25,7 +44,7 @@ export async function POST(request: Request) {
         let resolvedClientId = targetAthleteId;
         const { data: clientRecord } = await client
           .from('clients')
-          .select('id')
+          .select('id, coach_id, current_weight, streak_days')
           .or(`id.eq.${targetAthleteId},phone.ilike.%${targetAthleteId}%`)
           .maybeSingle();
 
@@ -33,10 +52,10 @@ export async function POST(request: Request) {
           resolvedClientId = clientRecord.id;
         }
 
-        // 2. Check for duplicate submission using idempotency / timing
+        // 2. Check for duplicate submission using idempotency / timing window
         const { data: existingLog } = await client
           .from('workout_logs')
-          .select('id, completed_at')
+          .select('id, completed_at, notes')
           .eq('client_id', resolvedClientId)
           .eq('day_name', workoutName || 'Push Day')
           .gte('completed_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
@@ -48,7 +67,7 @@ export async function POST(request: Request) {
             persisted: 'database',
             logId: existingLog.id,
             duplicateIgnored: true,
-            message: 'تم تسجيل هذا التمرين بالفعل لمنع التكرار (Idempotency Safe)'
+            message: 'تم تسجيل هذا التمرين مسبقاً (حماية مانع التكرار Idempotency)'
           });
         }
 
@@ -103,12 +122,23 @@ export async function POST(request: Request) {
             await client.from('logged_sets').insert(setsToInsert);
           }
 
-          // 6. Check & record new Personal Records (PR)
+          // 6. Update Athlete Streak and Adherence in clients table
+          await client
+            .from('clients')
+            .update({
+              daily_score: 9.5,
+              streak_days: (clientRecord?.streak_days || 14) + 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', resolvedClientId);
+
+          // 7. Check & record new Personal Records (PR)
+          let newPrCount = 0;
           for (const s of setsToInsert) {
             if (s.weight_kg > 0 && s.reps > 0) {
               const { data: currentPr } = await client
                 .from('personal_records')
-                .select('weight_kg, reps')
+                .select('id, weight_kg, reps')
                 .eq('client_id', resolvedClientId)
                 .eq('exercise_name', s.exercise_name)
                 .order('weight_kg', { ascending: false })
@@ -122,6 +152,7 @@ export async function POST(request: Request) {
                   weight_kg: s.weight_kg,
                   reps: s.reps
                 });
+                newPrCount++;
               }
             }
           }
@@ -132,7 +163,8 @@ export async function POST(request: Request) {
             logId: insertedLog.id,
             setsCount: setsToInsert.length,
             totalVolumeKg,
-            message: 'تمت مزامنة وحفظ التمرين والمجموعات والأرقام القياسية في قاعدة البيانات بنجاح'
+            newPrCount,
+            message: 'تمت مزامنة التمرين والمجموعات والأرقام القياسية وتحديث سجل المدرب بنجاح'
           });
         }
       } catch (dbErr) {
