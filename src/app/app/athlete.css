@@ -1,0 +1,115 @@
+/* CoachPR Luxury Trainee PWA Stylesheet */
+/* Color tokens: Matte Black #08090b / #000000, Carbon Dark #111418, Lime #d4f60b, Royal Purple #7C3AED */
+
+:root {
+  --cpr-app-bg: #07080a;
+  --cpr-app-card: #11141a;
+  --cpr-app-card-raised: #161b22;
+  --cpr-app-border: #212631;
+  --cpr-app-lime: #d4f60b;
+  --cpr-app-lime-glow: rgba(212, 246, 11, 0.25);
+  --cpr-app-purple: #7C3AED;
+  --cpr-app-purple-glow: rgba(124, 58, 237, 0.25);
+  --cpr-app-text: #f3f5f8;
+  --cpr-app-muted: #848a97;
+}
+
+.cpr-app-container {
+  background-color: var(--cpr-app-bg);
+  min-height: 100vh;
+  color: var(--cpr-app-text);
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glass Header */
+.cpr-app-header {
+  background: rgba(13, 16, 22, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--cpr-app-border);
+}
+
+/* Cards & Widgets */
+.cpr-card {
+  background-color: var(--cpr-app-card);
+  border: 1px solid var(--cpr-app-border);
+  border-radius: 18px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.cpr-card:hover {
+  border-color: rgba(212, 246, 11, 0.35);
+}
+
+.cpr-card-glow {
+  box-shadow: 0 0 25px var(--cpr-app-lime-glow);
+  border-color: rgba(212, 246, 11, 0.4);
+}
+
+/* 10/10 Radial / Progress Ring */
+.cpr-radial-ring {
+  background: conic-gradient(
+    var(--cpr-app-lime) calc(var(--adherence-percent, 80) * 1%),
+    rgba(255, 255, 255, 0.08) 0
+  );
+  border-radius: 50%;
+}
+
+/* Sets Input Matrix */
+.cpr-set-row {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cpr-set-row.is-completed {
+  background: linear-gradient(90deg, rgba(212, 246, 11, 0.08) 0%, rgba(17, 20, 26, 0.6) 100%);
+  border-color: rgba(212, 246, 11, 0.3);
+}
+
+/* Primary Lime Action Button */
+.cpr-btn-primary {
+  background-color: var(--cpr-app-lime);
+  color: #07080a;
+  font-weight: 850;
+  border-radius: 14px;
+  box-shadow: 0 0 20px var(--cpr-app-lime-glow);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.cpr-btn-primary:active {
+  transform: scale(0.97);
+  filter: brightness(0.92);
+}
+
+/* Secondary Purple Accent Button */
+.cpr-btn-secondary {
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  color: #c4b5fd;
+  font-weight: 700;
+  border-radius: 14px;
+}
+
+.cpr-btn-secondary:hover {
+  background: rgba(124, 58, 237, 0.25);
+}
+
+/* Rest Timer Pulse */
+@keyframes timerPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 246, 11, 0.4); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(212, 246, 11, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 246, 11, 0); }
+}
+
+.cpr-timer-active {
+  animation: timerPulse 2s infinite;
+}
+
+/* Bottom Navigation Bar */
+.cpr-bottom-nav {
+  background: rgba(10, 13, 18, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--cpr-app-border);
+}
