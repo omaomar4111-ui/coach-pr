@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     // Fire-and-forget audit log for business funnel
     await logAudit({
       actorId: eventRecord.coachId,
-      actorRole: "coach",
+      actorRole: "system",
       action: `funnel.${eventRecord.eventName}`,
       resourceType: "system",
       resourceId: eventRecord.id,
