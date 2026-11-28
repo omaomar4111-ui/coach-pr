@@ -32,6 +32,7 @@ import {
   Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackFunnelEvent } from '@/lib/funnelTracker';
 import { 
   cacheWorkoutOffline, 
   getCachedWorkout, 
@@ -272,6 +273,10 @@ export default function AthleteMobileApp() {
         });
         if (res.ok) {
           toast.success('عاش يا بطل! تم تسجيل وحفظ تمرينك بالكامل في قاعدة البيانات.');
+          trackFunnelEvent('first_workout_completed', {
+            athleteId: homeData?.athlete?.id || 'trainee_karim',
+            metadata: { workoutId: workoutSession.id, exerciseCount: workoutSession.exercises?.length }
+          });
           return;
         }
       } catch (e) {
