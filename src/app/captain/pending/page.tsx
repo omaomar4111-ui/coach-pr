@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Hourglass, Bell, Check, LogOut } from 'lucide-react';
 import { Logo } from '@/components/Logo';
+import { trackFunnelEvent } from '@/lib/funnelTracker';
 
 export default function CaptainOnboardingPendingPage() {
   const [step, setStep] = useState<'form' | 'under_review'>('form');
@@ -27,6 +28,13 @@ export default function CaptainOnboardingPendingPage() {
       return;
     }
     setIsSubmitting(true);
+    trackFunnelEvent('demo_booked', {
+      metadata: { fullName, whatsapp, instagram, traineeCount, biggestChallenge }
+    });
+    trackFunnelEvent('coach_signup', {
+      coachId: whatsapp,
+      metadata: { fullName, whatsapp }
+    });
     setTimeout(() => {
       setIsSubmitting(false);
       setStep('under_review');

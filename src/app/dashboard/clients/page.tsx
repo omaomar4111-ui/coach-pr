@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserPlus, Search, ChevronRight, Dumbbell, ArrowRight, ShieldCheck, Phone, Target, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackFunnelEvent } from '@/lib/funnelTracker';
 
 export default function ClientsList() {
   const [clients, setClients] = useState<any[]>([]);
@@ -30,6 +31,10 @@ export default function ClientsList() {
       if (res.ok) {
         toast.success('تمت إضافة البطل بنجاح! ⚡', {
           description: `تم تسجيل ${newClient.name}، ويمكنك الآن تصميم جدوله التدريبي.`
+        });
+        trackFunnelEvent('athlete_invited', {
+          athleteId: newClient.phone,
+          metadata: { name: newClient.name, goal: newClient.goal }
         });
         setIsAdding(false);
         setNewClient({ name: '', phone: '', goal: '', injuries: '' });

@@ -29,6 +29,7 @@ import {
   Check
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackFunnelEvent } from '@/lib/funnelTracker';
 
 // Curated Exercise Library with Muscle Groups & Equipment
 export interface ExerciseDefinition {
@@ -243,6 +244,10 @@ export default function WorkoutBuilder() {
   const handleSave = () => {
     setSaveSuccess(true);
     toast.success('تم حفظ الخطة التدريبية بنجاح في ملف المتدرب!');
+    // Value Activation: Coach created & saved their first workout plan
+    trackFunnelEvent('coach_activated', {
+      metadata: { action: 'workout_plan_saved', totalDays: days.length }
+    });
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
