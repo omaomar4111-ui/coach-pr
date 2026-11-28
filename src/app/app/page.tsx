@@ -96,6 +96,12 @@ export default function AthleteMobileApp() {
       const { synced, failed } = await syncPendingOperations();
       if (synced > 0) {
         toast.success(`تمت مزامنة ${synced} عمليات بنجاح مع السيرفر!`);
+        // Guaranteed Delivery: Trigger first_workout_completed upon successful background sync recovery
+        trackFunnelEvent('first_workout_completed', {
+          athleteId: homeData?.athlete?.id || 'trainee_karim',
+          metadata: { syncedCount: synced, source: 'offline_replay_sync' },
+          dedupKey: `coachpr_fnl_first_workout_completed_${homeData?.athlete?.id || 'trainee_karim'}`
+        });
       }
       const pending = await getPendingSyncOperations();
       setPendingSyncCount(pending.length);
