@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { initGlobalErrorMonitoring } from "@/lib/errorMonitoring";
 
 export default function DeviceTracker() {
   useEffect(() => {
+    // 1. Initialize client-side error monitoring
+    initGlobalErrorMonitoring();
+
+    // 2. Telemetry ping
     try {
       const screenResolution = `${window.screen.width}x${window.screen.height} (DPR: ${window.devicePixelRatio || 1})`;
       
